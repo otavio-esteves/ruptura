@@ -89,6 +89,15 @@ func _style(label: Label, position_value: Vector2, font_size: int) -> void:
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(label)
 
+func attach(actor: CharacterBody2D, level_director: Node2D, mission: bool) -> void:
+	player = actor
+	director = level_director
+	is_mission = mission
+	_result_visible = false
+	result.hide()
+	boss_bar.hide()
+	boss_label.hide()
+
 func _process(_delta: float) -> void:
 	if not is_instance_valid(player) or not is_instance_valid(director):
 		return

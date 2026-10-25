@@ -192,14 +192,11 @@ func _build_world() -> void:
 		director.setup(player, checkpoint, sound_bank, settings.assisted)
 	camera.reset_smoothing()
 	_apply_live_settings()
-	if is_instance_valid(hud):
-		hud.queue_free()
-	hud = HUD.new()
-	hud.player = player
-	hud.director = director
-	hud.is_mission = mission_mode == "cinzas"
-	add_child(hud)
-	hud.retry_requested.connect(_retry)
+	if not is_instance_valid(hud):
+		hud = HUD.new()
+		add_child(hud)
+		hud.retry_requested.connect(_retry)
+	hud.attach(player, director, mission_mode == "cinzas")
 	overlay.player = player
 	_sector_banner()
 
@@ -243,8 +240,10 @@ func _rebuild() -> void:
 	player = null
 	director = null
 	camera = null
-	if is_instance_valid(hud): hud.queue_free()
-	hud = null
+	if is_instance_valid(hud):
+		hud.player = null
+		hud.director = null
+		hud.hide()
 	_start()
 
 func _checkpoint_reached(stage: int, evidence: bool, finished: bool) -> void:
