@@ -38,6 +38,8 @@ def main():
             run(command + ["--quit-after", "120", "--", "--auto-arena"])
             run(command + ["--script", "res://tests/player_smoke.gd"])
             run(command + ["--script", "res://tests/main_smoke.gd"])
+            for test in ("weapons", "enemies", "props", "save", "player_combat", "navigation", "encounter"):
+                run(command + ["--script", f"res://tests/{test}_smoke.gd"])
         elif args.action == "export-linux":
             # The engine reports absent/mismatched templates; never download implicitly.
             args.output.parent.mkdir(parents=True, exist_ok=True)

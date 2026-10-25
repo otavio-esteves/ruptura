@@ -15,7 +15,7 @@ var previous_frame_usec: int = 0
 
 func _ready() -> void:
 	layer = 10
-	status.position = Vector2(10, 7)
+	status.position = Vector2(10, 56)
 	status.add_theme_font_size_override("font_size", 12)
 	status.add_theme_color_override("font_color", Color("c4d0d7"))
 	add_child(status)
@@ -50,7 +50,7 @@ func _process(delta: float) -> void:
 		return
 	status_tick = 0.2
 	var device: String = str(player.get("input_device")) if is_instance_valid(player) else "menu"
-	status.text = "RUPTURA / PROTÓTIPO   %d FPS · %.1f ms · %s\nF2 salto %s · F3 30/60 FPS · F6 medir 10s · R reiniciar · Esc menu%s" % [Engine.get_frames_per_second(), delta * 1000.0, device, preset_label, "\nMEDINDO (arena parada; 2s aquecimento)" if collecting else ""]
+	status.text = "DEBUG %d FPS · %.1f ms · %s\nF2 salto %s · F3 30/60 FPS · F6 medir · F4 ocultar%s" % [Engine.get_frames_per_second(), wall_delta * 1000.0, device, preset_label, "\nMEDINDO (2s aquecimento)" if collecting else ""]
 
 func finish_capture() -> void:
 	collecting = false
@@ -68,7 +68,7 @@ func finish_capture() -> void:
 		print("BENCHMARK_CSV=", ProjectSettings.globalize_path(path))
 		var metadata := FileAccess.open(path + ".json", FileAccess.WRITE)
 		if metadata != null:
-			metadata.store_string(JSON.stringify({"engine": Engine.get_version_info().string, "gpu": RenderingServer.get_video_adapter_name(), "window": str(DisplayServer.window_get_size()), "viewport": str(get_viewport().get_visible_rect().size), "max_fps": Engine.max_fps, "scenario": "idle movement arena, no combat", "warmup_seconds": 2, "frames": samples.size(), "clock": "Time.get_ticks_usec"}, "\t"))
+			metadata.store_string(JSON.stringify({"engine": Engine.get_version_info().string, "gpu": RenderingServer.get_video_adapter_name(), "window": str(DisplayServer.window_get_size()), "viewport": str(get_viewport().get_visible_rect().size), "max_fps": Engine.max_fps, "scenario": "combat prototype; manual activity must be recorded separately", "warmup_seconds": 2, "frames": samples.size(), "clock": "Time.get_ticks_usec"}, "\t"))
 			metadata.close()
 	if quit_after_capture:
 		get_tree().quit()

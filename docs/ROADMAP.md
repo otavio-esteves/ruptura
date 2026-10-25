@@ -1,4 +1,16 @@
-# Ciclo inicial
+# Estado atual — build0.2 de combate
+
+Incremento atual: Marco2 em uma arena curta, com início de objetos interativos do Marco3. Não é aprovação da vertical slice nem início de produção da campanha.
+
+Entregues: duas armas, recarga/cancelamento, golpe, dano/esquiva, dois inimigos, navegação autorada, props destrutíveis, explosões com LOS, pickups, três encontros, evidência/transmissão, HUD, retry e save versionado. Opções incluem volume, modo assistido no próximo retry, remapeamento de oito ações de teclado e preset A/LB acessível pelo menu.
+
+A suíte integrada executou171 verificações; mais duas regressões de remapeamento foram acrescentadas e passaram no teste específico. Inclui percurso de missão, persistência, mortes, dez resets sem acumulação de entidades e salto/queda reais dos inimigos. Importação e sessão gráfica sem erros. Capturas de menu/opções/combate inspecionadas pelo integrador. A validação humana e o benchmark longo continuam abertos.
+
+Próximo passo de produto: playtest de [PLAYTEST](PLAYTEST.md), ajustes de sensação/curva de dificuldade e só então avanço da slice. Não declarar campanha ou chefão completos. Horas humanas continuam não informadas; este ciclo usa três especialistas com integração central. Nenhum gasto pago/publicação.
+
+---
+
+# Histórico — ciclo inicial
 
 O plano raiz define todos os marcos; este registro acompanha apenas o incremento atual.
 

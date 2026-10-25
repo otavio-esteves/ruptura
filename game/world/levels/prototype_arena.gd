@@ -3,6 +3,7 @@ extends Node2D
 
 @export var spawn_position: Vector2 = Vector2(120.0, 550.0)
 @export var world_bounds: Rect2 = Rect2(0.0, 0.0, 1600.0, 720.0)
+@export var show_training_targets: bool = true
 
 const BACKGROUND: Color = Color("151e29")
 const BACK_PANEL: Color = Color("1a2632")
@@ -76,6 +77,8 @@ func _draw() -> void:
 	for rect: Rect2 in PLATFORMS:
 		_draw_platform(rect)
 	_draw_spawn()
+	if not show_training_targets:
+		return
 	for index: int in range(TARGET_POSITIONS.size()):
 		_draw_target(TARGET_POSITIONS[index], index + 1)
 	var font: Font = ThemeDB.fallback_font

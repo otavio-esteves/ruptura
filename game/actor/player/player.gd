@@ -1,5 +1,8 @@
 extends CharacterBody2D
-## Protótipo de movimento; origem nos pés. Sem dano ou invulnerabilidade.
+## Posição nos pés. Movimento responsivo, dano e janela curta de esquiva.
+signal died
+signal damaged(amount: float)
+const HEALTH = preload("res://game/combat/health_component.gd")
 
 @export var walk_speed: float = 150.0
 @export var run_speed: float = 220.0
@@ -19,6 +22,13 @@ var input_device: String = "mouse_keyboard"
 var is_crouching: bool = false
 var is_dodging: bool = false
 var dodge_cooldown_remaining: float = 0.0
+var health: Node
+var weapon_controller: Node2D
+var is_dead: bool = false
+var assisted: bool = false
+var _hurt_flash: float = 0.0
+var _knockback: Vector2 = Vector2.ZERO
+var _hurt_control_remaining: float = 0.0
 
 var _coyote_remaining: float = 0.0
 var _jump_buffer_remaining: float = 0.0
@@ -34,6 +44,11 @@ var _crouching_shape: RectangleShape2D = RectangleShape2D.new()
 
 
 func _ready() -> void:
+	add_to_group("player")
+	add_to_group("damageable")
+	health = HEALTH.new()
+	health.invulnerability_duration = 0.55
+	add_child(health)
 	_standing_shape.size = Vector2(12.0, 24.0)
 	_crouching_shape.size = Vector2(12.0, 14.0)
 	_collision.shape = _standing_shape
@@ -68,6 +83,13 @@ func _notification(what: int) -> void:
 
 func _physics_process(delta: float) -> void:
 	if not _has_focus:
+		return
+	_hurt_flash = maxf(0.0, _hurt_flash - delta)
+	if is_dead:
+		velocity.x = move_toward(velocity.x, 0.0, 1100.0 * delta)
+		velocity.y = minf(velocity.y + gravity * delta, 750.0)
+		move_and_slide()
+		queue_redraw()
 		return
 	_update_aim()
 	dodge_cooldown_remaining = maxf(0.0, dodge_cooldown_remaining - delta)
@@ -114,8 +136,34 @@ func _physics_process(delta: float) -> void:
 		velocity.y = minf(velocity.y + gravity * delta, 750.0)
 	if Input.is_action_just_released("jump") and velocity.y < -160.0:
 		velocity.y *= 0.55
+	_hurt_control_remaining = maxf(0.0, _hurt_control_remaining - delta)
+	if _hurt_control_remaining > 0.0:
+		velocity.x = _knockback.x
+	_knockback = _knockback.move_toward(Vector2.ZERO, 700.0 * delta)
 	move_and_slide()
 	queue_redraw()
+
+func receive_damage(amount: float, impulse: Vector2, _source: Node = null) -> bool:
+	if is_dead or (is_dodging and _dodge_remaining >= 0.10 and _dodge_remaining <= 0.25):
+		return false
+	if not health.apply_damage(amount * (0.6 if assisted else 1.0)):
+		return false
+	_hurt_flash = 0.16
+	_knockback = impulse.limit_length(180.0)
+	velocity.y = clampf(velocity.y + _knockback.y, -200.0, 450.0)
+	_hurt_control_remaining = 0.12
+	damaged.emit(amount)
+	if health.current_health <= 0.0:
+		is_dead = true
+		is_dodging = false
+		_dodge_remaining = 0.0
+		if is_instance_valid(weapon_controller):
+			weapon_controller.cancel_reload()
+		died.emit()
+	return true
+
+func heal(amount: float) -> void:
+	health.heal(amount)
 
 
 func _update_aim() -> void:
@@ -145,7 +193,7 @@ func _can_stand() -> bool:
 	var query: PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
 	query.shape = _standing_shape
 	query.transform = global_transform.translated_local(Vector2(0.0, -12.1))
-	query.collision_mask = 1
+	query.collision_mask = 9
 	query.exclude = [get_rid()]
 	return get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
 
@@ -174,6 +222,12 @@ func reset_to(spawn: Vector2) -> void:
 	dodge_cooldown_remaining = 0.0
 	is_dodging = false
 	is_crouching = false
+	is_dead = false
+	_knockback = Vector2.ZERO
+	_hurt_control_remaining = 0.0
+	_hurt_flash = 0.0
+	if is_instance_valid(health):
+		health.reset_health()
 	_collision.shape = _standing_shape
 	_collision.position.y = -12.0
 	set_collision_mask_value(5, true)
@@ -189,6 +243,11 @@ func _draw() -> void:
 	var jacket: Color = Color("6b9395")
 	if is_dodging:
 		jacket = Color("b2d6cf")
+	if _hurt_flash > 0.0:
+		jacket = Color("ee997d")
+	if is_dead:
+		draw_rect(Rect2(-11, -7, 22, 7), Color("6a5354"))
+		return
 	draw_rect(Rect2(-6.0, -height, 12.0, height - 6.0), Color("15252d"))
 	draw_rect(Rect2(-5.0, -height + 6.0, 10.0, height - 12.0), jacket)
 	draw_rect(Rect2(-4.0, -height, 8.0, 6.0), Color("c3b99c"))

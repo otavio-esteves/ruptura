@@ -8,6 +8,10 @@ func _initialize() -> void:
 
 func run() -> void:
 	var main: Node = load("res://game/core/main.tscn").instantiate()
+	var directory: String = "user://main_tests_%s" % Time.get_ticks_usec()
+	DirAccess.make_dir_recursive_absolute(directory)
+	main.store.checkpoint_path = directory + "/checkpoint.json"
+	main.store.settings_path = directory + "/settings.json"
 	root.add_child(main)
 	await process_frame
 	var escape := InputEventKey.new()
@@ -29,9 +33,24 @@ func run() -> void:
 		main.call("_unhandled_input", preset)
 	check(InputMap.action_get_events("jump").size() == 2, "troca de preset não duplica salto")
 	check(InputMap.action_get_events("move_left").size() == 3, "troca de preset não duplica eixo")
+	main.call("_open_options")
+	main.call("_begin_binding", "jump", main.binding_buttons.jump)
+	var remap := InputEventKey.new()
+	remap.physical_keycode = KEY_F
+	remap.pressed = true
+	main.call("_input", remap)
+	main.call("_close_options")
+	check(main.settings.bindings.get("jump", 0) == KEY_F, "remapeamento persiste sem consultar ação vazia")
+	main.call("_begin_binding", "sprint", main.binding_buttons.sprint)
+	main.call("_input", remap)
+	check(not main.settings.bindings.has("sprint"), "remapeamento rejeita conflito de teclas")
+	main.call("_cancel_binding")
 	main.call("_notification", MainLoop.NOTIFICATION_APPLICATION_FOCUS_OUT)
 	check(main.get("menu").visible and not main.get("player").is_physics_processing(), "perda de foco pausa")
 	print("MAIN_SMOKE failures=", failures)
+	for file: String in ["settings.json", "settings.json.bak", "settings.json.tmp", "checkpoint.json", "checkpoint.json.bak", "checkpoint.json.tmp"]:
+		DirAccess.remove_absolute(directory + "/" + file)
+	DirAccess.remove_absolute(directory)
 	quit(0 if failures == 0 else 1)
 
 func check(condition: bool, description: String) -> void:

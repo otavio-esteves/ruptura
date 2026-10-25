@@ -8,7 +8,19 @@ static func install(alternate_jump: bool = false) -> void:
 	_key("jump", [KEY_SPACE])
 	_key("dodge", [KEY_SHIFT])
 	_key("sprint", [KEY_CTRL])
-	_key("restart", [KEY_R])
+	_key("restart", [KEY_F5])
+	_key("reload", [KEY_R])
+	_key("fire", [])
+	_key("melee", [])
+	_key("switch_weapon", [KEY_Q])
+	_key("weapon_1", [KEY_1])
+	_key("weapon_2", [KEY_2])
+	_key("interact", [KEY_E])
+	_key("fullscreen", [KEY_F11])
+	_mouse("fire", MOUSE_BUTTON_LEFT)
+	_mouse("melee", MOUSE_BUTTON_RIGHT)
+	_mouse("switch_weapon", MOUSE_BUTTON_WHEEL_UP)
+	_mouse("switch_weapon", MOUSE_BUTTON_WHEEL_DOWN)
 	_key("pause", [KEY_ESCAPE])
 	_key("switch_preset", [KEY_F2])
 	_key("toggle_fps", [KEY_F3])
@@ -25,6 +37,17 @@ static func install(alternate_jump: bool = false) -> void:
 	_button("sprint", JOY_BUTTON_LEFT_STICK)
 	_button("restart", JOY_BUTTON_BACK)
 	_button("pause", JOY_BUTTON_START)
+	_axis("fire", JOY_AXIS_TRIGGER_RIGHT, 1.0)
+	_button("melee", JOY_BUTTON_RIGHT_SHOULDER)
+	_button("reload", JOY_BUTTON_X)
+	_button("switch_weapon", JOY_BUTTON_Y)
+	_button("switch_weapon", JOY_BUTTON_DPAD_RIGHT)
+	_button("interact", JOY_BUTTON_DPAD_UP)
+
+static func _mouse(action: StringName, button: MouseButton) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = button
+	InputMap.action_add_event(action, event)
 
 static func _key(action: StringName, keys: Array) -> void:
 	if not InputMap.has_action(action):
