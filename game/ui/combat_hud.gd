@@ -11,7 +11,8 @@ var retry := Button.new()
 var _result_visible: bool = false
 var is_mission: bool = false
 var boss_label := Label.new()
-var boss_bar := ProgressBar.new()
+var boss_bar := ColorRect.new()
+var boss_fill := ColorRect.new()
 var dodge_label := Label.new()
 var result_stats := Label.new()
 
@@ -31,13 +32,13 @@ func _ready() -> void:
 	_style(boss_label, Vector2(150, 258), 11)
 	boss_bar.position = Vector2(150, 277)
 	boss_bar.size = Vector2(340, 8)
-	boss_bar.show_percentage = false
-	var bar_background := StyleBoxFlat.new()
-	bar_background.bg_color = Color("16272b")
-	var bar_fill := StyleBoxFlat.new()
-	bar_fill.bg_color = Color("bd8167")
-	boss_bar.add_theme_stylebox_override("background", bar_background)
-	boss_bar.add_theme_stylebox_override("fill", bar_fill)
+	boss_bar.color = Color("16272b")
+	boss_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_fill.color = Color("bd8167")
+	boss_fill.position = Vector2(1, 1)
+	boss_fill.size = Vector2(338, 6)
+	boss_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_bar.add_child(boss_fill)
 	add_child(boss_bar)
 	boss_bar.hide()
 	boss_label.hide()
@@ -104,8 +105,7 @@ func _process(_delta: float) -> void:
 	boss_bar.visible = show_boss
 	if show_boss:
 		boss_label.text = "%s · FASE %d" % [boss.display_name, boss.phase]
-		boss_bar.max_value = boss.health.max_health
-		boss_bar.value = boss.health.current_health
+		boss_fill.size.x = 338.0 * clampf(boss.health.current_health / boss.health.max_health, 0.0, 1.0)
 	if director.radio_remaining > 0.0:
 		radio.text = director.radio
 	else:
