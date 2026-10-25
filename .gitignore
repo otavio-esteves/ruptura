@@ -2,3 +2,5 @@
 builds/
 reports/
 *.tmp
+.codex/
+__pycache__/
