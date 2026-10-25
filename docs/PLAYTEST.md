@@ -1,15 +1,14 @@
-# Playtest da build0.2
+# Playtest da build0.3 — Cinzas
 
-Execute `builds/linux/ruptura.x86_64` e comece por Nova missão. Este roteiro registra experiência; a suíte automatizada não aprova sensação ou estética.
+1. Inicie Nova missão Cinzas. Sem ler o guia completo, tente aprender movimento, tiro, recarga, golpe e esquiva. Anote onde foi necessário procurar ajuda.
+2. Elimine os dois encontros da ruína e procure uma rota alta. Se encontrar um registro, use E/↑ e confirme o feedback. Teste voltar à esquerda e descer plataformas.
+3. Após limpar o setor, use o portão leste. Feche/reabra no pátio e confirme checkpoint, recursos e descoberta opcional. O laboratório deve continuar separado.
+4. Compare pistola e espingarda; observe os avisos do recruta/batedor, uso de cobertura e risco dos barris para ambos os lados. Cancelar recarga por esquiva não pode duplicar munição.
+5. Chegue à torre, perca uma tentativa e use retry. Verifique controle imediato, boss em fase1/420HP, props reconstruídos e preferências mantidas.
+6. Observe os três padrões da Chacal e conte se a causa de cada dano foi identificável. Experimente recuperação, cobertura, barril, plataforma e esquiva. Relate ataques inevitáveis, barris sem efeito claro ou chefe preso.
+7. Derrote Chacal, pegue a prova e transmita. Confira mensagem coletiva, recompensa, resumo e persistência da conclusão. Retorne do laboratório para Continuar Cinzas sem perder o final salvo.
+8. Compare mouse/teclado e gamepad, A/LB,30/60FPS, assistência opt-in e deadzone. Teste volume, efeitos reduzidos, tremor opcional, remapeamento, foco, fullscreen e reconexão.
 
-1. Experimente andar, correr, saltar com diferentes durações e esquivar. Confira se mira e movimento são independentes. Suba a primeira plataforma e desça com agachar+salto.
-2. Avance até o primeiro recruta: observe o aviso antes do disparo. Destrua a caixa com tiros ou golpe, acerte o recruta e use esquiva/cobertura para evitar o ataque.
-3. Ao limpar a área, confira a recuperação e o checkpoint. Saia do jogo, reabra e escolha Continuar: deve retomar a área seguinte, sem restaurar inimigos da área concluída.
-4. Pegue a espingarda no pátio. Compare alcance, espalhamento e recarga. Comece uma recarga e esquive: munição não deve transferir antes da conclusão.
-5. Combine golpe, altura e barril contra recruta/batedor. Verifique se é fácil distinguir inimigos, cobertura sólida, vidro e plataformas. A explosão também pode ferir Espectro.
-6. Morra ou use F5; confirme retorno rápido, vida/munição restauradas e cenário sem sobras da tentativa anterior. Settings e controles devem permanecer.
-7. Elimine a defesa final, recolha os registros e transmita no terminal à direita. A conclusão deve persistir após reabrir; Repetir missão deve iniciar do zero.
-8. Compare teclado/mouse e controle, presets A/LB, a30 e60FPS. Teste menu, volume, remapeamento, troca de foco, fullscreen e desconexão/reconexão do controle.
-9. Se possível, use F6 com a janela ativa durante um trecho repetível, ou siga o benchmark longo de PERFORMANCE. Perder foco ou abrir menu cancela a captura; não trate esse cancelamento como medição válida.
+Anote versão/commit, dispositivo, dificuldade, duração observada, tentativas, trecho e reprodução. Registre três pontos: o que foi satisfatório, confuso e frustrante. Os testes automáticos cobrem lógica e regressões, não substituem esse relato. Não há duração mínima comprometida; não prolongar conteúdo para cumprir uma meta.
 
-Anote versão/commit, dispositivo, dificuldade, trecho, problema e como reproduzir. Priorize: mortes compreensíveis, tempo de reação, inimigos presos, retículo legível, recursos suficientes e clareza do objetivo. O recorte ainda não tem Chacal, campanha, granadas, assistência automática de mira ou remapeamento completo de gamepad.
+O roteiro da arena anterior permanece no histórico de Git e seu modo Laboratório continua disponível. Para medição prolongada, siga PERFORMANCE, mantendo a janela ativa; abrir menu ou perder foco invalida a captura.

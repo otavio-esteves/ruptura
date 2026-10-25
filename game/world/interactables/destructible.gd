@@ -6,6 +6,7 @@ signal destroyed(obj: Node)
 @export_enum("crate", "barrel", "glass") var kind: String = "crate"
 var health: float = 45.0
 var is_dead: bool = false
+var reduced_effects: bool = false
 const EXPLOSION_RADIUS: float = 110.0
 const EXPLOSION_DAMAGE: float = 65.0
 const MAX_EXPLOSION_TARGETS: int = 64
@@ -21,6 +22,7 @@ var _exploded: bool = false
 
 func _ready() -> void:
 	add_to_group("damageable")
+	add_to_group("destructibles")
 	configure(kind)
 	set_process(false)
 
@@ -162,9 +164,11 @@ func _draw_break_effect() -> void:
 	var center := Vector2(0.0, -_dimensions.y * 0.5)
 	var color := Color("e7b675") if kind == "barrel" else Color("a5b1b2")
 	color.a = 1.0 - progress
+	if reduced_effects: color.a *= 0.6
 	if kind == "barrel":
 		draw_arc(center, 8.0 + EXPLOSION_RADIUS * progress, 0.0, TAU, 32, color, 2.0)
-	for index: int in range(10):
-		var direction := Vector2.from_angle(float(index) * TAU / 10.0)
+	var shards: int = 3 if reduced_effects else 10
+	for index: int in range(shards):
+		var direction := Vector2.from_angle(float(index) * TAU / float(shards))
 		var shard_position: Vector2 = center + direction * progress * (54.0 if kind == "barrel" else 24.0) + Vector2(0.0, progress * progress * 14.0)
 		draw_line(shard_position, shard_position + direction * 3.0, color, 2.0)

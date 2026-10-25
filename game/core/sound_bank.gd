@@ -10,7 +10,7 @@ func _ready() -> void:
 		var voice := AudioStreamPlayer.new()
 		add_child(voice)
 		voices.append(voice)
-	for kind: String in ["pistol", "shotgun", "melee", "reload", "reload_complete", "empty", "hit", "blocked", "hurt", "explosion", "pickup", "clear", "victory"]:
+	for kind: String in ["pistol", "shotgun", "melee", "reload", "reload_complete", "empty", "hit", "blocked", "hurt", "explosion", "pickup", "clear", "victory", "boss_warn", "boss_phase", "boss_stun"]:
 		streams[kind] = _synthesize(kind)
 
 func play(kind: String, _position: Vector2 = Vector2.ZERO) -> void:
@@ -37,6 +37,9 @@ func _synthesize(kind: String) -> AudioStreamWAV:
 	var frequency: float = 200.0
 	var noisy: bool = false
 	match kind:
+		"boss_warn": frequency = 180.0; seconds = 0.20
+		"boss_phase": frequency = 150.0; seconds = 0.55
+		"boss_stun": frequency = 320.0; seconds = 0.20; noisy = true
 		"pistol": frequency = 140.0; noisy = true
 		"shotgun": frequency = 85.0; seconds = 0.22; noisy = true
 		"explosion": frequency = 50.0; seconds = 0.38; noisy = true
@@ -57,7 +60,7 @@ func _synthesize(kind: String) -> AudioStreamWAV:
 	for index: int in range(count):
 		var progress: float = float(index) / count
 		var pitch: float = frequency * (1.0 - 0.4 * progress)
-		if kind in ["pickup", "clear", "victory"]:
+		if kind in ["pickup", "clear", "victory", "boss_warn", "boss_phase", "boss_stun"]:
 			pitch = frequency * (1.0 + floorf(progress * 3.0) * 0.25)
 		var sample: float = sin(TAU * pitch * index / stream.mix_rate)
 		if noisy:

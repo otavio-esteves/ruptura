@@ -26,6 +26,10 @@ var health: Node
 var weapon_controller: Node2D
 var is_dead: bool = false
 var assisted: bool = false
+var aim_assist_enabled: bool = false
+var reduced_effects: bool = false
+var recoil_remaining: float = 0.0
+var _animation_time: float = 0.0
 var _hurt_flash: float = 0.0
 var _knockback: Vector2 = Vector2.ZERO
 var _hurt_control_remaining: float = 0.0
@@ -85,6 +89,8 @@ func _physics_process(delta: float) -> void:
 	if not _has_focus:
 		return
 	_hurt_flash = maxf(0.0, _hurt_flash - delta)
+	recoil_remaining = maxf(0.0, recoil_remaining - delta)
+	_animation_time += delta * absf(velocity.x) * 0.12
 	if is_dead:
 		velocity.x = move_toward(velocity.x, 0.0, 1100.0 * delta)
 		velocity.y = minf(velocity.y + gravity * delta, 750.0)
@@ -170,13 +176,31 @@ func _update_aim() -> void:
 	if input_device == "gamepad":
 		var stick: Vector2 = Input.get_vector("aim_left", "aim_right", "aim_up", "aim_down", aim_deadzone)
 		if stick.length_squared() > 0.001:
-			aim_direction = stick.normalized()
+			aim_direction = _assisted_aim(stick.normalized()) if aim_assist_enabled else stick.normalized()
 	else:
 		var mouse_delta: Vector2 = get_global_mouse_position() - (global_position + _shoulder())
 		if mouse_delta.length_squared() > 4.0:
 			aim_direction = mouse_delta.normalized()
 	if absf(aim_direction.x) > 0.10:
 		_facing = signf(aim_direction.x)
+
+func _assisted_aim(raw: Vector2) -> Vector2:
+	var origin: Vector2 = global_position + _shoulder()
+	var selected: Vector2 = raw
+	var best: float = INF
+	for node: Node in get_tree().get_nodes_in_group("enemies"):
+		if not node is Node2D or bool(node.get("is_dead")): continue
+		var offset: Vector2 = node.global_position + Vector2(0, -16) - origin
+		if offset.length_squared() < 16.0 or offset.length_squared() > 360.0 * 360.0: continue
+		var angle: float = absf(raw.angle_to(offset))
+		if angle > deg_to_rad(7.0): continue
+		var ray := PhysicsRayQueryParameters2D.create(origin, origin + offset, 25, [get_rid()])
+		if not get_world_2d().direct_space_state.intersect_ray(ray).is_empty(): continue
+		var score: float = angle * 500.0 + offset.length() * 0.05
+		if score < best:
+			best = score
+			selected = offset.normalized()
+	return raw.slerp(selected, 0.22).normalized()
 
 
 func _set_crouching(requested: bool) -> void:
@@ -226,6 +250,7 @@ func reset_to(spawn: Vector2) -> void:
 	_knockback = Vector2.ZERO
 	_hurt_control_remaining = 0.0
 	_hurt_flash = 0.0
+	recoil_remaining = 0.0
 	if is_instance_valid(health):
 		health.reset_health()
 	_collision.shape = _standing_shape
@@ -243,7 +268,7 @@ func _draw() -> void:
 	var jacket: Color = Color("6b9395")
 	if is_dodging:
 		jacket = Color("b2d6cf")
-	if _hurt_flash > 0.0:
+	if _hurt_flash > 0.0 and not reduced_effects:
 		jacket = Color("ee997d")
 	if is_dead:
 		draw_rect(Rect2(-11, -7, 22, 7), Color("6a5354"))
@@ -252,11 +277,13 @@ func _draw() -> void:
 	draw_rect(Rect2(-5.0, -height + 6.0, 10.0, height - 12.0), jacket)
 	draw_rect(Rect2(-4.0, -height, 8.0, 6.0), Color("c3b99c"))
 	draw_rect(Rect2(0.0 if _facing > 0.0 else -5.0, -height + 2.0, 5.0, 2.0), Color("c9eee0"))
-	draw_rect(Rect2(-5.0, -6.0, 4.0, 6.0), Color("364650"))
-	draw_rect(Rect2(1.0, -6.0, 4.0, 6.0), Color("364650"))
+	var stride: float = sin(_animation_time) * 2.0 if is_on_floor() and absf(velocity.x) > 12.0 and not is_crouching else 0.0
+	draw_rect(Rect2(-5.0 + stride, -6.0, 4.0, 6.0), Color("364650"))
+	draw_rect(Rect2(1.0 - stride, -6.0, 4.0, 6.0), Color("364650"))
 	var shoulder: Vector2 = _shoulder()
-	draw_line(shoulder, shoulder + aim_direction * 10.0, jacket, 4.0)
-	draw_line(shoulder + aim_direction * 8.0, shoulder + aim_direction * 18.0, Color("c4c6b4"), 3.0)
+	var recoil: float = recoil_remaining * 25.0
+	draw_line(shoulder, shoulder + aim_direction * (10.0 - recoil), jacket, 4.0)
+	draw_line(shoulder + aim_direction * (8.0 - recoil), shoulder + aim_direction * (18.0 - recoil), Color("c4c6b4"), 3.0)
 	var reticle: Vector2 = shoulder + aim_direction * 64.0
 	var ink: Color = Color("10191e")
 	var light: Color = Color("e3dc9c")

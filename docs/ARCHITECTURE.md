@@ -15,3 +15,13 @@ Protocolo de dano: `receive_damage(amount, impulse, source)->bool`, grupo `damag
 `combat_hud.gd` apresenta vida/arma/objetivo/rádio e retry. `sound_bank.gd` sintetiza sons originais com oito vozes limitadas, sem assets externos; headless omite playback. `performance_overlay.gd` mede frames com relógio monotônico e rejeita captura sem foco. Não há autoloads, backend ou serviços de campanha.
 
 Neste ciclo os três especialistas tiveram propriedade exclusiva de armas, inimigos e props/testes. O integrador manteve health/player/main/InputMap/save/HUD e executou a engine sequencialmente. Primitivas gráficas e síntese de áudio são recursos originais provisórios, sem assets de jogos de referência.
+
+## Expansão0.3
+
+`main.gd` seleciona Cinzas ou laboratório; as opções foram extraídas para `options_panel.gd` com rolagem/foco de gamepad. Os schemas e arquivos dos dois modos são independentes. `cinzas_sector.tscn` cria apenas geometria/arte/dados de autoria, selecionados antes de entrar na árvore. `get_stage_layout` descreve encontros, props, recursos, segredos e saídas; o diretor instancia os sistemas existentes a partir disso.
+
+`cinzas_director.gd` controla estágios0..6, checkpoints, saídas manuais, documentos opcionais e prova/transmissão. A interface de HUD/retry é compartilhada com o laboratório. `chacal.tscn` reutiliza Health e protocolo de dano, acrescentando padrões e duas fases; não altera armas ou controlador de inimigo comum. `field_document.gd` interage por proximidade+E, registra uma descoberta e concede recursos uma única vez.
+
+O save novo `cinzas.json` contém stage/evidence/completed/boss_defeated/shotgun_unlocked/secrets/deaths. Arquivo separado evita reinterpretar o progresso antigo de laboratório. Backup também usa temporário validado antes de substituir o backup anterior. Não serializamos a física ou a vida parcial do boss. Settings acrescentam aim_assist/aim_deadzone/reduced_effects/screen_shake. A assistência está no vetor de mira do jogador, limitada a controle/cone/distância/LOS; raycasts de dano continuam retos.
+
+Efeitos usam TTL e limites existentes. Setores desenham o fundo uma vez, sem processamento por frame; colisão usa somente superfícies jogáveis. O HUD limpa sua referência ao chefe após morte, e rebuild remove as referências ao mundo antigo antes de montar o novo. Testes usam caminhos injetáveis para manter saves reais intactos.

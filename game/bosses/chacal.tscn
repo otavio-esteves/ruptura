@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://game/bosses/chacal.gd" id="1_chacal"]
+
+[sub_resource type="RectangleShape2D" id="Shape_chacal"]
+size = Vector2(26, 36)
+
+[node name="Chacal" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 25
+floor_snap_length = 4.0
+script = ExtResource("1_chacal")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -18)
+shape = SubResource("Shape_chacal")

@@ -9,6 +9,7 @@ func run() -> void:
 	directory = "user://encounter_tests_%s_%s" % [OS.get_process_id(), Time.get_ticks_usec()]
 	DirAccess.make_dir_recursive_absolute(directory)
 	var main: Node = load("res://game/core/main.tscn").instantiate()
+	main.mission_mode = "laboratory"
 	main.store.checkpoint_path = directory + "/checkpoint.json"
 	main.store.settings_path = directory + "/settings.json"
 	root.add_child(main)

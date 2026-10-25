@@ -13,6 +13,7 @@ const MAX_EFFECTS: int = 12
 
 var selected_weapon: String = "pistol"
 var shotgun_unlocked: bool = false
+var reduced_effects: bool = false
 var _actor: CharacterBody2D
 var _magazines: Dictionary = {"pistol": 12, "shotgun": 6}
 var _reserves: Dictionary = {"pistol": 72, "shotgun": 24}
@@ -290,6 +291,7 @@ func _spawn_flash(segments: Array[Dictionary]) -> void:
 
 
 func _add_effect(effect: Node2D) -> void:
+	if reduced_effects: effect.lifetime = 0.055
 	var active: Array[Node2D] = []
 	for previous: Node2D in _effects:
 		if is_instance_valid(previous) and not previous.is_queued_for_deletion():

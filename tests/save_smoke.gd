@@ -107,6 +107,20 @@ func _test_settings_types() -> void:
 	_check(loaded.get("assisted") == true and loaded.get("alternate_jump") == false, "settings booleans roundtrip")
 	_check(is_equal_approx(float(loaded.get("volume", -1.0)), 0.3), "settings volume roundtrip")
 	_check(int(loaded.get("bindings", {}).get("jump", -1)) == 32, "settings key binding roundtrip")
+	_check(loaded.get("reduced_effects") == false and loaded.get("aim_assist") == false and loaded.get("screen_shake") == false, "legacy settings keep accessibility flags opt-in")
+	_check(is_equal_approx(float(loaded.get("aim_deadzone", -1.0)), 0.2), "legacy settings use default aim deadzone")
+	var expanded := {"reduced_effects": true, "aim_assist": true, "screen_shake": true, "aim_deadzone": 0.27}
+	_check(bool(_store.call("save_settings", expanded)), "expanded accessibility settings saved")
+	_check(not expanded.has("schema_version"), "expanded settings caller dictionary unchanged")
+	loaded = _store.call("load_settings")
+	_check(loaded.get("reduced_effects") == true and loaded.get("aim_assist") == true and loaded.get("screen_shake") == true, "accessibility flags roundtrip")
+	_check(is_equal_approx(float(loaded.get("aim_deadzone", -1.0)), 0.27), "configured aim deadzone roundtrip")
+	for deadzone: Variant in [-2.0, 3.0, "0.25", true, null]:
+		_write_text(_settings, JSON.stringify({"schema_version": 1, "aim_deadzone": deadzone, "reduced_effects": 1, "aim_assist": "true", "screen_shake": []}))
+		loaded = _store.call("load_settings")
+		var expected: float = clampf(float(deadzone), 0.1, 0.35) if deadzone is float else 0.2
+		_check(is_equal_approx(float(loaded.get("aim_deadzone", -1.0)), expected), "aim deadzone clamps numeric values and defaults invalid types")
+		_check(loaded.get("reduced_effects") == false and loaded.get("aim_assist") == false and loaded.get("screen_shake") == false, "accessibility flags reject malformed types")
 	_write_text(_settings, JSON.stringify({"schema_version": 1, "assisted": "true", "alternate_jump": 1, "volume": "loud", "bindings": {"jump": "32", "reload": 82.5, "move_left": -1, "move_right": 50000000, "dodge": 32, "unknown_action": 65}}))
 	loaded = _store.call("load_settings")
 	_check(loaded.get("assisted") == false and loaded.get("alternate_jump") == false, "malformed setting flags use false without coercion")
@@ -149,7 +163,7 @@ func _remove_file(path: String) -> void:
 
 
 func _cleanup() -> void:
-	for filename: String in ["checkpoint.json", "checkpoint.json.bak", "checkpoint.json.tmp", "settings.json", "settings.json.bak", "settings.json.tmp"]:
+	for filename: String in ["checkpoint.json", "checkpoint.json.bak", "checkpoint.json.tmp", "checkpoint.json.bak.tmp", "settings.json", "settings.json.bak", "settings.json.tmp", "settings.json.bak.tmp"]:
 		_remove_file(_directory + "/" + filename)
 	DirAccess.remove_absolute(_directory)
 

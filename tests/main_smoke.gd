@@ -10,6 +10,7 @@ func run() -> void:
 	var main: Node = load("res://game/core/main.tscn").instantiate()
 	var directory: String = "user://main_tests_%s" % Time.get_ticks_usec()
 	DirAccess.make_dir_recursive_absolute(directory)
+	main.mission_mode = "laboratory"
 	main.store.checkpoint_path = directory + "/checkpoint.json"
 	main.store.settings_path = directory + "/settings.json"
 	root.add_child(main)

@@ -8,6 +8,9 @@ const WEAPONS = preload("res://game/combat/weapons/weapon_controller.gd")
 const DIRECTOR = preload("res://game/world/levels/combat_director.gd")
 const HUD = preload("res://game/ui/combat_hud.gd")
 const STORE = preload("res://game/progression/local_store.gd")
+const MISSION_DIRECTOR = preload("res://game/world/levels/cinzas_director.gd")
+const SECTOR_SCENE = preload("res://game/world/sectors/cinzas_sector.tscn")
+const OPTIONS = preload("res://game/ui/options_panel.gd")
 const SOUND = preload("res://game/core/sound_bank.gd")
 
 var arena: Node2D
@@ -21,8 +24,9 @@ var cap_30: bool = false
 var play_button: Button
 var sound_bank: Node
 var store: RefCounted = STORE.new()
+var mission_mode: String = "cinzas"
 var checkpoint: Dictionary = {}
-var settings: Dictionary = {"assisted": false, "alternate_jump": false, "volume": 0.55, "bindings": {}}
+var settings: Dictionary = {"assisted": false, "alternate_jump": false, "volume": 0.55, "bindings": {}, "aim_assist": false, "aim_deadzone": 0.2, "reduced_effects": false, "screen_shake": false}
 var menu_column: VBoxContainer
 var options_column: VBoxContainer
 var save_notice: Label
@@ -30,6 +34,10 @@ var binding_action: String = ""
 var binding_button: Button
 var checkpoint_recovery_required: bool = false
 var binding_buttons: Dictionary = {}
+var camera: Camera2D
+var _trauma: float = 0.0
+var _transition_label: Label
+var _transition_time: float = 0.0
 const BINDING_NAMES: Dictionary = {"move_left": "Esquerda", "move_right": "Direita", "jump": "Saltar", "dodge": "Esquiva", "reload": "Recarregar", "interact": "Interagir", "sprint": "Correr", "crouch": "Agachar"}
 
 func _ready() -> void:
@@ -42,7 +50,7 @@ func _ready() -> void:
 	sound_bank = SOUND.new()
 	add_child(sound_bank)
 	sound_bank.volume = settings.volume
-	checkpoint = store.load_checkpoint()
+	checkpoint = store.load_mission() if mission_mode == "cinzas" else store.load_checkpoint()
 	checkpoint_recovery_required = checkpoint.is_empty() and not store.last_error.is_empty()
 	_build_menu()
 	overlay = OVERLAY.new()
@@ -50,7 +58,7 @@ func _ready() -> void:
 	overlay.hide()
 	overlay.preset_label = "LB" if alternate_jump else "A"
 	for argument: String in OS.get_cmdline_user_args():
-		if argument == "--auto-arena":
+		if argument in ["--auto-arena", "--auto-mission"]:
 			_start()
 		if argument.begins_with("--benchmark-seconds="):
 			if arena == null: _start()
@@ -84,7 +92,7 @@ func _build_menu() -> void:
 	title.add_theme_font_size_override("font_size", 29)
 	description.add_child(title)
 	var text := Label.new()
-	text.text = "CINZAS / PROTÓTIPO DE COMBATE\n\nInfiltre o pátio. Recupere os registros.\nTransmita a prova para a resistência.\n\nA/D mover · Ctrl correr · Espaço pular\nShift esquiva · S agachar/descer\nMouse mirar · esquerdo tiro · direito golpe\nR recarregar · 1/2/Q trocar · E interagir\nF5 checkpoint · F2 salto A/LB · F11 tela\n\nControle: RT tiro · RB golpe · X recarga\nY troca · A salto · B esquiva · ↑ interagir"
+	text.text = "CINZAS / UMA MISSÃO DA RESISTÊNCIA\n\nEncontre a Chacal. Recupere os registros.\nTransmita a prova para a resistência.\n\nA/D mover · Ctrl correr · Espaço pular\nShift esquiva · S agachar/descer\nMouse mirar · esquerdo tiro · direito golpe\nR recarregar · 1/2/Q trocar · E interagir\nF5 checkpoint · F2 salto A/LB · F11 tela\n\nControle: RT tiro · RB golpe · X recarga\nY troca · A salto · B esquiva · ↑ interagir"
 	text.add_theme_font_size_override("font_size", 12)
 	description.add_child(text)
 	save_notice = Label.new()
@@ -102,59 +110,26 @@ func _build_menu() -> void:
 	heading.text = "UMA CHANCE DE ROMPER"
 	heading.add_theme_font_size_override("font_size", 13)
 	menu_column.add_child(heading)
-	play_button = _button(menu_column, "Continuar / jogar", _start)
-	_button(menu_column, "Nova missão", _new_run)
+	play_button = _button(menu_column, "Continuar Cinzas", _continue_mission)
+	_button(menu_column, "Nova missão Cinzas", _new_mission)
+	_button(menu_column, "Laboratório de combate", _open_laboratory)
 	_button(menu_column, "Opções e controles", _open_options)
 	_button(menu_column, "Sair", func() -> void: get_tree().quit())
 	var note := Label.new()
-	note.text = "3 encontros · pistola e espingarda\nCaixas, vidro e barris explosivos\nCheckpoint após cada área segura\n\nArte provisória original · v0.2"
+	note.text = "3 setores · confronto com a Chacal\nRotas opcionais e registros secretos\nCheckpoint antes de cada confronto\n\nProtótipo expandido · v0.3"
 	note.add_theme_font_size_override("font_size", 11)
 	menu_column.add_child(note)
-	options_column = VBoxContainer.new()
-	options_column.custom_minimum_size.x = 240
-	options_column.add_theme_constant_override("separation", 4)
+	options_column = OPTIONS.new()
+	options_column.settings = settings
 	row.add_child(options_column)
-	var assist := CheckButton.new()
-	assist.text = "Modo assistido (próximo retry)"
-	assist.add_theme_font_size_override("font_size", 11)
-	assist.button_pressed = settings.assisted
-	assist.toggled.connect(func(value: bool) -> void: settings.assisted = value; _save_settings())
-	options_column.add_child(assist)
-	_button(options_column, "Alternar salto A / LB", _toggle_jump_preset)
-	var volume_label := Label.new()
-	volume_label.text = "Volume dos efeitos"
-	volume_label.add_theme_font_size_override("font_size", 11)
-	options_column.add_child(volume_label)
-	var volume := HSlider.new()
-	volume.min_value = 0.0
-	volume.max_value = 1.0
-	volume.step = 0.05
-	volume.value = settings.volume
-	volume.value_changed.connect(func(value: float) -> void:
-		settings.volume = value
-		sound_bank.volume = value
-		_save_settings()
-	)
-	options_column.add_child(volume)
-	_button(options_column, "Ouvir efeitos", _play_tone)
-	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size.y = 108
-	options_column.add_child(scroll)
-	var binds := VBoxContainer.new()
-	binds.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(binds)
-	for action: String in BINDING_NAMES:
-		var button := _button(binds, BINDING_NAMES[action] + ": " + _binding_name(action), func() -> void: pass)
-		binding_buttons[action] = button
-		button.pressed.connect(_begin_binding.bind(action, button))
-	_button(options_column, "Restaurar teclas", func() -> void:
-		settings.bindings = {}
-		_install_input()
-		_refresh_binding_buttons()
-		_save_settings()
-		save_notice.text = "Teclas padrão restauradas."
-	)
-	_button(options_column, "Voltar", _close_options)
+	binding_buttons = options_column.binding_buttons
+	options_column.changed.connect(_save_settings)
+	options_column.rebind_requested.connect(_begin_binding)
+	options_column.preset_requested.connect(_toggle_jump_preset)
+	options_column.preview_requested.connect(_play_tone)
+	options_column.restore_requested.connect(_restore_bindings)
+	options_column.closed.connect(_close_options)
+	_refresh_binding_buttons()
 	options_column.hide()
 	play_button.grab_focus()
 
@@ -170,6 +145,8 @@ func _button(parent: Node, text: String, callback: Callable) -> Button:
 func _start() -> void:
 	if checkpoint_recovery_required:
 		save_notice.text = "Save inválido preservado. Escolha Nova missão para recomeçar explicitamente."
+		menu.show()
+		get_tree().paused = true
 		return
 	if arena == null:
 		_build_world()
@@ -177,8 +154,12 @@ func _start() -> void:
 	_write_probe()
 
 func _build_world() -> void:
-	arena = ARENA_SCENE.instantiate()
-	arena.show_training_targets = false
+	if mission_mode == "cinzas":
+		arena = SECTOR_SCENE.instantiate()
+		arena.sector_index = MISSION_DIRECTOR.sector_for_stage(int(checkpoint.get("stage", 0)))
+	else:
+		arena = ARENA_SCENE.instantiate()
+		arena.show_training_targets = false
 	arena.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(arena)
 	player = PLAYER_SCENE.instantiate()
@@ -188,9 +169,10 @@ func _build_world() -> void:
 	player.add_child(weapons)
 	player.weapon_controller = weapons
 	weapons.setup(player)
-	weapons.feedback.connect(sound_bank.play)
-	player.damaged.connect(func(_amount: float) -> void: sound_bank.play("hurt"))
-	var camera := Camera2D.new()
+	weapons.feedback.connect(_combat_feedback)
+	player.damaged.connect(func(_amount: float) -> void: _combat_feedback("hurt", player.global_position))
+	_apply_live_settings()
+	camera = Camera2D.new()
 	camera.position = Vector2(0, -70)
 	camera.position_smoothing_enabled = true
 	camera.position_smoothing_speed = 7.0
@@ -200,19 +182,26 @@ func _build_world() -> void:
 	camera.limit_right = int(bounds.end.x)
 	camera.limit_bottom = int(bounds.end.y)
 	player.add_child(camera)
-	director = DIRECTOR.new()
+	director = MISSION_DIRECTOR.new() if mission_mode == "cinzas" else DIRECTOR.new()
 	arena.add_child(director)
 	director.checkpoint_reached.connect(_checkpoint_reached)
-	director.setup(player, checkpoint, sound_bank, settings.assisted)
+	if mission_mode == "cinzas":
+		director.setup(player, checkpoint, sound_bank, settings.assisted, arena)
+		director.sector_requested.connect(func() -> void: call_deferred("_rebuild"))
+	else:
+		director.setup(player, checkpoint, sound_bank, settings.assisted)
 	camera.reset_smoothing()
+	_apply_live_settings()
 	if is_instance_valid(hud):
 		hud.queue_free()
 	hud = HUD.new()
 	hud.player = player
 	hud.director = director
+	hud.is_mission = mission_mode == "cinzas"
 	add_child(hud)
 	hud.retry_requested.connect(_retry)
 	overlay.player = player
+	_sector_banner()
 
 func _set_paused(value: bool) -> void:
 	get_tree().paused = value
@@ -226,7 +215,7 @@ func _set_paused(value: bool) -> void:
 			player.velocity = Vector2.ZERO
 			player.weapon_controller.cancel_reload()
 	if value:
-		if options_column.visible: options_column.get_child(0).grab_focus()
+		if options_column.visible: options_column.focus_first()
 		else: play_button.grab_focus()
 
 func _retry() -> void:
@@ -238,7 +227,11 @@ func _retry() -> void:
 func _new_run() -> void:
 	checkpoint_recovery_required = false
 	checkpoint = {"schema_version": 1, "stage": 0, "evidence": false, "completed": false}
-	_checkpoint_reached(0, false, false)
+	if mission_mode == "cinzas":
+		checkpoint.merge({"boss_defeated": false, "shotgun_unlocked": false, "secrets": [], "deaths": 0})
+		if not store.save_mission(checkpoint): save_notice.text = store.last_error
+	else:
+		if not store.save_checkpoint(0, false, false): save_notice.text = store.last_error
 	_rebuild()
 
 func _rebuild() -> void:
@@ -247,11 +240,22 @@ func _rebuild() -> void:
 		remove_child(arena)
 		arena.queue_free()
 	arena = null
+	player = null
+	director = null
+	camera = null
+	if is_instance_valid(hud): hud.queue_free()
+	hud = null
 	_start()
 
 func _checkpoint_reached(stage: int, evidence: bool, finished: bool) -> void:
-	checkpoint = {"schema_version": 1, "stage": stage, "evidence": evidence, "completed": finished}
-	if not store.save_checkpoint(stage, evidence, finished):
+	var saved: bool
+	if mission_mode == "cinzas":
+		checkpoint = director.snapshot()
+		saved = store.save_mission(checkpoint)
+	else:
+		checkpoint = {"schema_version": 1, "stage": stage, "evidence": evidence, "completed": finished}
+		saved = store.save_checkpoint(stage, evidence, finished)
+	if not saved:
 		save_notice.text = store.last_error
 		if is_instance_valid(director):
 			director.radio = "Não foi possível gravar checkpoint: " + store.last_error
@@ -347,12 +351,13 @@ func _toggle_jump_preset() -> void:
 	save_notice.text = "Salto no controle: " + ("LB" if alternate_jump else "A")
 
 func _save_settings() -> void:
+	_apply_live_settings()
 	if not store.save_settings(settings): save_notice.text = store.last_error
 
 func _open_options() -> void:
 	menu_column.hide()
 	options_column.show()
-	options_column.get_child(0).grab_focus()
+	options_column.focus_first()
 
 func _close_options() -> void:
 	_cancel_binding()
@@ -365,8 +370,18 @@ func _notification(what: int) -> void:
 		if is_instance_valid(overlay) and overlay.collecting: overlay.cancel_capture("janela perdeu foco")
 		_set_paused(true)
 
-func _process(_delta: float) -> void:
-	if is_instance_valid(player) and player.position.y > arena.world_bounds.end.y + 100:
+func _process(delta: float) -> void:
+	_trauma = maxf(0.0, _trauma - delta * 3.5)
+	if is_instance_valid(camera):
+		var shake: float = _trauma * 2.0 if settings.screen_shake and not settings.reduced_effects else 0.0
+		camera.offset = Vector2(roundf(sin(Time.get_ticks_msec() * 0.07) * shake), roundf(cos(Time.get_ticks_msec() * 0.09) * shake))
+	if _transition_time > 0.0:
+		_transition_time -= delta
+		if is_instance_valid(_transition_label):
+			_transition_label.modulate.a = minf(1.0, _transition_time)
+			if _transition_time <= 0.0: _transition_label.queue_free()
+
+	if is_instance_valid(player) and is_instance_valid(arena) and player.position.y > arena.world_bounds.end.y + 100:
 		_retry()
 
 func _write_probe() -> void:
@@ -378,3 +393,59 @@ func _write_probe() -> void:
 
 func _play_tone() -> void:
 	sound_bank.play("pickup")
+
+func _restore_bindings() -> void:
+	settings.bindings = {}
+	_install_input()
+	_refresh_binding_buttons()
+	_save_settings()
+	save_notice.text = "Teclas padrão restauradas."
+
+func _apply_live_settings() -> void:
+	if is_instance_valid(sound_bank): sound_bank.volume = settings.volume
+	if is_instance_valid(player):
+		player.aim_assist_enabled = settings.aim_assist
+		player.aim_deadzone = settings.aim_deadzone
+		player.reduced_effects = settings.reduced_effects
+	if is_instance_valid(player) and is_instance_valid(player.weapon_controller):
+		player.weapon_controller.reduced_effects = settings.reduced_effects
+	for prop: Node in get_tree().get_nodes_in_group("destructibles"):
+		prop.reduced_effects = settings.reduced_effects
+
+func _combat_feedback(kind: String, position_value: Vector2) -> void:
+	sound_bank.play(kind, position_value)
+	if kind in ["shotgun", "hurt", "explosion"]:
+		_trauma = minf(0.8, _trauma + 0.35)
+	if kind in ["pistol", "shotgun"] and is_instance_valid(player): player.recoil_remaining = 0.08
+
+func _new_mission() -> void:
+	mission_mode = "cinzas"
+	_new_run()
+
+func _continue_mission() -> void:
+	if mission_mode == "cinzas":
+		_start()
+		return
+	mission_mode = "cinzas"
+	checkpoint = store.load_mission()
+	checkpoint_recovery_required = checkpoint.is_empty() and not store.last_error.is_empty()
+	_rebuild()
+
+func _open_laboratory() -> void:
+	if mission_mode == "laboratory" and is_instance_valid(arena):
+		_start()
+		return
+	mission_mode = "laboratory"
+	checkpoint = store.load_checkpoint()
+	checkpoint_recovery_required = checkpoint.is_empty() and not store.last_error.is_empty()
+	_rebuild()
+
+func _sector_banner() -> void:
+	if is_instance_valid(_transition_label): _transition_label.queue_free()
+	_transition_label = Label.new()
+	_transition_label.text = director.sector_title if mission_mode == "cinzas" else "LABORATÓRIO DE COMBATE"
+	_transition_label.position = Vector2(18, 73)
+	_transition_label.add_theme_font_size_override("font_size", 17)
+	_transition_label.add_theme_color_override("font_color", Color("d8c69d"))
+	hud.add_child(_transition_label)
+	_transition_time = 3.5

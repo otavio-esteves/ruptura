@@ -9,3 +9,9 @@
 - Cada área limpa fornece checkpoint com vida100 e armamento cheio. Estágios0/1 começam de pistola; estágio2 em diante dispõe também de espingarda. Pickups de munição/vida e arma reaparecem na reconstrução. Não persistimos a tentativa parcialmente concluída ou poses de objetos.
 
 Valores são hipóteses iniciais para playtest. Explosão, golpes e tiros já têm regressões automatizadas; conforto, justiça dos encontros e disponibilidade de recursos ainda precisam ser observados jogando.
+
+## Acrescentado na0.3
+
+Chacal e progressão de Cinzas estão descritas em [CINZAS](CINZAS.md). A arena do laboratório mantém as regras0.2. A missão tem checkpoints próprios: shotgun_unlocked registra pickup e acompanha os checkpoints posteriores, enquanto uma nova missão começa do zero. Documentos opcionais persistem na mesma tentativa de missão e não concedem recompensa repetida no retry. A conclusão depende somente da prova obrigatória, chefão e transmissor.
+
+A assistência opcional corrige até22% da diferença angular para um alvo visível dentro de7°/360px. Não altera raycasts ou aplica correção ao mouse. Deadzone é configurável entre0,1 e0,35; direção válida permanece ao centralizar. Nenhum dos novos parâmetros foi aprovado por teste físico de gamepad.

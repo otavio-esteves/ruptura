@@ -1,4 +1,12 @@
-# Estado atual — build0.2 de combate
+# Estado atual — build0.3 Cinzas
+
+Entregue um recorte maior da missão: três setores, quatro encontros comuns, Chacal em duas fases, rotas altas, dois documentos opcionais, prova obrigatória e transmissão com desfecho. Laboratório0.2 preservado como modo separado. Novos saves e opções de mira/efeitos, HUD do chefe e feedback de arma/movimento.
+
+A implementação aproxima os conteúdos previstos para a slice, mas não aprova seus gates. Não há medição de duração, aceite artístico, playtest externo nos dois dispositivos ou benchmark prolongado aprovado. Os demais capítulos continuam fora da produção. Próximo trabalho orientado por [PLAYTEST](PLAYTEST.md), com ajustes e correções do recorte antes de novo conteúdo.
+
+---
+
+# Histórico — build0.2 de combate
 
 Incremento atual: Marco2 em uma arena curta, com início de objetos interativos do Marco3. Não é aprovação da vertical slice nem início de produção da campanha.
 
