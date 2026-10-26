@@ -2,6 +2,17 @@
 
 O plano vigente é `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.2). Não duplicar o GDD. Incremento atual: build0.3.1, polimento de pixel art/animação do protótipo expandido de Cinzas. O usuário autorizou uma entrega maior; isso não aprova os gates humanos nem a produção dos demais capítulos.
 
+## Pedido vigente0.4 — executivo / ambiente corporativo
+
+O usuário alterou a premissa: Espectro é um executivo de terno preto, antes aspirante a uma diretoria. Esta instrução substitui a origem anterior de ex-agente militar. Cores inspiradas em Superfighters como referência de síntese/contraste, com arte original. Ambiente mais corporativo e escuro, inimigos mais difíceis. Confirmado pelo usuário: esquerdo move/orienta por padrão; analógico direito é opção de mira independente mais precisa.
+
+- Integrador: player/InputMap/settings/opções/main, mira por vetor radial esquerdo (inclusive diagonal/vertical) ou direito quando opção independent_aim=true, retenção no centro, mouse intacto, testes e build. Campo independent_aim bool defaultfalse persistido em settings; não é a assistência aim_assist, que continua separada.
+- Especialista arte: tools/art/build_actor_atlas.gd e game/visuals/pixel_actor.gd somente. Terno preto/cinza carvão com recortes legíveis, camisa clara, gravata, sapatos, rosto e cabelo; remover máscara/visor/equipamento militar do protagonista. Atlas não muda dimensions/pivôs/estados. Não executar engine ou regenerar PNG em paralelo; integrador gera/importa.
+- Especialista cenário: game/world/sectors/cinzas_sector.gd e game/world/interactables/destructible.gd somente desenhos/nomes/textos. Transformar descarto/pátio/torre em arquivo corporativo, operações e conselho. Recepção, escritórios, divisórias de vidro, persianas, mesas/monitores, luminárias discretas, arquivos e emblemas próprios. Escurecer fundos sem perder chão, personagem preto, retículo e telegraphs. Preservar layouts/colisões/spawns/nav e IDs ruins_cache/yard_manifest para saves.
+- Especialista combate: game/actor/enemies/enemy.gd, game/bosses/chacal.gd, tests/enemies_smoke.gd, tests/boss_smoke.gd, tests/difficulty_smoke.gd. Maior pressão por cadência/mobilidade/dano, não por HP excessivo. Manter55/40HP e420HP do chefe, dano único, LOS, avisos legíveis e modo assistido. Parâmetros em constantes nomeadas; após tiro, recruta pode reposicionar na recuperação com colisão real. Sem mudar geometria/player/input/renderer ou escrever no save real. Não executar engine/import em paralelo; testes centralizados.
+
+O plano e docs serão atualizados pelo integrador para registrar a mudança autorizada, sem reescrever os registros históricos das builds.
+
 - Godot 4.7.2 estável, GDScript tipado, renderizador Compatibility, Linux primário.
 - Integração centralizada: somente o orquestrador altera `project.godot`, InputMap, cena principal e contratos compartilhados. Não importar a mesma cópia do projeto em paralelo.
 - Equipe explicitamente autorizada pelo usuário: até três subagentes com arquivos distintos. Cada responsável relata alterações, verificações e limitações. Não ampliar escopo.
