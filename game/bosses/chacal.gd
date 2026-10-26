@@ -9,6 +9,21 @@ const PixelActor = preload("res://game/visuals/pixel_actor.gd")
 enum State { INTRO, APPROACH, WINDUP, DASH, BURST, LEAP, RECOVERY, PHASE_CHANGE, STUNNED, DEAD }
 enum Pattern { DASH, BURST, SLAM }
 
+const BOSS_HEALTH: float = 420.0
+const DASH_DAMAGE: float = 24.0
+const BURST_DAMAGE: float = 18.0
+const SLAM_DAMAGE: float = 30.0
+const DASH_WINDUP: float = 0.60
+const BURST_WINDUP: float = 0.72
+const SLAM_WINDUP: float = 0.85
+const ATTACK_RECOVERY: float = 0.85
+const HEAVY_RECOVERY: float = 1.10
+const ASSISTED_DAMAGE_MULTIPLIER: float = 0.7
+const ASSISTED_WINDUP_MULTIPLIER: float = 1.45
+const INTRO_DURATION: float = 1.0
+const PHASE_CHANGE_DURATION: float = 0.8
+const PHASE_TWO_HEALTH_RATIO: float = 0.5
+
 var display_name: String = "MARA «CHACAL»"
 var health := HealthScript.new()
 var target: CharacterBody2D
@@ -18,7 +33,7 @@ var state: State = State.INTRO
 var arena_bounds: Rect2 = Rect2(0, 0, 1600, 720)
 
 var _assisted: bool = false
-var _timer: float = 1.0
+var _timer: float = INTRO_DURATION
 var _pattern: Pattern = Pattern.DASH
 var _cycle: int = 0
 var _facing: float = -1.0
@@ -48,7 +63,7 @@ func _ready() -> void:
 	add_to_group("damageable")
 	add_to_group("bosses")
 	health.name = "Health"
-	health.max_health = 420.0
+	health.max_health = BOSS_HEALTH
 	health.depleted.connect(_die)
 	add_child(health)
 
@@ -60,7 +75,7 @@ func configure(victim: CharacterBody2D, bounds: Rect2, assisted: bool = false) -
 	phase = 1
 	is_dead = false
 	state = State.INTRO
-	_timer = 1.0
+	_timer = INTRO_DURATION
 	_cycle = 0
 	_stun_cooldown = 0.0
 	_knockback = 0.0
@@ -77,7 +92,7 @@ func configure(victim: CharacterBody2D, bounds: Rect2, assisted: bool = false) -
 	velocity = Vector2.ZERO
 	collision_layer = 4
 	collision_mask = 25
-	health.max_health = 420.0
+	health.max_health = BOSS_HEALTH
 	health.reset_health()
 	queue_redraw()
 
@@ -139,7 +154,7 @@ func _physics_process(delta: float) -> void:
 	elif state == State.DASH:
 		desired_speed = _locked_direction.x * (470.0 if phase == 2 else 420.0)
 		if _timer <= 0.0:
-			_recover(1.0)
+			_recover(ATTACK_RECOVERY)
 			desired_speed = 0.0
 	elif state == State.BURST:
 		_shot_timer -= delta
@@ -148,12 +163,12 @@ func _physics_process(delta: float) -> void:
 			_burst_remaining -= 1
 			_shot_timer = 0.16
 		elif _burst_remaining == 0 and _shot_timer <= 0.0:
-			_recover(1.0)
+			_recover(ATTACK_RECOVERY)
 	elif state == State.LEAP:
 		_airtime += delta
 		if is_on_floor() and _airtime > 0.10:
 			_impact_slam()
-			_recover(1.25)
+			_recover(HEAVY_RECOVERY)
 	_knockback = move_toward(_knockback, 0.0, 650.0 * delta)
 	velocity.x = desired_speed + _knockback
 	move_and_slide()
@@ -166,7 +181,7 @@ func _physics_process(delta: float) -> void:
 			for index: int in range(get_slide_collision_count()):
 				var obstacle: CollisionObject2D = get_slide_collision(index).get_collider() as CollisionObject2D
 				_damage_cover(obstacle)
-			_recover(1.25)
+			_recover(HEAVY_RECOVERY)
 	_update_animation(delta, before, grounded_before)
 	queue_redraw()
 
@@ -270,14 +285,14 @@ func _start_pattern(pattern: Pattern) -> void:
 	_locked_direction = offset.normalized() if offset.length_squared() > 0.01 else Vector2(_facing, 0)
 	if pattern == Pattern.DASH:
 		_locked_direction = Vector2(_facing, 0)
-		_timer = 0.70
+		_timer = DASH_WINDUP
 	elif pattern == Pattern.BURST:
-		_timer = 0.85
+		_timer = BURST_WINDUP
 	else:
-		_timer = 0.95
+		_timer = SLAM_WINDUP
 		_slam_center = global_position
 	if _assisted:
-		_timer *= 1.3
+		_timer *= ASSISTED_WINDUP_MULTIPLIER
 	feedback.emit("boss_warn", global_position)
 
 
@@ -305,7 +320,7 @@ func _check_dash_contact(start: Vector2, finish: Vector2) -> void:
 	var victim: Vector2 = _target_center()
 	var nearest_x: float = clampf(victim.x, minf(start.x, finish.x), maxf(start.x, finish.x))
 	if absf(victim.x - nearest_x) <= 25.0 and absf(victim.y - (finish.y - 18.0)) <= 25.0 and _visible_from(_shoulder()):
-		_deal_damage(20.0, Vector2(_locked_direction.x * 155.0, -65.0))
+		_deal_damage(DASH_DAMAGE, Vector2(_locked_direction.x * 155.0, -65.0))
 
 
 func _damage_cover(obstacle: CollisionObject2D) -> void:
@@ -331,7 +346,7 @@ func _fire_bullet() -> void:
 	if not hit.is_empty():
 		finish = hit["position"]
 		if hit.get("collider") == target:
-			_deal_damage(14.0, _locked_direction * 95.0)
+			_deal_damage(BURST_DAMAGE, _locked_direction * 95.0)
 	_tracers.append({"from": muzzle, "to": finish, "remaining": 0.10})
 	if _tracers.size() > 3:
 		_tracers.pop_front()
@@ -343,7 +358,7 @@ func _impact_slam() -> void:
 	_shock_remaining = 0.32
 	if _target_alive() and absf(target.global_position.x - global_position.x) <= 160.0 and absf(target.global_position.y - global_position.y) <= 24.0 and _visible_from(_shoulder()):
 		var push: float = signf(target.global_position.x - global_position.x)
-		_deal_damage(26.0, Vector2(push * 150.0, -100.0))
+		_deal_damage(SLAM_DAMAGE, Vector2(push * 150.0, -100.0))
 	feedback.emit("explosion", global_position)
 
 
@@ -352,7 +367,7 @@ func _deal_damage(amount: float, impulse: Vector2) -> void:
 		return
 	# Um contato já evitado pela esquiva também encerra o dano deste ataque.
 	_attack_resolved = true
-	target.call("receive_damage", amount * (0.7 if _assisted else 1.0), impulse, self)
+	target.call("receive_damage", amount * (ASSISTED_DAMAGE_MULTIPLIER if _assisted else 1.0), impulse, self)
 
 
 func _recover(duration: float) -> void:
@@ -374,10 +389,10 @@ func receive_damage(amount: float, impulse: Vector2, source: Node = null) -> boo
 	if is_dead:
 		return true
 	_knockback = clampf(impulse.x, -100.0, 100.0)
-	if phase == 1 and health.current_health <= health.max_health * 0.5:
+	if phase == 1 and health.current_health <= health.max_health * PHASE_TWO_HEALTH_RATIO:
 		phase = 2
 		state = State.PHASE_CHANGE
-		_timer = 0.8
+		_timer = PHASE_CHANGE_DURATION
 		_attack_resolved = true
 		_burst_remaining = 0
 		velocity.x = 0.0

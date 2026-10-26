@@ -6,6 +6,22 @@ const HealthScript = preload("res://game/combat/health_component.gd")
 const PixelActor = preload("res://game/visuals/pixel_actor.gd")
 enum State { APPROACH, TELEGRAPH, RECOVERY, STUNNED, DEAD }
 
+const RECRUIT_HEALTH: float = 55.0
+const SCOUT_HEALTH: float = 40.0
+const RECRUIT_DAMAGE: float = 12.0
+const SCOUT_DAMAGE: float = 18.0
+const RECRUIT_WINDUP: float = 0.60
+const SCOUT_WINDUP: float = 0.36
+const RECRUIT_RECOVERY: float = 0.85
+const SCOUT_RECOVERY: float = 0.75
+const RECRUIT_SPEED: float = 100.0
+const SCOUT_SPEED: float = 145.0
+const ASSISTED_DAMAGE_MULTIPLIER: float = 0.7
+const ASSISTED_WINDUP_MULTIPLIER: float = 1.45
+const RECRUIT_PREFERRED_MIN: float = 160.0
+const RECRUIT_PREFERRED_MAX: float = 240.0
+const RECOVERY_AIM_SETTLE: float = 0.20
+
 @export_enum("recruit", "scout") var archetype: String = "recruit"
 @export var navigation_links: Array[Dictionary] = []
 var target: CharacterBody2D
@@ -23,6 +39,7 @@ var _jump_active: bool = false
 var _facing: float = -1.0
 var _attack_direction: Vector2 = Vector2.LEFT
 var _attack_origin: Vector2 = Vector2.ZERO
+var _attack_resolved: bool = false
 var _tracer_start: Vector2 = Vector2.ZERO
 var _tracer_end: Vector2 = Vector2.ZERO
 var _tracer_remaining: float = 0.0
@@ -42,7 +59,7 @@ func _ready() -> void:
 	add_to_group("enemies")
 	add_to_group("damageable")
 	health.name = "Health"
-	health.max_health = 40.0 if archetype == "scout" else 55.0
+	health.max_health = SCOUT_HEALTH if archetype == "scout" else RECRUIT_HEALTH
 	health.depleted.connect(_die)
 	add_child(health)
 
@@ -51,13 +68,14 @@ func configure(kind: String, victim: CharacterBody2D, assisted: bool = false) ->
 	archetype = "scout" if kind == "scout" else "recruit"
 	target = victim
 	_assisted = assisted
+	_attack_resolved = false
 	_walk_cycle = 0.0
 	_idle_cycle = 0.0
 	_land_remaining = 0.0
 	_visual_speed = 0.0
 	_attack_pose_remaining = 0.0
 	_visual_state = -1
-	health.max_health = 40.0 if archetype == "scout" else 55.0
+	health.max_health = SCOUT_HEALTH if archetype == "scout" else RECRUIT_HEALTH
 	health.reset_health()
 	queue_redraw()
 
@@ -91,10 +109,15 @@ func _physics_process(delta: float) -> void:
 		elif _timer <= 0.0:
 			_execute_attack()
 			state = State.RECOVERY
-			_timer = 1.0 if archetype == "scout" else 1.1
+			_timer = SCOUT_RECOVERY if archetype == "scout" else RECRUIT_RECOVERY
 	elif state == State.RECOVERY:
 		if _timer <= 0.0:
 			state = State.APPROACH
+		elif archetype == "recruit":
+			desired_speed = _reposition_speed()
+			if _timer <= RECOVERY_AIM_SETTLE:
+				# Apoio estável antes do próximo aviso, sem deslizar ainda correndo.
+				velocity.x = 0.0
 	else:
 		var offset: Vector2 = target.global_position - global_position
 		if absf(offset.x) > 2.0:
@@ -201,9 +224,10 @@ func _target_visible() -> bool:
 
 func _start_attack() -> void:
 	state = State.TELEGRAPH
-	_timer = 0.45 if archetype == "scout" else 0.8
+	_attack_resolved = false
+	_timer = SCOUT_WINDUP if archetype == "scout" else RECRUIT_WINDUP
 	if _assisted:
-		_timer *= 1.3
+		_timer *= ASSISTED_WINDUP_MULTIPLIER
 	_attack_origin = _muzzle()
 	_attack_direction = (_target_center() - _attack_origin).normalized()
 	if _attack_direction.is_zero_approx():
@@ -211,12 +235,13 @@ func _start_attack() -> void:
 
 
 func _execute_attack() -> void:
-	if not _target_alive():
+	if _attack_resolved or not _target_alive():
 		return
+	_attack_resolved = true
 	_attack_pose_remaining = 0.18
-	var damage: float = 12.0 if archetype == "scout" else 8.0
+	var damage: float = SCOUT_DAMAGE if archetype == "scout" else RECRUIT_DAMAGE
 	if _assisted:
-		damage *= 0.7
+		damage *= ASSISTED_DAMAGE_MULTIPLIER
 	if archetype == "scout":
 		var offset: Vector2 = _target_center() - (global_position + Vector2(0.0, -12.0))
 		if offset.length() <= 38.0 and offset.dot(_attack_direction) > 0.0 and _target_visible():
@@ -234,8 +259,29 @@ func _execute_attack() -> void:
 	_tracer_remaining = 0.10
 
 
+func _reposition_speed() -> float:
+	# Reposicionar não chama navegação: sem salto ou queda decididos às cegas.
+	if not is_on_floor() or _jump_active or _timer <= RECOVERY_AIM_SETTLE:
+		return 0.0
+	var offset: Vector2 = target.global_position - global_position
+	if absf(offset.y) > 48.0:
+		return 0.0
+	var distance: float = absf(offset.x)
+	if distance < 2.0:
+		return 0.0
+	_facing = signf(offset.x)
+	var direction: float = -_facing if distance < RECRUIT_PREFERRED_MIN else (_facing if distance > RECRUIT_PREFERRED_MAX else 0.0)
+	if direction == 0.0:
+		return 0.0
+	var from: Vector2 = global_position + Vector2(direction * 16.0, -4.0)
+	var query := PhysicsRayQueryParameters2D.create(from, from + Vector2(0.0, 26.0), 25, [get_rid()])
+	if get_world_2d().direct_space_state.intersect_ray(query).is_empty():
+		return 0.0
+	return direction * RECRUIT_SPEED
+
+
 func _navigate(offset: Vector2) -> float:
-	var speed: float = 110.0 if archetype == "scout" else 80.0
+	var speed: float = SCOUT_SPEED if archetype == "scout" else RECRUIT_SPEED
 	if _jump_active:
 		if is_on_floor() and velocity.y >= 0.0:
 			_jump_active = false

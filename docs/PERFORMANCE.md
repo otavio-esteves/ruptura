@@ -83,3 +83,9 @@ A aprovação do benchmark longo permanece aberta. As capturas exploratórias0.1
 Novos atlas de pixels são gerados somente na autoria; o jogo seleciona regiões de texturas cacheadas. Passada e estados visuais acrescentam timers sem alterar a física. Fundo/material permanecem estáticos; não há luz dinâmica, shader caro ou ruído por pixel em runtime. Filtragem nearest e snapping de transforms atuam na apresentação.
 
 A suíte de regressão existente passou746 verificações sem erros/avisos neste incremento. Capturas gráficas da missão e da prancha utilizaram a Radeon R7M260/Compatibility. `record_movement.gd` captura o controlador em um cenário de revisão isolado e roteirizado; não mede desempenho nem substitui teste humano. A prévia APNG usa os PNGs capturados sem interpolação. As medições antigas não aprovam desempenho da build0.3.1; o benchmark prolongado continua pendente.
+
+## Ciclo0.4 — direção corporativa e controle
+
+Suíte consolidada:829 verificações aprovadas, sem erros/avisos. Novos testes cobrem vetor do esquerdo, precisão independente opcional do direito, centro/deadzone/diagonais/mouse, persistência do modo e pressão dos inimigos. A comparação de dificuldade usa ataques em física real, modo padrão/assistido, reposição com parede/limite de plataforma e dano único. Nenhuma fixture escreve em progresso real.
+
+Cenários agora usam decoração corporativa estática, com fundos escuros e faixa recuada para preservar o executivo preto. Não foi acrescentada iluminação dinâmica nem overlay sobre o HUD. Novos sprites têm o mesmo tamanho e orçamento de atlas. Reposicionamento adiciona uma sondagem curta de chão apenas na recuperação ativa do recruta. Desempenho prolongado e conforto de mira com controle físico continuam pendentes; as medições0.3 não aprovam a0.4.

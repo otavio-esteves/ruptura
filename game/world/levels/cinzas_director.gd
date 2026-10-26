@@ -9,7 +9,7 @@ const BOSS = preload("res://game/bosses/chacal.tscn")
 const PROP = preload("res://game/world/interactables/destructible.tscn")
 const PICKUP = preload("res://game/world/interactables/pickup.tscn")
 const DOCUMENT = preload("res://game/narrative/field_document.gd")
-const SECTOR_NAMES: Array[String] = ["RUÍNA / DISTRITO DE DESCARTE", "PÁTIO / CARGA MORTA", "CHACAL / TORRE DE CONTROLE"]
+const SECTOR_NAMES: Array[String] = ["ARQUIVO MORTO / ANEXO CORPORATIVO", "OPERAÇÕES / CONTROLE DE CONTRATOS", "CONSELHO / SEGURANÇA EXECUTIVA"]
 var player: CharacterBody2D
 var sound_bank: Node
 var sector: Node2D
@@ -67,10 +67,10 @@ func setup(actor: CharacterBody2D, checkpoint: Dictionary, audio: Node, easier: 
 	if is_complete:
 		_set_radio("NARA: A prova chegou. Os trabalhadores interromperam as cargas e abriram os portões.\nLIA: Não estamos sozinhos. A reconstrução começa agora.", 30.0)
 	elif stage == 0:
-		_set_radio("LIA: Espectro, você sobreviveu. A Chacal guarda os registros da sua execução. Siga até a torre; eu abro as passagens.", 9.0)
+		_set_radio("LIA: Você disputava uma diretoria. Agora querem apagar seu nome. A Chacal guarda a ata da sua execução; eu abro as passagens.", 9.0)
 		_intro_remaining = 1.0
 	elif stage == 4:
-		_set_radio("LIA: A Chacal está na torre. O avanço deixa uma brecha; os barris podem quebrar a postura dela.", 8.0)
+		_set_radio("LIA: A Chacal protege o conselho. O avanço deixa uma brecha; os barris podem quebrar a postura dela.", 8.0)
 	elif stage >= 5:
 		_set_radio("NARA: A segurança caiu. Pegue os registros e use o transmissor. Não basta derrubar a direção: todos precisam saber.", 9.0)
 	else:
@@ -128,8 +128,8 @@ func _begin_encounter() -> void:
 	match stage:
 		0: _set_radio("LIA: Um recruta. O aviso laranja antecipa o tiro. Experimente a caixa e o golpe, sem ficar na linha de disparo.", 7.0)
 		1: _set_radio("LIA: O batedor vai encurtar a distância. Use o caminho alto para mudar o ângulo.")
-		2: _set_radio("NARA: O pátio está vigiado. A arma no caminho é uma espingarda; teste-a de perto.")
-		3: _set_radio("LIA: A torre fica além do portão. Você tem cobertura e barris, mas as explosões também atingem você.")
+		2: _set_radio("NARA: Operações está sob escolta. A arma no caminho é uma espingarda; use os corredores e as divisórias.")
+		3: _set_radio("LIA: O conselho fica além do acesso restrito. Você tem cobertura e barris, mas as explosões também atingem você.")
 		4: _set_radio("CHACAL: Eu mesma confirmei sua morte. Não vou cometer o mesmo erro.\nLIA: Espere o avanço terminar. Ela fica exposta na recuperação.", 9.0)
 	_update_objective()
 

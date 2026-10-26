@@ -50,7 +50,7 @@ func load_settings() -> Dictionary:
 	var result: Dictionary = {}
 	result["assisted"] = value.get("assisted") is bool and value.assisted
 	result["alternate_jump"] = value.get("alternate_jump") is bool and value.alternate_jump
-	for flag: String in ["reduced_effects", "aim_assist", "screen_shake"]:
+	for flag: String in ["reduced_effects", "aim_assist", "screen_shake", "independent_aim"]:
 		result[flag] = value.get(flag) is bool and value[flag]
 	var volume: Variant = value.get("volume", 0.55)
 	result["volume"] = clampf(float(volume), 0.0, 1.0) if _finite_number(volume) else 0.55

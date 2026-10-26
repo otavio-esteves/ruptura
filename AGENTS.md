@@ -1,6 +1,6 @@
 # RUPTURA — instruções de implementação
 
-O plano vigente é `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.2). Não duplicar o GDD. Incremento atual: build0.3.1, polimento de pixel art/animação do protótipo expandido de Cinzas. O usuário autorizou uma entrega maior; isso não aprova os gates humanos nem a produção dos demais capítulos.
+O plano vigente é `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.3). Não duplicar o GDD. Incremento atual: build0.4, origem executiva, direção corporativa, mira pelo movimento e dificuldade reforçada. O usuário autorizou uma entrega maior; isso não aprova os gates humanos nem a produção dos demais capítulos.
 
 ## Pedido vigente0.4 — executivo / ambiente corporativo
 
@@ -16,7 +16,7 @@ O plano e docs serão atualizados pelo integrador para registrar a mudança auto
 - Godot 4.7.2 estável, GDScript tipado, renderizador Compatibility, Linux primário.
 - Integração centralizada: somente o orquestrador altera `project.godot`, InputMap, cena principal e contratos compartilhados. Não importar a mesma cópia do projeto em paralelo.
 - Equipe explicitamente autorizada pelo usuário: até três subagentes com arquivos distintos. Cada responsável relata alterações, verificações e limitações. Não ampliar escopo.
-- Player: `game/actor/player/player.tscn`, raiz CharacterBody2D, script `player.gd`. Interface pública: `aim_direction: Vector2`, `input_device: String`, `reset_to(spawn: Vector2)`. Ações: move_left/right, crouch, jump, dodge, aim_left/right/up/down, sprint. Analógico esquerdo move; direito mira; mouse mira no mundo. Colisão jogador layer 2, mask 25.
+- Player: `game/actor/player/player.tscn`, raiz CharacterBody2D, script `player.gd`. Interface pública: `aim_direction: Vector2`, `input_device: String`, `reset_to(spawn: Vector2)`. Ações: move_left/right, crouch, jump, dodge, aim_left/right/up/down, sprint. Analógico esquerdo move/orienta; direito mira quando independent_aim está habilitado; mouse mira no mundo. Colisão jogador layer 2, mask 25.
 - Arena: `game/world/levels/prototype_arena.tscn`, raiz Node2D; `prototype_arena.gd`. Não instancia Player ou câmera. Expõe `spawn_position: Vector2` em coordenadas locais e `world_bounds: Rect2`. Geometria estática layer 1; plataformas unilaterais layer 5 (valor 16), mask do jogador inclui 1+16. Arena aproximadamente 1600×720, spawn seguro próximo de (120, 550).
 - Overlay: será integrado em `game/ui/`; métricas e ferramentas externas em `tools/validation/` por especialista de QA. Não executar importação Godot até integração central.
 - Placeholders originais desenhados com primitivas em código; nenhum asset externo. Caches `.godot/`, builds e relatórios locais não são versionados.

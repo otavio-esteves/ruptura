@@ -109,18 +109,21 @@ func _test_settings_types() -> void:
 	_check(int(loaded.get("bindings", {}).get("jump", -1)) == 32, "settings key binding roundtrip")
 	_check(loaded.get("reduced_effects") == false and loaded.get("aim_assist") == false and loaded.get("screen_shake") == false, "legacy settings keep accessibility flags opt-in")
 	_check(is_equal_approx(float(loaded.get("aim_deadzone", -1.0)), 0.2), "legacy settings use default aim deadzone")
-	var expanded := {"reduced_effects": true, "aim_assist": true, "screen_shake": true, "aim_deadzone": 0.27}
+	_check(loaded.get("independent_aim") == false, "legacy settings default to movement-facing aim")
+	var expanded := {"independent_aim": true, "reduced_effects": true, "aim_assist": true, "screen_shake": true, "aim_deadzone": 0.27}
 	_check(bool(_store.call("save_settings", expanded)), "expanded accessibility settings saved")
 	_check(not expanded.has("schema_version"), "expanded settings caller dictionary unchanged")
 	loaded = _store.call("load_settings")
 	_check(loaded.get("reduced_effects") == true and loaded.get("aim_assist") == true and loaded.get("screen_shake") == true, "accessibility flags roundtrip")
 	_check(is_equal_approx(float(loaded.get("aim_deadzone", -1.0)), 0.27), "configured aim deadzone roundtrip")
+	_check(loaded.get("independent_aim") == true, "independent precision mode roundtrip")
 	for deadzone: Variant in [-2.0, 3.0, "0.25", true, null]:
-		_write_text(_settings, JSON.stringify({"schema_version": 1, "aim_deadzone": deadzone, "reduced_effects": 1, "aim_assist": "true", "screen_shake": []}))
+		_write_text(_settings, JSON.stringify({"schema_version": 1, "aim_deadzone": deadzone, "reduced_effects": 1, "aim_assist": "true", "screen_shake": [], "independent_aim": "true"}))
 		loaded = _store.call("load_settings")
 		var expected: float = clampf(float(deadzone), 0.1, 0.35) if deadzone is float else 0.2
 		_check(is_equal_approx(float(loaded.get("aim_deadzone", -1.0)), expected), "aim deadzone clamps numeric values and defaults invalid types")
 		_check(loaded.get("reduced_effects") == false and loaded.get("aim_assist") == false and loaded.get("screen_shake") == false, "accessibility flags reject malformed types")
+		_check(loaded.get("independent_aim") == false, "precision mode rejects malformed types")
 	_write_text(_settings, JSON.stringify({"schema_version": 1, "assisted": "true", "alternate_jump": 1, "volume": "loud", "bindings": {"jump": "32", "reload": 82.5, "move_left": -1, "move_right": 50000000, "dodge": 32, "unknown_action": 65}}))
 	loaded = _store.call("load_settings")
 	_check(loaded.get("assisted") == false and loaded.get("alternate_jump") == false, "malformed setting flags use false without coercion")

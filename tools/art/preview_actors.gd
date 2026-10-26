@@ -59,7 +59,7 @@ class Sheet:
 
 	func _draw() -> void:
 		draw_rect(Rect2(0, 0, 960, 832), Color("101921"))
-		draw_string(font, Vector2(16, 23), "RUPTURA / ESTUDO DE PIXEL ART E ANIMAÇÃO · 0.3.1", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, LIGHT)
+		draw_string(font, Vector2(16, 23), "RUPTURA / ESTUDO DE PIXEL ART E ANIMAÇÃO · EXECUTIVO0.4", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, LIGHT)
 		draw_string(font, Vector2(16, 43), "Corpos/estados em 2× · mira em 1× · poses estáticas para revisão; conforto e movimento dependem do jogo", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, INK)
 		for row: int in range(KINDS.size()):
 			var top: float = 55.0 + row * 190.0

@@ -38,7 +38,7 @@ def main():
             run(command + ["--quit-after", "120", "--", "--auto-arena"])
             run(command + ["--script", "res://tests/player_smoke.gd"])
             run(command + ["--script", "res://tests/main_smoke.gd"])
-            for test in ("weapons", "enemies", "props", "save", "player_combat", "navigation", "encounter", "mission_save", "sectors", "boss", "aim_assist", "mission_flow"):
+            for test in ("weapons", "enemies", "props", "save", "player_combat", "navigation", "encounter", "mission_save", "sectors", "boss", "aim_assist", "mission_flow", "controller_aim", "difficulty"):
                 run(command + ["--script", f"res://tests/{test}_smoke.gd"])
         elif args.action == "export-linux":
             # The engine reports absent/mismatched templates; never download implicitly.

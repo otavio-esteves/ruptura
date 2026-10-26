@@ -44,6 +44,7 @@ func run() -> void:
 	wall.queue_free()
 	await frames(2)
 	player.aim_assist_enabled = false
+	player.independent_aim = true
 	player.input_device = "gamepad"
 	Input.action_press("aim_right", 1.0)
 	player.call("_update_aim")

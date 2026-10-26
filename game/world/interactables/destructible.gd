@@ -149,9 +149,9 @@ func _draw() -> void:
 			# Volume cilíndrico em faixas de cor, tampa e aros com pixels inteiros.
 			draw_rect(Rect2(-8, -28, 16, 28), ink)
 			draw_rect(Rect2(-9, -26, 18, 24), ink)
-			draw_rect(Rect2(-8, -25, 16, 22), Color("855244"))
-			draw_rect(Rect2(-7, -25, 3, 22), Color("ac7160"))
-			draw_rect(Rect2(5, -25, 3, 22), Color("543d39"))
+			draw_rect(Rect2(-8, -25, 16, 22), Color("68634e"))
+			draw_rect(Rect2(-7, -25, 3, 22), Color("948b6a"))
+			draw_rect(Rect2(5, -25, 3, 22), Color("464a40"))
 			draw_rect(Rect2(-7, -27, 14, 3), Color("6b5b50"))
 			draw_rect(Rect2(-6, -27, 10, 1), edge)
 			draw_rect(Rect2(3, -26, 2, 2), ink)
@@ -163,8 +163,8 @@ func _draw() -> void:
 			draw_rect(Rect2(-4, -18, 8, 8), Color("392d28"))
 			draw_rect(Rect2(-1, -17, 2, 4), Color("edc87c"))
 			draw_rect(Rect2(-1, -12, 2, 1), Color("edc87c"))
-			draw_rect(Rect2(3, -21, 3, 2), Color("bc8066"))
-			draw_rect(Rect2(-5, -6, 2, 3), Color("493631"))
+			draw_rect(Rect2(3, -21, 3, 2), Color("a39675"))
+			draw_rect(Rect2(-5, -6, 2, 3), Color("3c4239"))
 		"glass":
 			draw_rect(rect, ink)
 			draw_rect(Rect2(-3, -39, 6, 38), Color("466774"))
@@ -182,24 +182,25 @@ func _draw() -> void:
 				draw_rect(Rect2(-1, -14, 2, 1), ink)
 				draw_rect(Rect2(-1, -13, 1, 5), ink)
 		_:
+			# Caixa de arquivo reforçada: tampa, cintas, etiqueta confidencial e pega.
 			draw_rect(rect, ink)
-			draw_rect(Rect2(-13, -29, 26, 28), Color("685c48"))
-			for slat: int in range(4):
-				var y: float = -27 + slat * 6
-				draw_rect(Rect2(-12, y, 24, 4), Color("7f7052") if slat % 2 == 0 else Color("726249"))
-				draw_rect(Rect2(-8 + slat * 3, y + 1, 8, 1), Color("988261"))
-				draw_rect(Rect2(-12, y + 4, 24, 1), Color("453e34"))
-			for x: float in [-12.0, 8.0]:
-				draw_rect(Rect2(x, -29, 4, 28), Color("3c4b4d"))
-				draw_rect(Rect2(x, -28, 1, 26), edge.darkened(0.25))
-				for y: float in [-26.0, -6.0]:
-					draw_rect(Rect2(x + 1, y, 2, 2), edge)
-			draw_line(Vector2(-8, -26), Vector2(7, -5), Color("aa9164"), 3.0)
-			draw_line(Vector2(-7, -26), Vector2(8, -5), Color("6d593f"), 1.0)
-			draw_rect(Rect2(-12, -29, 24, 1), edge.darkened(0.25))
-			draw_rect(Rect2(0, -23, 6, 4), Color("c3b48a"))
-			draw_rect(Rect2(1, -22, 4, 1), Color("5d5d50"))
-			draw_rect(Rect2(-5, -8, 4, 2), Color("453c30"))
+			draw_rect(Rect2(-13, -29, 26, 28), Color("797665"))
+			draw_rect(Rect2(-13, -29, 26, 5), Color("99947e"))
+			draw_rect(Rect2(-12, -29, 24, 1), edge.darkened(0.12))
+			draw_rect(Rect2(-13, -24, 26, 1), Color("4b514b"))
+			draw_rect(Rect2(9, -24, 4, 23), Color("565e56"))
+			draw_rect(Rect2(-12, -23, 1, 21), Color("a29c82"))
+			draw_rect(Rect2(-13, -14, 26, 3), Color("374844"))
+			draw_rect(Rect2(6, -28, 3, 26), Color("374844"))
+			draw_rect(Rect2(6, -28, 1, 26), Color("65766a"))
+			draw_rect(Rect2(-9, -22, 13, 7), Color("c2bfaa"))
+			draw_rect(Rect2(-7, -20, 8, 1), Color("60665e"))
+			draw_rect(Rect2(-7, -18, 6, 1), Color("60665e"))
+			draw_rect(Rect2(-6, -9, 8, 3), Color("39433f"))
+			draw_rect(Rect2(-5, -9, 6, 1), Color("a29f89"))
+			draw_rect(Rect2(-11, -5, 4, 1), Color("9e9780"))
+			draw_rect(Rect2(-10, -4, 2, 1), Color("5c6257"))
+			draw_rect(Rect2(10, -6, 2, 2), edge.darkened(0.3))
 	draw_set_transform(Vector2.ZERO)
 
 

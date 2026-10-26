@@ -27,6 +27,11 @@ static func install(alternate_jump: bool = false) -> void:
 	_key("benchmark", [KEY_F6])
 	_axis("move_left", JOY_AXIS_LEFT_X, -1.0)
 	_axis("move_right", JOY_AXIS_LEFT_X, 1.0)
+	# Radial movement-facing aim is separate from keyboard and precision-stick actions.
+	_axis("move_aim_left", JOY_AXIS_LEFT_X, -1.0)
+	_axis("move_aim_right", JOY_AXIS_LEFT_X, 1.0)
+	_axis("move_aim_up", JOY_AXIS_LEFT_Y, -1.0)
+	_axis("move_aim_down", JOY_AXIS_LEFT_Y, 1.0)
 	_axis("aim_left", JOY_AXIS_RIGHT_X, -1.0)
 	_axis("aim_right", JOY_AXIS_RIGHT_X, 1.0)
 	_axis("aim_up", JOY_AXIS_RIGHT_Y, -1.0)

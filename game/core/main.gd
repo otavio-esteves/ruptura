@@ -26,7 +26,7 @@ var sound_bank: Node
 var store: RefCounted = STORE.new()
 var mission_mode: String = "cinzas"
 var checkpoint: Dictionary = {}
-var settings: Dictionary = {"assisted": false, "alternate_jump": false, "volume": 0.55, "bindings": {}, "aim_assist": false, "aim_deadzone": 0.2, "reduced_effects": false, "screen_shake": false}
+var settings: Dictionary = {"assisted": false, "alternate_jump": false, "volume": 0.55, "bindings": {}, "aim_assist": false, "aim_deadzone": 0.2, "reduced_effects": false, "screen_shake": false, "independent_aim": false}
 var menu_column: VBoxContainer
 var options_column: VBoxContainer
 var save_notice: Label
@@ -92,7 +92,7 @@ func _build_menu() -> void:
 	title.add_theme_font_size_override("font_size", 29)
 	description.add_child(title)
 	var text := Label.new()
-	text.text = "CINZAS / UMA MISSÃO DA RESISTÊNCIA\n\nEncontre a Chacal. Recupere os registros.\nTransmita a prova para a resistência.\n\nA/D mover · Ctrl correr · Espaço pular\nShift esquiva · S agachar/descer\nMouse mirar · esquerdo tiro · direito golpe\nR recarregar · 1/2/Q trocar · E interagir\nF5 checkpoint · F2 salto A/LB · F11 tela\n\nControle: RT tiro · RB golpe · X recarga\nY troca · A salto · B esquiva · ↑ interagir"
+	text.text = "CINZAS / UMA MISSÃO DA RESISTÊNCIA\n\nUm executivo marcado para desaparecer.\nExponha as ordens da diretoria.\n\nA/D mover · Ctrl correr · Espaço pular\nShift esquiva · S agachar/descer\nMouse mirar · esquerdo tiro · direito golpe\nR recarregar · 1/2/Q trocar · E interagir\nF5 checkpoint · F2 salto A/LB · F11 tela\n\nEsquerdo: mover/mirar · direito opcional\nRT tiro · RB golpe · X recarga\nY troca · A salto · B esquiva · ↑ interagir"
 	text.add_theme_font_size_override("font_size", 12)
 	description.add_child(text)
 	save_notice = Label.new()
@@ -116,7 +116,7 @@ func _build_menu() -> void:
 	_button(menu_column, "Opções e controles", _open_options)
 	_button(menu_column, "Sair", func() -> void: get_tree().quit())
 	var note := Label.new()
-	note.text = "3 setores · confronto com a Chacal\nRotas opcionais e registros secretos\nCheckpoint antes de cada confronto\n\nPixel art e movimento · v0.3.1"
+	note.text = "3 setores · confronto com a Chacal\nRotas opcionais e registros secretos\nCheckpoint antes de cada confronto\n\nExecutivo · versão corporativa0.4"
 	note.add_theme_font_size_override("font_size", 11)
 	menu_column.add_child(note)
 	options_column = OPTIONS.new()
@@ -404,6 +404,7 @@ func _apply_live_settings() -> void:
 	if is_instance_valid(sound_bank): sound_bank.volume = settings.volume
 	if is_instance_valid(player):
 		player.aim_assist_enabled = settings.aim_assist
+		player.independent_aim = settings.independent_aim
 		player.aim_deadzone = settings.aim_deadzone
 		player.reduced_effects = settings.reduced_effects
 	if is_instance_valid(player) and is_instance_valid(player.weapon_controller):

@@ -1,12 +1,14 @@
 # RUPTURA — Plano de Desenvolvimento e Game Design Document
 
-**Versão:** 1.2 — produção solo com Codex, Linux desde o início, direção de arte e dificuldade progressiva  
-**Data:** 25/10/2026  
+**Versão:** 1.3 — executivo de terno preto, direção corporativa e mira pelo movimento
+
+**Data:** 26/10/2026
+
 **Status:** Pré-produção — próximo trabalho: prototipação; produção da campanha condicionada à vertical slice  
 **Equipe:** Otávio + Codex; múltiplas instâncias podem executar tarefas independentes, com integração centralizada  
 **Nome:** provisório, sujeito a pesquisa de marca antes de publicação
 
-> **Visão:** Jogo single-player de ação 2D em pixel art, com combate corpo a corpo e à distância, interatividade física, explosões, exploração horizontal e vertical, progressão permanente, sete líderes como chefões e campanha narrativa concluída. Direção estética: pixel art minimalista, industrial e sombria, inspirada na síntese visual de Superfighters, com identidade própria. Prioridades: combate divertido, apresentação bonita e legível, recompensas significativas, dificuldade progressiva e desempenho em notebooks antigos. Linux é o ambiente de desenvolvimento e teste desde o primeiro dia; Dell Inspiron 15 5547 é referência de hardware, com a GPU efetivamente disponível.
+> **Visão:** Jogo single-player de ação 2D em pixel art, com combate corpo a corpo e à distância, interatividade física, explosões, exploração horizontal e vertical, progressão permanente, sete líderes como chefões e campanha narrativa concluída. Direção estética: pixel art minimalista, corporativa e sombria, inspirada na síntese visual de Superfighters, com identidade própria. Prioridades: combate divertido, apresentação bonita e legível, recompensas significativas, dificuldade progressiva e desempenho em notebooks antigos. Linux é o ambiente de desenvolvimento e teste desde o primeiro dia; Dell Inspiron 15 5547 é referência de hardware, com a GPU efetivamente disponível.
 
 ---
 
@@ -49,7 +51,7 @@
 
 ### 2.1 Fantasia do jogador
 
-Começar ferido e quase desarmado. Improvisar com o cenário. Aprender a enfrentar esquadrões antes considerados invencíveis. Apropriar-se de tecnologia inimiga. Descobrir como o sistema funciona. Não apenas vencer sete confrontos, mas permitir que uma população manipulada entenda o que está acontecendo e aja.
+Começar ferido e quase desarmado, ainda no terno preto de executivo. Improvisar com o cenário. Aprender a enfrentar esquadrões antes considerados invencíveis. Apropriar-se de tecnologia inimiga. Descobrir como o sistema funciona. Não apenas vencer sete confrontos, mas permitir que uma população manipulada entenda o que está acontecendo e aja.
 
 ### 2.2 Loop principal
 
@@ -69,13 +71,13 @@ Não incluir campanha de 4–6 horas como compromisso, suporte obrigatório a m�
 
 Na república fictícia de **Valera**, a organização privada **VÉRTICE** se apresenta como a solução para crises de segurança, abastecimento e infraestrutura. Na realidade, seus sete diretores coordenam um projeto de golpe de Estado. O objetivo é substituir as instituições por um regime autoritário, converter serviços básicos em monopólios, retirar liberdades e impor trabalho compulsório para ampliar seus lucros.
 
-O protagonista, conhecido pelo codinome **Espectro**, foi agente de operações especiais da VÉRTICE. Após encontrar provas do plano, tentou impedir uma missão contra civis. Traído pelos superiores, foi gravemente ferido e abandonado como morto. Sobrevive por pouco graças a uma trabalhadora de manutenção que o encontra, leva a um abrigo e o ajuda a se recuperar.
+O protagonista, conhecido pelo codinome **Espectro**, era executivo da VÉRTICE e aspirava a um cargo de diretor. Ao encontrar atas e contratos que comprovavam o plano, recusou-se a endossar operações contra civis. A diretoria o traiu: foi gravemente ferido e abandonado como morto. Sobrevive por pouco graças a uma trabalhadora de manutenção que o encontra, leva a um abrigo e o ajuda a se recuperar.
 
 Inicialmente motivado pela sobrevivência e pela vingança, Espectro percebe que eliminar os líderes não basta: muitos trabalhadores, soldados e técnicos sustentam a organização por desconhecimento, medo ou coerção. A vitória real depende de obter registros incontestáveis das operações, restaurar meios de comunicação e divulgá-los para que esses grupos recuperem poder de decisão.
 
 ### 3.2 Personagens centrais
 
-- **Espectro:** protagonista; ex-agente habilidoso, mas inicialmente debilitado. Sua evolução é mecânica e ética: de sobrevivente isolado a aliado de uma resistência coletiva.
+- **Espectro:** protagonista; executivo de terno preto, antes aspirante a uma diretoria, agora ferido e perseguido pelos próprios superiores. Sua evolução é mecânica e ética: de sobrevivente isolado a aliado de uma resistência coletiva.
 - **Lia:** técnica de manutenção que o resgata; opera o esconderijo, ajuda na engenharia e conecta o protagonista a trabalhadores organizados. Possui objetivos próprios e não é apenas suporte passivo.
 - **Nara:** operadora de comunicação que ajuda a validar provas, contestar a propaganda e alcançar instalações desconectadas.
 - **Trabalhadores da VÉRTICE:** não são massa anônima; aparecem como NPCs com medos, necessidades e perspectivas diferentes. Alguns colaboram, outros recusam, outros mudam após ver provas.
@@ -85,7 +87,7 @@ Inicialmente motivado pela sobrevivência e pela vingança, Espectro percebe que
 
 | Capítulo | Área e revelação | Diretor / posição | Confronto | Nova possibilidade |
 |---|---|---|---|---|
-| 1 — **Cinzas** | Distrito de descarte industrial; registros da execução forjada | **Mara “Chacal”**, chefe da segurança interna (7ª) | Combate ágil, golpes, empurrões e uso de cobertura | Esquiva aprimorada + **desbloqueio permanente** da espingarda (a versão da vertical slice pode aparecer antes como pickup temporário) |
+| 1 — **Cinzas** | Arquivo corporativo restrito; atas da execução forjada | **Mara “Chacal”**, chefe da segurança interna (7ª) | Combate ágil, golpes, empurrões e uso de cobertura | Esquiva aprimorada + **desbloqueio permanente** da espingarda (a versão da vertical slice pode aparecer antes como pickup temporário) |
 | 2 — **Carga Morta** | Docas e ferrovias; transporte de armamentos disfarçados de suprimentos | **Ívo “Lastro”**, diretor de logística (6º) | Guindastes, cargas móveis, explosivos | Granadas e interação com mecanismos pesados |
 | 3 — **Queda de Energia** | Usina e rede subterrânea; cortes programados para subjugar bairros | **Selene “Arco”**, diretora de energia (5ª) | Armadilhas elétricas, zonas seguras e terminais | Ferramenta de desativação e abertura de novos caminhos |
 | 4 — **Linha de Montagem** | Fábrica militar; trabalhadores submetidos a coerção | **Dário “Forja”**, diretor industrial (4º) | Armadura modular, peças destrutíveis e ondas curtas | Disparo perfurante / arma pesada contextual |
@@ -119,7 +121,7 @@ A vitória é **coletiva**, não a posse do governo por Espectro. O epílogo mos
 ### 4.1 Controle
 
 - **Teclado/mouse:** A/D mover; S agachar/descer plataformas; espaço pular; cursor mirar em 360°; botão esquerdo atirar; direito golpe; Shift esquivar; E interagir; R recarregar; roda/1/2 trocar arma; G granada.
-- **Controle com dois analógicos (layout de referência Xbox):** analógico esquerdo mover; direito mirar; RT atirar; RB golpe; A pular; B esquivar; X recarregar; Y trocar arma; LB granada; direcional para cima interagir. Testar também um preset com **LB pular, A granada**, preservando o polegar direito na mira; comparar conforto antes de escolher o padrão. Agachar/descer plataforma: direcional para baixo, com alternativa remapeável. Oferecer remapeamento e operação completa de menus por gamepad.
+- **Controle com dois analógicos (layout de referência Xbox):** analógico esquerdo mover e orientar a mira; direito mirar no modo independente opcional; RT atirar; RB golpe; A pular; B esquivar; X recarregar; Y trocar arma; LB granada; direcional para cima interagir. Testar também um preset com **LB pular, A granada**, preservando o polegar direito na mira; comparar conforto antes de escolher o padrão. Agachar/descer plataforma: direcional para baixo, com alternativa remapeável. Oferecer remapeamento e operação completa de menus por gamepad.
 - Margem de tolerância ao sair da borda (**coyote time**) e **jump buffer** para salto responsivo.
 - O combate distingue **direção de movimento**, **direção da mira** e **orientação visual do corpo**, sem inverter controles quando o cursor/analógico cruza o personagem.
 - Controles remapeáveis, ícones dinâmicos conforme dispositivo e possibilidade de alternar mouse/teclado e gamepad antes da demo pública.
@@ -127,7 +129,9 @@ A vitória é **coletiva**, não a posse do governo por Espectro. O epílogo mos
 
 #### 4.1.1 Mira no controle — protótipo obrigatório
 
-- Usar vetor do analógico direito (ex.: `Input.get_vector`), deadzone radial configurável e **reter a última direção válida** ao soltar o analógico. Começar avaliando deadzone ~0,15–0,25; ajustar com controles reais.
+**Decisão do usuário em26/10/2026:** o analógico esquerdo move e orienta a mira por padrão, incluindo direções verticais/diagonais; soltar mantém a última direção válida. A opção de mira independente usa o analógico direito, com direção contínua e retenção ao centralizar. Mouse mantém mira independente. A assistência leve de alvos é outra opção, separada do modo de analógico.
+
+- Usar vetor radial do esquerdo por padrão e do direito no modo independente (ex.: `Input.get_vector`), deadzone radial configurável e **reter a última direção válida** ao soltar o analógico. Começar avaliando deadzone ~0,15–0,25; ajustar com controles reais.
 - Mira de tiro **contínua em 360°**, mas animação inicial econômica: corpo e braço/arma independentes, com sprites direcionais ou rotação de pivô conforme qualidade visual. Evitar exigir dezenas de sprites para cada arma antes do teste.
 - Testar **assistência leve e opcional** no gamepad, limitada a alvos visíveis/próximos à linha de tiro; não curvar projéteis de maneira arbitrária, não atravessar paredes e não aplicar no mouse.
 - Retículo visível a distância útil, feedback claro de origem do tiro, obstáculos e cobertura; testar ângulos de 45°, tiros para cima e alvos em alturas diferentes.
@@ -702,7 +706,7 @@ O projeto admite trabalho paralelo quando solicitado e houver tarefas independen
 
 ### 13.5 Prompt inicial para implementação futura
 
-> Leia o plano vigente `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.2) e as instruções/documentos do projeto que já existirem. Trabalhamos com Otávio + Codex; você pode propor divisão de tarefas independentes, sem presumir equipe adicional. Execute o Marco 0 e o início do Marco 1 em Godot 4.7.2, GDScript tipado e Compatibility: projeto limpo, Git local, documentação mínima, menu, arena temporária, personagem responsivo, câmera e overlay de desempenho. Linux nativo é desenvolvimento e teste desde o início: exporte, execute fora do editor e registre hardware/driver/sessão reais. Desde o começo, ofereça mira 360° com mouse ou analógico direito, movimento desacoplado, deadzone e última direção válida. Teste alvos em alturas diferentes e presets que permitam pular e mirar. A direção visual é pixel art minimalista industrial e sombria, inspirada na síntese de Superfighters, com assets originais e boa legibilidade. Não implemente os sete capítulos agora. Use placeholders próprios simples e mantenha um incremento jogável. Sem backend, multiplayer ou shaders caros. Informe arquivos alterados, testes realmente executados, resultados, esforço observado e pendências; não declare compatibilidade, input ou qualidade sem a verificação correspondente.
+> Leia o plano vigente `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.3) e as instruções/documentos do projeto que já existirem. Trabalhamos com Otávio + Codex; você pode propor divisão de tarefas independentes, sem presumir equipe adicional. Execute o Marco 0 e o início do Marco 1 em Godot 4.7.2, GDScript tipado e Compatibility: projeto limpo, Git local, documentação mínima, menu, arena temporária, personagem responsivo, câmera e overlay de desempenho. Linux nativo é desenvolvimento e teste desde o início: exporte, execute fora do editor e registre hardware/driver/sessão reais. Desde o começo, ofereça mira 360° com mouse ou analógico direito, movimento desacoplado, deadzone e última direção válida. Teste alvos em alturas diferentes e presets que permitam pular e mirar. A direção visual é pixel art minimalista industrial e sombria, inspirada na síntese de Superfighters, com assets originais e boa legibilidade. Não implemente os sete capítulos agora. Use placeholders próprios simples e mantenha um incremento jogável. Sem backend, multiplayer ou shaders caros. Informe arquivos alterados, testes realmente executados, resultados, esforço observado e pendências; não declare compatibilidade, input ou qualidade sem a verificação correspondente.
 
 ---
 
@@ -727,6 +731,8 @@ O projeto admite trabalho paralelo quando solicitado e houver tarefas independen
 ## 15. Registro de revisão e decisões abertas
 
 ### 15.1 Histórico
+
+- **v1.3 — 26/10/2026, instrução direta de Otávio:** protagonista passa a executivo de terno preto e ex-aspirante a diretor; origem anterior de agente militar substituída. Direção corporativa mais escura, paleta inspirada na síntese de cores de Superfighters com assets originais. Analógico esquerdo move/orienta, direito preciso independente opcional. Inimigos padrão mais perigosos por cadência, mobilidade e dano, preservando avisos e modo assistido. O escopo de campanha e gates humanos não são ampliados por essa revisão.
 
 - **v1.1:** gamepad antecipado, mira 360°, espingarda temporária antes do desbloqueio, identidade jogável e contratos mínimos antes da slice.
 - **v1.2 — 25/10/2026:** Linux passa a plataforma primária desde o Marco 0; Windows condicionado à validação nativa. Equipe explicitada como Otávio + Codex, com processo opcional de múltiplas instâncias. Direção estética minimalista industrial sombria, prova artística antecipada, campanha compacta e sem obrigação de 4–6 horas. Limites por arma/inimigo/chefe, política de cortes, curva de dificuldade, recompensas, playtest observável, checkpoints e escrita segura. Marcos ganham orçamento inicial de atenção humana, controle de esforço e gates de qualidade/capacidade.

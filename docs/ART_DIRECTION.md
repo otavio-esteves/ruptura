@@ -1,4 +1,14 @@
-# Direção de arte — polimento 0.3.1
+# Direção corporativa0.4
+
+Decisão direta do usuário: o protagonista é executivo e ex-aspirante a diretor, em terno preto, camisa clara e gravata. O cenário representa Arquivo Morto, Centro de Operações e Conselho Executivo. Base cromática carvão/cinza, oliva frio e marrons/vinho dessaturados, com âmbar para leitura funcional. A faixa cinza do plano de fundo preserva a silhueta do terno preto; não há overlay que escureça HUD ou avisos.
+
+Referência visual consultada: [imagens oficiais de Superfighters Deluxe](https://store.steampowered.com/app/855860/Superfighters_Deluxe/) e [página do estúdio](https://mythologicinteractive.com/SuperfightersDeluxe). É uma leitura de síntese, paleta e contraste; nenhum sprite ou cenário foi reutilizado.
+
+Paleta do executivo: terno#2b3037, sombra#1c2027, lapelas#3b4148, aresta#484f57, camisa#c4c2b6, gravata#242124, calça#24272c e sapatos#17191d. Roupa militar, visor e máscara anteriores foram removidos de todas as poses. Guardas usam oliva, couro e vinho discretos; a Chacal mantém leitura própria e variação da fase2. As receitas continuam no gerador nativo abaixo.
+
+---
+
+# Pipeline de pixel art e animação
 
 Pixel art industrial sombria, com silhuetas pequenas e ameaça legível. O plano vigente continua sendo a referência de escopo; esta folha orienta o incremento visual e não aprova estética ou sensação de controle.
 
@@ -6,7 +16,7 @@ Pixel art industrial sombria, com silhuetas pequenas e ameaça legível. O plano
 
 - Fundos: azul carvão `#101921`, aço escuro `#19252d` e variações pouco contrastantes por setor. Tubos, cabos e sucata ficam atrás da faixa de contraste dos atores.
 - Superfícies sólidas: aço médio e aresta clara. Plataformas unilaterais mantêm o topo âmbar. Textura usa poucos clusters de 1–3 pixels e não cria falsas bordas de colisão.
-- Espectro: roupa azul acinzentada, rosto discreto e visor frio. Recruta: capacete compacto, uniforme cobre/industrial e postura mais rígida. Batedor: silhueta leve e lenço visível, distinguível pela forma além da cor. Chacal: ombreiras e armadura mais largas; detalhes quentes indicam autoridade e a segunda fase.
+- Espectro: terno carvão, camisa clara, gravata e rosto visível. Recruta: capacete compacto, uniforme cobre/industrial e postura mais rígida. Batedor: silhueta leve e lenço visível, distinguível pela forma além da cor. Chacal: ombreiras e armadura mais largas; detalhes quentes indicam autoridade e a segunda fase.
 - Âmbar comunica aviso; coral comunica ameaça/impacto; verde frio comunica recurso/interação. Efeitos preservam o contraste do retículo e dos avisos de ataque.
 
 As cores exatas dos personagens são centralizadas no gerador do atlas. A prancha usa o mesmo renderer do jogo, evitando uma segunda interpretação dos sprites.

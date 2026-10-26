@@ -28,6 +28,7 @@ var weapon_controller: Node2D
 var is_dead: bool = false
 var assisted: bool = false
 var aim_assist_enabled: bool = false
+var independent_aim: bool = false
 var reduced_effects: bool = false
 var recoil_remaining: float = 0.0
 var _walk_cycle: float = 0.0
@@ -190,7 +191,11 @@ func heal(amount: float) -> void:
 
 func _update_aim() -> void:
 	if input_device == "gamepad":
-		var stick: Vector2 = Input.get_vector("aim_left", "aim_right", "aim_up", "aim_down", aim_deadzone)
+		var stick := Vector2.ZERO
+		if independent_aim:
+			stick = Input.get_vector("aim_left", "aim_right", "aim_up", "aim_down", aim_deadzone)
+		elif InputMap.has_action("move_aim_left"):
+			stick = Input.get_vector("move_aim_left", "move_aim_right", "move_aim_up", "move_aim_down", aim_deadzone)
 		if stick.length_squared() > 0.001:
 			aim_direction = _assisted_aim(stick.normalized()) if aim_assist_enabled else stick.normalized()
 	else:

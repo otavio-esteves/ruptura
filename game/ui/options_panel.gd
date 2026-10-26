@@ -25,6 +25,8 @@ func _ready() -> void:
 	scroll.add_child(_body)
 	first_control = _toggle("assist", "Assistido (próximo retry)", "assisted")
 	_add_button("Alternar salto A / LB", func() -> void: preset_requested.emit())
+	_label("Padrão: esquerdo move e orienta")
+	_toggle("precision", "Mira independente no direito", "independent_aim")
 	_toggle("aim", "Assistência leve no controle", "aim_assist")
 	_label("Deadzone radial do controle")
 	_slider("aim_deadzone", 0.1, 0.35, 0.01)

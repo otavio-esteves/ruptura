@@ -1,3 +1,11 @@
+# Atualização0.4 — executivo / corporativo
+
+Novo direcionamento autorizado pelo usuário: protagonista executivo de terno preto, antes aspirante a diretor; arte corporativa mais escura inspirada na síntese cromática de Superfighters; esquerdo move e orienta a mira, direito preciso independente opcional. A confirmação do usuário resolveu a menção inicial ambígua ao analógico esquerdo opcional.
+
+Entregues nova roupa/rosto/paleta, três setores com escritórios e conselho, textos e GDDv1.3 coerentes, opção de mira persistida sem alterar saves da missão, inimigos com maior pressão por cadência/mobilidade/dano e reposicionamento com obstáculos. A aprovação de dificuldade/conforto/arte continua dependente de jogar. Não há ampliação da campanha neste ciclo.
+
+---
+
 # Atualização visual0.3.1
 
 Pedido atual: melhorar pixel art e animação. Atlas originais e renderer compartilhado substituem os corpos temporários, com ciclos de passada, recuo, respiração, salto/ápice/queda, aterrissagem, crouch, esquiva, dano e morte. Armas independentes, materiais de cenário/props/item mais legíveis, filtragem nearest e snapping visual. Sem novos sistemas de campanha ou mudanças intencionais de física/combat.

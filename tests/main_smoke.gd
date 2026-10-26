@@ -23,6 +23,12 @@ func run() -> void:
 	main.call("_start")
 	await physics_frame
 	check(main.get("player") != null and not main.get("menu").visible, "menu abre arena")
+	check(not main.player.independent_aim, "new game defaults to principal-stick aim")
+	main.settings.independent_aim = true
+	main.call("_save_settings")
+	check(main.player.independent_aim and main.store.load_settings().get("independent_aim") == true, "precision setting applies live and persists")
+	main.settings.independent_aim = false
+	main.call("_save_settings")
 	main.call("_unhandled_input", escape)
 	check(main.get("menu").visible and not main.get("player").is_physics_processing(), "pause interrompe jogador")
 	main.call("_start")

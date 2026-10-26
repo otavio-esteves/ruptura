@@ -18,25 +18,28 @@ func _initialize() -> void:
 
 func _palette(kind: String) -> Dictionary:
 	var p: Dictionary = {
-		"ink": Color("101b25"), "boot": Color("192630"), "sole": Color("647273"),
-		"pants": Color("34444f"), "pants_shadow": Color("25333f"), "knee": Color("617378"),
-		"shade": Color("31565d"), "coat": Color("568d91"), "light": Color("96bbb1"),
-		"skin_dark": Color("9e816e"), "skin": Color("d3bca0"), "hair": Color("263740"),
-		"accent": Color("d6bb7a"), "steel": Color("b8c5b9"), "glove": Color("899a91")
+		"ink": Color("11161b"), "boot": Color("17191d"), "sole": Color("414447"),
+		"pants": Color("24272c"), "pants_shadow": Color("191d22"), "knee": Color("363c42"),
+		"shade": Color("1c2027"), "coat": Color("2b3037"), "light": Color("484f57"),
+		"skin_dark": Color("9e806d"), "skin": Color("d1b39a"), "hair": Color("292320"),
+		"accent": Color("878a89"), "steel": Color("b4b9b3"), "glove": Color("d1b39a"),
+		"shirt": Color("c4c2b6"), "shirt_shadow": Color("8d9493"),
+		"tie": Color("242124"), "lapel": Color("3b4148"), "hair_light": Color("4a4036")
 	}
 	match kind:
 		"recruit":
-			p.shade = Color("644a40"); p.coat = Color("9b7457"); p.light = Color("c2a47c")
-			p.hair = Color("485a5b"); p.accent = Color("d7a56b")
+			p.shade = Color("373e36"); p.coat = Color("565c50"); p.light = Color("868b70")
+			p.hair = Color("42493d"); p.accent = Color("a09c79")
+			p.pants = Color("303834"); p.knee = Color("586058")
 		"scout":
-			p.shade = Color("4c455f"); p.coat = Color("81738e"); p.light = Color("b8a7c3")
-			p.hair = Color("3a3548"); p.accent = Color("c8ac83")
+			p.shade = Color("49383b"); p.coat = Color("74605b"); p.light = Color("a48c76")
+			p.hair = Color("332c31"); p.accent = Color("b59b79")
 		"chacal", "chacal_rage":
-			p.shade = Color("593e3b"); p.coat = Color("9a6958"); p.light = Color("cc9875")
-			p.hair = Color("513b3b"); p.accent = Color("d9c39b")
-			p.pants = Color("46505b"); p.knee = Color("87908b")
+			p.shade = Color("45383f"); p.coat = Color("76616a"); p.light = Color("9b8176")
+			p.hair = Color("393039"); p.accent = Color("b4a589")
+			p.pants = Color("30383e"); p.knee = Color("59636b")
 			if kind == "chacal_rage":
-				p.coat = Color("b87950"); p.light = Color("e0aa70"); p.accent = Color("efc489")
+				p.coat = Color("8a665c"); p.light = Color("b39576"); p.accent = Color("d4b792")
 	return p
 
 func _build_body(kind: String) -> void:
@@ -55,6 +58,7 @@ func _build_body(kind: String) -> void:
 	assert(error == OK, "Cannot write actor atlas")
 
 func _draw_body(image: Image, kind: String, frame: int, large: bool) -> void:
+	var executive: bool = kind == "spectre"
 	var height: int = 36 if large else 25
 	var torso_width: int = 22 if large else 11
 	var leg_height: int = 12 if large else 9
@@ -67,7 +71,7 @@ func _draw_body(image: Image, kind: String, frame: int, large: bool) -> void:
 	var dodge: bool = frame >= 22 and frame <= 25
 	var air: bool = frame >= 17 and frame <= 19
 	if frame in [27, 28]:
-		_draw_dead(image, large, frame == 28)
+		_draw_dead(image, large, frame == 28, executive)
 		return
 	if frame < 4:
 		bob = -1 if frame >= 2 else 0
@@ -103,26 +107,30 @@ func _draw_body(image: Image, kind: String, frame: int, large: bool) -> void:
 		lean = 1 if frame != 19 else -1
 	if frame == 20: front.x = 5; back.x = -5
 	if dodge: front = Vector2i(9 if not large else 13, 0); back = Vector2i(-7 if not large else -11, -2)
-	_draw_leg(image, Vector2i(-2, -leg_height + bob), back, false, large)
+	_draw_leg(image, Vector2i(-2, -leg_height + bob), back, false, large, executive)
 	# Far shoulder and elbow sit behind the torso; foreground arm is aimed at runtime.
 	var shoulder_y: int = -height + head_height + 2 + bob
 	var far_x: int = lean - torso_width / 2 - 1
 	_r(image, far_x, shoulder_y + 1, 4 if not large else 6, 6 if not large else 9, "ink")
 	_r(image, far_x + 1, shoulder_y + 2, 2 if not large else 4, 5 if not large else 7, "shade")
 	_r(image, far_x + 1, shoulder_y + (6 if not large else 9), 3, 3, "glove")
-	_draw_leg(image, Vector2i(2, -leg_height + bob), front, true, large)
+	if executive: _r(image, far_x + 1, shoulder_y + 5, 2, 1, "shirt")
+	_draw_leg(image, Vector2i(2, -leg_height + bob), front, true, large, executive)
 	var body_top: int = -height + head_height - 1 + bob
 	var body_bottom: int = -leg_height + 2 + bob
 	var left: int = lean - torso_width / 2
 	_r(image, left - 1, body_top, torso_width + 2, body_bottom - body_top + 1, "ink")
 	_r(image, left, body_top + 1, torso_width, body_bottom - body_top - 1, "coat")
 	_r(image, left, body_top + 1, 3 if not large else 5, body_bottom - body_top - 1, "shade")
-	_r(image, left + 4, body_top + 2, 2 if not large else 3, body_bottom - body_top - 3, "light")
-	# Waist, fastener, utility pocket and sleeve patch are deliberately clustered.
-	_r(image, left, body_bottom - 2, torso_width, 2, "pants_shadow")
-	_r(image, lean + 1, body_bottom - 2, 2, 1, "accent")
-	_r(image, left + torso_width - 4, body_bottom - 5, 3, 3, "shade")
-	_r(image, left + torso_width - 4, body_top + 3, 3, 1, "accent")
+	if executive:
+		_draw_suit(image, left, body_top, body_bottom, torso_width, lean)
+	else:
+		_r(image, left + 4, body_top + 2, 2 if not large else 3, body_bottom - body_top - 3, "light")
+		# Security jackets retain their compact equipment silhouette.
+		_r(image, left, body_bottom - 2, torso_width, 2, "pants_shadow")
+		_r(image, lean + 1, body_bottom - 2, 2, 1, "accent")
+		_r(image, left + torso_width - 4, body_bottom - 5, 3, 3, "shade")
+		_r(image, left + torso_width - 4, body_top + 3, 3, 1, "accent")
 	if large:
 		_r(image, left - 2, body_top + 1, 7, 8, "ink")
 		_r(image, left - 1, body_top + 2, 6, 5, "shade")
@@ -146,9 +154,15 @@ func _draw_body(image: Image, kind: String, frame: int, large: bool) -> void:
 	_r(image, head_x + head_width - 2, head_y + 3, 2, 1, "ink")
 	_r(image, head_x + head_width - 1, head_y + 3, 1, 1, "light")
 	if kind == "spectre":
-		_r(image, head_x + 2, head_y + 5, head_width - 1, 2, "shade")
-		_r(image, head_x + 3, head_y + 5, 3, 1, "light")
-		_r(image, head_x, head_y, 6, 1, "light")
+		# Side-parted hair, a bare eye and an uncovered jaw: no visor or mask.
+		_r(image, head_x, head_y, head_width, 2, "hair")
+		_l(image, Vector2i(head_x + 1, head_y), Vector2i(head_x + head_width - 2, head_y + 1), "hair_light")
+		_r(image, head_x - 1, head_y + 2, 2, head_height - 1, "hair")
+		_r(image, head_x + head_width - 2, head_y + 3, 1, 1, "ink")
+		_r(image, head_x + head_width - 1, head_y + 3, 1, 1, "skin")
+		_r(image, head_x + head_width - 1, head_y + 4, 1, 2, "skin_dark")
+		_r(image, head_x + 2, head_y + 5, head_width - 3, 2, "skin")
+		_r(image, head_x + head_width - 3, head_y + 6, 2, 1, "skin_dark")
 	elif kind == "recruit":
 		_r(image, head_x - 1, head_y - 1, head_width + 1, 4, "ink")
 		_r(image, head_x, head_y, head_width, 2, "hair")
@@ -162,7 +176,26 @@ func _draw_body(image: Image, kind: String, frame: int, large: bool) -> void:
 		_r(image, head_x, head_y + 1, head_width, 1, "coat")
 		_r(image, head_x - 2, head_y + 3, 2, 4, "accent")
 
-func _draw_leg(image: Image, hip: Vector2i, foot: Vector2i, front: bool, large: bool) -> void:
+func _draw_suit(image: Image, left: int, top: int, bottom: int, width: int, center: int) -> void:
+	# Lapels frame a small light shirt wedge; the jacket opens below its single button.
+	var length: int = bottom - top
+	var shirt_length: int = mini(6, maxi(2, length - 2))
+	_r(image, center - 2, top + 1, 5, shirt_length, "shirt_shadow")
+	_r(image, center - 1, top + 1, 3, shirt_length, "shirt")
+	_r(image, center, top + 2, 1, maxi(1, shirt_length - 1), "tie")
+	_r(image, center - 1, top + 1, 1, 1, "shirt")
+	_r(image, center + 1, top + 1, 1, 1, "shirt")
+	_l(image, Vector2i(center - 3, top + 1), Vector2i(center - 1, top + shirt_length), "lapel")
+	_l(image, Vector2i(center + 3, top + 1), Vector2i(center + 1, top + shirt_length), "light")
+	_r(image, left, top + 2, 1, maxi(1, length - 3), "lapel")
+	_r(image, left + width - 1, top + 2, 1, maxi(1, length - 3), "light")
+	if length >= 8:
+		_r(image, center, top + shirt_length + 1, 1, 1, "accent")
+		_r(image, center, bottom - 2, 1, 3, "pants_shadow")
+		_r(image, left + 1, bottom - 1, 3, 1, "lapel")
+		_r(image, left + width - 4, bottom - 1, 3, 1, "lapel")
+
+func _draw_leg(image: Image, hip: Vector2i, foot: Vector2i, front: bool, large: bool, tailored: bool = false) -> void:
 	var knee := Vector2i(roundi((hip.x + foot.x) * 0.5) + (1 if front else -1), -5 + mini(foot.y / 2, 0))
 	var ankle: Vector2i = foot + Vector2i(0, -2)
 	var width: int = 6 if large else 4
@@ -170,12 +203,12 @@ func _draw_leg(image: Image, hip: Vector2i, foot: Vector2i, front: bool, large: 
 	_l(image, knee, ankle, "ink", width)
 	_l(image, hip, knee, "pants" if front else "pants_shadow", width - 2)
 	_l(image, knee, ankle, "pants" if front else "pants_shadow", width - 2)
-	if front: _r(image, knee.x - 1, knee.y, 2 if not large else 3, 2, "knee")
+	if front: _r(image, knee.x - 1, knee.y, 1 if tailored else (2 if not large else 3), 2, "knee")
 	_r(image, foot.x - 2, foot.y - 3, 7 if large else 6, 3, "ink")
 	_r(image, foot.x - 1, foot.y - 2, 5 if large else 4, 1, "boot")
 	_r(image, foot.x - 1, foot.y - 1, 5 if large else 4, 1, "sole")
 
-func _draw_dead(image: Image, large: bool, settled: bool) -> void:
+func _draw_dead(image: Image, large: bool, settled: bool, executive: bool = false) -> void:
 	var width: int = 34 if large else 25
 	var left: int = -width / 2
 	var y: int = -7 if settled else -10
@@ -186,6 +219,14 @@ func _draw_dead(image: Image, large: bool, settled: bool) -> void:
 	_r(image, left + width - 7, y, 8, 7, "ink")
 	_r(image, left + width - 6, y + 1, 6, 4, "skin")
 	_r(image, left + width - 6, y + 1, 6, 2, "hair")
+	if executive:
+		_r(image, left + 13, y + 2, 2, 1, "lapel")
+		_r(image, left + 16, y + 2, 2, 3, "shirt")
+		_r(image, left + 16, y + 3, 1, 2, "tie")
+		_r(image, left + 12, y + 5, 5, 1, "lapel")
+		_r(image, left + width - 6, y + 1, 4, 1, "hair_light")
+		_r(image, left + width - 3, y + 4, 1, 1, "skin_dark")
+		_r(image, left + 1, y + 6, 4, 1, "boot")
 
 func _r(image: Image, x: int, y: int, w: int, h: int, key: String) -> void:
 	var rect := Rect2i(origin + Vector2i(x, y), Vector2i(w, h)).intersection(Rect2i(Vector2i.ZERO, image.get_size()))

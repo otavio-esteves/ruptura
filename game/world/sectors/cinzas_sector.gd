@@ -11,9 +11,9 @@ var navigation_links: Array[Dictionary] = []
 var _platforms: Array[Rect2] = []
 var _solids: Array[Rect2] = []
 
-const AMBER: Color = Color("d5aa67")
-const EDGE: Color = Color("acb9b5")
-const TEXT: Color = Color("8c9e9d")
+const AMBER: Color = Color("bba071")
+const EDGE: Color = Color("959d9d")
+const TEXT: Color = Color("828985")
 
 
 func _ready() -> void:
@@ -143,28 +143,29 @@ func _props_for_sector(sector: int) -> Array[Dictionary]:
 func _secrets_for_sector(sector: int) -> Array[Dictionary]:
 	match sector:
 		0:
-			return [{"id": "ruins_cache", "position": Vector2(940, 348), "text": "Lote A-17: corpos registrados como sucata. Lia reconhece nomes de colegas nas listas."}]
+			return [{"id": "ruins_cache", "position": Vector2(940, 348), "text": "Ata reservada A-17: o conselho aprovou execuções como desligamentos. A assinatura da diretoria prova quem deu as ordens."}]
 		1:
-			return [{"id": "yard_manifest", "position": Vector2(1080, 348), "text": "O manifesto chama armas de suprimentos. Um carregador marcou as remessas para a resistência."}]
+			return [{"id": "yard_manifest", "position": Vector2(1080, 348), "text": "Contrato de operações: metas de lucro exigem trabalho compulsório. A cláusula foi assinada pela classe executiva e ocultada dos trabalhadores."}]
 		_:
 			return []
 
 
 func _palette() -> Array[Color]:
+	# Carvão, vidro cinza e madeira dessaturada; a faixa atrás do terno evita preto sobre preto.
 	match sector_index:
 		0:
-			return [Color("131d25"), Color("1b2932"), Color("293c43"), Color("3d4b4f"), Color("875f48"), Color("6e9995")]
+			return [Color("11151a"), Color("1c2127"), Color("2a3035"), Color("3a4145"), Color("645549"), Color("747c70")]
 		1:
-			return [Color("131f24"), Color("1a3035"), Color("2a4246"), Color("405259"), Color("8c7151"), Color("7da79b")]
+			return [Color("101519"), Color("1b2227"), Color("293238"), Color("394247"), Color("5e594a"), Color("76847a")]
 		_:
-			return [Color("1d1c27"), Color("2b2936"), Color("3c3948"), Color("4c4b58"), Color("8d5c58"), Color("b09583")]
+			return [Color("141518"), Color("232326"), Color("323235"), Color("414246"), Color("635149"), Color("878373")]
 
 
 func _draw() -> void:
 	var palette: Array[Color] = _palette()
 	draw_rect(world_bounds, palette[0])
 	_draw_distant_silhouette(palette)
-	_draw_factory_bays(palette)
+	_draw_office_bays(palette)
 	_draw_sector_identity(palette)
 	for rect: Rect2 in _solids:
 		_draw_solid(rect, palette)
@@ -177,143 +178,137 @@ func _draw() -> void:
 
 func _draw_distant_silhouette(palette: Array[Color]) -> void:
 	var width: float = world_bounds.size.x
-	for index: int in range(int(width / 120.0) + 1):
-		var x: float = float(index) * 120.0
-		var height: float = 80.0 + float((index * 43 + sector_index * 31) % 120)
-		draw_rect(Rect2(x, 300.0 - height, 112.0, height + 280.0), palette[1])
-		if index % 3 == 0:
-			draw_rect(Rect2(x + 68.0, 70.0, 20.0, 220.0), palette[1])
-		for window: int in range(3):
-			draw_rect(Rect2(x + 14.0 + float(window) * 26.0, 282.0 - height, 13.0, 6.0), palette[2].darkened(0.35))
-	# Cabos com queda: segmentos fixos, sem simulação de cordas.
-	for span: int in range(int(width / 320.0) + 1):
-		var x: float = float(span) * 320.0
-		var cable: PackedVector2Array = PackedVector2Array([Vector2(x, 64), Vector2(x + 80, 93), Vector2(x + 160, 105), Vector2(x + 240, 93), Vector2(x + 320, 64)])
-		draw_polyline(cable, palette[2], 2.0)
+	# Cidade noturna atrás das janelas; os prédios nunca recebem arestas de colisão.
+	for index: int in range(int(width / 96.0) + 1):
+		var x: float = float(index) * 96.0
+		var height: float = 70.0 + float((index * 43 + sector_index * 31) % 130)
+		draw_rect(Rect2(x, 330.0 - height, 86.0, height), palette[1].darkened(0.22))
+		for window: int in range(6):
+			var wx: float = x + 10 + (window % 3) * 25
+			var wy: float = 344.0 - height + floorf(float(window) / 3.0) * 30
+			draw_rect(Rect2(wx, wy, 8, 4), palette[5].darkened(0.66 if (index + window) % 3 == 0 else 0.82))
 
 
-func _draw_factory_bays(palette: Array[Color]) -> void:
+func _draw_office_bays(palette: Array[Color]) -> void:
 	var width: float = world_bounds.size.x
+	# Parede cinza contínua no plano recuado: o executivo preto mantém silhueta até os pés.
+	draw_rect(Rect2(0, 336, width, 284), palette[1].lightened(0.035))
+	draw_rect(Rect2(0, 576, width, 33), palette[2].darkened(0.03))
+	draw_rect(Rect2(0, 610, width, 10), palette[1])
 	for bay: int in range(int(width / 240.0) + 1):
 		var x: float = float(bay) * 240.0
-		draw_rect(Rect2(x + 14.0, 156.0, 210.0, 438.0), palette[1].lightened(0.025))
-		_draw_wall_material(Vector2(x + 22, 372), bay + sector_index * 13, palette)
-		draw_rect(Rect2(x + 20.0, 180.0, 198.0, 94.0), palette[0].lightened(0.02))
-		for pane: int in range(6):
-			var pane_x: float = x + 26.0 + float(pane) * 31.0
-			draw_rect(Rect2(pane_x, 187.0, 25.0, 78.0), palette[2].darkened(0.25))
-			if (bay + pane) % 4 == 0:
-				draw_rect(Rect2(pane_x + 3.0, 194.0, 19.0, 60.0), palette[5].darkened(0.67))
-		draw_line(Vector2(x + 20.0, 224.0), Vector2(x + 218.0, 224.0), palette[1], 3.0)
-		draw_rect(Rect2(x + 2.0, 104.0, 8.0, 490.0), palette[2])
-		draw_rect(Rect2(x + 11.0, 104.0, 3.0, 490.0), palette[0])
-		# Tubulação de fundo: tom baixo e sem aresta clara de piso.
-		draw_line(Vector2(x + 203.0, 300.0), Vector2(x + 203.0, 584.0), palette[2], 6.0)
-		draw_line(Vector2(x + 203.0, 300.0), Vector2(x + 158.0, 300.0), palette[2], 6.0)
-		for joint_y: float in [320.0, 412.0, 520.0]:
-			draw_rect(Rect2(x + 198.0, joint_y, 10.0, 3.0), palette[3].darkened(0.25))
-		# Detalhes baixos permanecem visíveis na câmera de combate, com contraste de fundo.
-		draw_rect(Rect2(x + 32, 382, 104, 132), palette[2].darkened(0.45))
-		draw_rect(Rect2(x + 33, 383, 102, 2), palette[3].darkened(0.4))
-		draw_rect(Rect2(x + 133, 386, 2, 126), palette[0])
-		for bolt: Vector2 in [Vector2(36, 386), Vector2(130, 386), Vector2(36, 507), Vector2(130, 507)]:
-			draw_rect(Rect2(Vector2(x, 0) + bolt, Vector2(2, 2)), palette[3].darkened(0.3))
-		draw_rect(Rect2(x + 39, 389, 90, 30), palette[0].lightened(0.02))
-		for vent: int in range(5):
-			draw_line(Vector2(x + 45, 394 + vent * 5), Vector2(x + 122, 394 + vent * 5), palette[2].darkened(0.18), 2)
-		draw_rect(Rect2(x + 43, 435, 6, 50), palette[4].darkened(0.55))
-		draw_rect(Rect2(x + 53, 435, 45, 24), palette[0].lightened(0.02))
-		draw_rect(Rect2(x + 57, 439, 14, 2), palette[5].darkened(0.47))
-		draw_rect(Rect2(x + 57, 444, 26, 2), palette[2])
-		draw_rect(Rect2(x + 57, 449, 19, 2), palette[2])
-		draw_rect(Rect2(x + 107, 441, 3, 3), AMBER.darkened(0.55))
-		draw_rect(Rect2(x + 109, 471, 6, 8), palette[0])
-		draw_rect(Rect2(x + 110, 472, 3, 4), palette[3].darkened(0.2))
-		draw_string(ThemeDB.fallback_font, Vector2(x + 57, 493), "VT / %03d" % (bay + sector_index * 20), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, palette[3].darkened(0.12))
-		draw_line(Vector2(x + 140, 548), Vector2(x + 186, 548), palette[2], 4)
-		draw_rect(Rect2(x + 154, 535, 14, 21), palette[2])
-		# Arandela baixa visível durante combate, com halo de apenas poucos pixels.
-		draw_rect(Rect2(x + 174, 366, 19, 14), palette[0])
-		draw_rect(Rect2(x + 177, 369, 13, 7), palette[4].darkened(0.4))
-		draw_rect(Rect2(x + 179, 370, 9, 3), AMBER.darkened(0.2))
-		draw_rect(Rect2(x + 179, 377, 9, 2), palette[4].darkened(0.6))
-		var lamp_x: float = x + 116.0
-		draw_line(Vector2(lamp_x, 108), Vector2(lamp_x, 139), palette[2], 2.0)
-		draw_rect(Rect2(lamp_x - 18.0, 140.0, 36.0, 6.0), palette[3])
-		draw_rect(Rect2(lamp_x - 14.0, 146.0, 28.0, 3.0), AMBER.darkened(0.15))
-		var cone: PackedVector2Array = PackedVector2Array([Vector2(lamp_x - 12, 149), Vector2(lamp_x + 12, 149), Vector2(lamp_x + 66, 335), Vector2(lamp_x - 66, 335)])
-		draw_colored_polygon(cone, Color(0.8, 0.64, 0.39, 0.035))
+		# Caixilhos e persianas em contraste baixo; sem faixas âmbar decorativas.
+		draw_rect(Rect2(x + 12, 156, 212, 184), palette[1])
+		draw_rect(Rect2(x + 19, 163, 198, 169), palette[0])
+		for pane: int in range(4):
+			var pane_x: float = x + 23 + pane * 48
+			draw_rect(Rect2(pane_x, 169, 43, 156), palette[1].darkened(0.18))
+			for city_light: int in range(4):
+				draw_rect(Rect2(pane_x + 7 + city_light % 2 * 19, 229 + (bay * 13 + pane * 23 + city_light * 29) % 81, 4, 2), palette[5].darkened(0.6))
+			for blind: int in range(7):
+				draw_rect(Rect2(pane_x, 174 + blind * 8, 43, 2), palette[2].darkened(0.35))
+			draw_rect(Rect2(pane_x + 5, 170, 1, 54), palette[3].darkened(0.5))
+		draw_rect(Rect2(x + 7, 336, 3, 274), palette[2])
+		_draw_wall_material(Vector2(x + 22, 382), bay + sector_index * 13, palette)
+		# Luminárias embutidas frias e leitores de crachá discretos.
+		draw_rect(Rect2(x + 72, 119, 106, 7), palette[1])
+		draw_rect(Rect2(x + 78, 121, 94, 2), palette[3].darkened(0.16))
+		draw_rect(Rect2(x + 207, 450, 12, 21), palette[0])
+		draw_rect(Rect2(x + 209, 452, 8, 8), palette[2])
+		draw_rect(Rect2(x + 211, 455, 4, 1), palette[5].darkened(0.25))
+		draw_rect(Rect2(x + 210, 465, 6, 2), palette[3].darkened(0.2))
+		if sector_index == 1 or bay % 3 == 1:
+			_draw_workstation(Vector2(x + 38, 500), palette, bay)
+		elif sector_index == 0:
+			_draw_filing_cabinet(Vector2(x + 38, 444), palette, bay)
+		else:
+			_draw_partition(Vector2(x + 25, 382), palette)
 
 
 func _draw_wall_material(at: Vector2, seed_value: int, palette: Array[Color]) -> void:
-	# Clusters de 2–16 px, repetíveis por módulo: sem RNG ou ruído por pixel.
-	for cluster: int in range(7):
+	# Pintura e juntas: poucos clusters determinísticos, sem sujeira industrial dominante.
+	for cluster: int in range(4):
 		var key: int = seed_value * 17 + cluster * 43
-		var local: Vector2 = Vector2(float((key * 7) % 174), float((key * 11) % 214))
-		var width: float = 5.0 + float(key % 12)
-		var base: Color = palette[2].darkened(0.4) if cluster % 3 != 0 else palette[4].darkened(0.67)
-		draw_rect(Rect2(at + local, Vector2(width, 2)), base)
-		draw_rect(Rect2(at + local + Vector2(2, 2), Vector2(maxf(2.0, width - 5.0), 3)), base.darkened(0.15))
-		if cluster % 3 == 0:
-			draw_rect(Rect2(at + local + Vector2(3, 5), Vector2(2, 7 + key % 8)), palette[4].darkened(0.73))
-	# Juntas quebradas ficam escuras e verticais, sem sugerir um piso transitável.
-	draw_rect(Rect2(at + Vector2(153, 20), Vector2(1, 56)), palette[0])
-	draw_rect(Rect2(at + Vector2(151, 75), Vector2(3, 1)), palette[0])
-	draw_rect(Rect2(at + Vector2(151, 76), Vector2(1, 21)), palette[0])
+		var local: Vector2 = Vector2(float((key * 7) % 174), float((key * 11) % 172))
+		draw_rect(Rect2(at + local, Vector2(5 + key % 8, 1)), palette[2].darkened(0.24))
+		draw_rect(Rect2(at + local + Vector2(2, 1), Vector2(3, 2)), palette[1])
+	draw_rect(Rect2(at + Vector2(153, 8), Vector2(1, 177)), palette[0].lightened(0.02))
+
+
+func _draw_workstation(at: Vector2, palette: Array[Color], index: int) -> void:
+	# Mesas ao fundo, com pés e cadeiras visíveis; tampo sem a aresta clara do piso real.
+	draw_rect(Rect2(at + Vector2(0, 48), Vector2(133, 6)), palette[4].darkened(0.33))
+	draw_rect(Rect2(at + Vector2(5, 54), Vector2(4, 38)), palette[2])
+	draw_rect(Rect2(at + Vector2(120, 54), Vector2(4, 38)), palette[2])
+	draw_rect(Rect2(at + Vector2(38, 10), Vector2(52, 34)), palette[0])
+	draw_rect(Rect2(at + Vector2(41, 13), Vector2(46, 27)), palette[2].darkened(0.2))
+	for row: int in range(4):
+		draw_rect(Rect2(at + Vector2(45, 18 + row * 5), Vector2(15 + (index + row) % 3 * 7, 1)), palette[5].darkened(0.2 if row == 0 else 0.45))
+	draw_rect(Rect2(at + Vector2(61, 44), Vector2(7, 4)), palette[2])
+	draw_rect(Rect2(at + Vector2(43, 55), Vector2(27, 28)), palette[0])
+	draw_rect(Rect2(at + Vector2(45, 57), Vector2(23, 22)), palette[2].darkened(0.15))
+	draw_rect(Rect2(at + Vector2(40, 81), Vector2(33, 5)), palette[2])
+	draw_rect(Rect2(at + Vector2(55, 86), Vector2(3, 10)), palette[0])
+	draw_rect(Rect2(at + Vector2(44, 94), Vector2(26, 2)), palette[0])
+	draw_rect(Rect2(at + Vector2(83, 46), Vector2(24, 2)), palette[3].darkened(0.2))
+	draw_rect(Rect2(at + Vector2(9, 43), Vector2(14, 4)), palette[5].darkened(0.25))
+	draw_rect(Rect2(at + Vector2(13, 44), Vector2(6, 1)), palette[1])
+
+
+func _draw_filing_cabinet(at: Vector2, palette: Array[Color], index: int) -> void:
+	draw_rect(Rect2(at, Vector2(99, 148)), palette[0])
+	draw_rect(Rect2(at + Vector2(2, 2), Vector2(95, 144)), palette[2].darkened(0.09))
+	for drawer: int in range(4):
+		var y: float = 5 + drawer * 34
+		draw_rect(Rect2(at + Vector2(5, y), Vector2(88, 31)), palette[1].lightened(0.025))
+		draw_rect(Rect2(at + Vector2(38, y + 15), Vector2(22, 2)), palette[3].darkened(0.1))
+		draw_rect(Rect2(at + Vector2(10, y + 7), Vector2(19, 8)), palette[4].darkened(0.15))
+		draw_rect(Rect2(at + Vector2(13, y + 10), Vector2(13, 1)), palette[5].darkened(0.15))
+	draw_string(ThemeDB.fallback_font, at + Vector2(10, -7), "ARQ. %02d" % (17 + index), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, palette[5].darkened(0.15))
+
+
+func _draw_partition(at: Vector2, palette: Array[Color]) -> void:
+	draw_rect(Rect2(at, Vector2(153, 214)), palette[2].darkened(0.15))
+	draw_rect(Rect2(at + Vector2(3, 3), Vector2(147, 208)), palette[1].lightened(0.015))
+	for blind: int in range(16):
+		draw_rect(Rect2(at + Vector2(7, 12 + blind * 7), Vector2(139, 1)), palette[2].darkened(0.2))
+	draw_rect(Rect2(at + Vector2(78, 3), Vector2(2, 208)), palette[2])
+	draw_rect(Rect2(at + Vector2(130, 143), Vector2(8, 2)), palette[3].darkened(0.1))
 
 
 func _draw_sector_identity(palette: Array[Color]) -> void:
 	match sector_index:
 		0:
-			for pile: int in range(9):
-				var x: float = 72.0 + float(pile) * 192.0
-				var points: PackedVector2Array = PackedVector2Array([Vector2(x - 54, 609), Vector2(x - 42, 582), Vector2(x - 18, 594), Vector2(x + 4, 564), Vector2(x + 22, 589), Vector2(x + 50, 576), Vector2(x + 62, 609)])
-				draw_colored_polygon(points, palette[2].darkened(0.2))
-				draw_line(Vector2(x - 34, 600), Vector2(x + 30, 579), palette[4].darkened(0.5), 4.0)
-				draw_rect(Rect2(x - 16, 583, 18, 4), palette[4].darkened(0.48))
-				draw_rect(Rect2(x - 12, 587, 12, 2), palette[0])
-				draw_rect(Rect2(x + 24, 592, 17, 7), palette[1])
-				for tooth: int in range(3):
-					draw_rect(Rect2(x + 27 + tooth * 5, 590, 2, 3), palette[3].darkened(0.45))
-			_draw_sign(Vector2(66, 458), "DESCARTE / A-17", palette)
-			_draw_sign(Vector2(1120, 526), "REGISTROS DE BAIXA", palette)
-			draw_string(ThemeDB.fallback_font, Vector2(790, 582), "OS NOMES AINDA ESTAO AQUI", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, palette[5].darkened(0.25))
+			_draw_sign(Vector2(58, 382), "VÉRTICE / ARQUIVO MORTO", palette)
+			_draw_sign(Vector2(1110, 382), "ATAS / ACESSO RESTRITO", palette)
+			draw_string(ThemeDB.fallback_font, Vector2(775, 536), "RETENÇÃO DOCUMENTAL · DIRETORIA", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, palette[5].darkened(0.12))
 		1:
-			# Contêineres são fundo recuado; não usam bordas claras das colisões.
-			for container: int in range(5):
-				var x: float = 72.0 + float(container) * 390.0
-				draw_rect(Rect2(x, 446, 300, 154), palette[2].darkened(0.16))
-				for rib: int in range(13):
-					draw_line(Vector2(x + 12 + rib * 22, 456), Vector2(x + 12 + rib * 22, 588), palette[1], 3.0)
-					draw_rect(Rect2(x + 14 + rib * 22, 458, 1, 126), palette[3].darkened(0.55))
-				for latch: float in [46.0, 250.0]:
-					draw_rect(Rect2(x + latch, 492, 3, 82), palette[3].darkened(0.35))
-					draw_rect(Rect2(x + latch - 3, 532, 9, 3), palette[4].darkened(0.4))
-					draw_rect(Rect2(x + latch - 1, 583, 5, 5), palette[0])
-				for chip: int in range(4):
-					var chip_x: float = x + 22 + ((container * 17 + chip * 61) % 250)
-					var chip_y: float = 502 + ((container * 11 + chip * 29) % 81)
-					draw_rect(Rect2(chip_x, chip_y, 9 + chip * 2, 2), palette[4].darkened(0.57))
-					draw_rect(Rect2(chip_x + 3, chip_y + 2, 3, 5), palette[4].darkened(0.68))
-				draw_string(ThemeDB.fallback_font, Vector2(x + 22, 478), "VT / CARGA %02d" % (17 + container), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, palette[5].darkened(0.36))
-			draw_line(Vector2(980, 96), Vector2(980, 300), palette[4].darkened(0.22), 8.0)
-			draw_line(Vector2(830, 100), Vector2(1140, 100), palette[4].darkened(0.22), 10.0)
-			draw_line(Vector2(1120, 107), Vector2(1120, 214), palette[2], 2.0)
-			draw_arc(Vector2(1120, 220), 8, 0, PI, 10, palette[3], 3)
-			_draw_sign(Vector2(66, 358), "PATIO / LOGISTICA", palette)
-			_draw_sign(Vector2(1500, 360), "REMESSAS SOB ESCOLTA", palette)
+			_draw_sign(Vector2(58, 382), "VÉRTICE / OPERAÇÕES", palette)
+			_draw_sign(Vector2(1400, 382), "CONTRATOS / COMPLIANCE", palette)
+			for screen: int in range(3):
+				var x: float = 870 + screen * 79
+				draw_rect(Rect2(x, 273, 72, 49), palette[0])
+				draw_rect(Rect2(x + 3, 276, 66, 43), palette[2])
+				for bar: int in range(4):
+					draw_rect(Rect2(x + 8 + bar * 12, 310 - (bar + screen) % 4 * 7, 7, 5 + (bar + screen) % 4 * 7), palette[5].darkened(0.22))
+			_draw_sign(Vector2(870, 382), "CENTRO DE OPERAÇÕES", palette)
 		2:
-			# Emblema geométrico original e grades fechadas reforçam a arena fixa.
 			var emblem: PackedVector2Array = PackedVector2Array([Vector2(800, 180), Vector2(882, 264), Vector2(849, 264), Vector2(800, 215), Vector2(751, 264), Vector2(718, 264)])
-			draw_colored_polygon(emblem, palette[4].darkened(0.25))
-			draw_string(ThemeDB.fallback_font, Vector2(725, 298), "VERTICE / SEGURANCA", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, TEXT.darkened(0.1))
-			for side_x: float in [28.0, 1400.0]:
-				draw_rect(Rect2(side_x, 390, 170, 218), palette[0])
-				for bar: int in range(9):
-					draw_line(Vector2(side_x + 9 + bar * 19, 395), Vector2(side_x + 9 + bar * 19, 606), palette[2], 3)
-					draw_rect(Rect2(side_x + 8 + bar * 19, 397, 1, 204), palette[3].darkened(0.35))
-				draw_line(Vector2(side_x, 470), Vector2(side_x + 170, 470), palette[2], 3)
-			_draw_sign(Vector2(666, 505), "PONTO DE CONTROLE / 07", palette)
+			draw_colored_polygon(emblem, palette[4].darkened(0.15))
+			draw_string(ThemeDB.fallback_font, Vector2(697, 298), "VÉRTICE / CONSELHO EXECUTIVO", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, palette[5])
+			# Mesa de conselho e cadeiras no recuo; corredor de combate permanece intacto.
+			for chair: int in range(5):
+				var x: float = 605 + chair * 80
+				draw_rect(Rect2(x, 471, 29, 57), palette[0])
+				draw_rect(Rect2(x + 2, 473, 25, 40), palette[2])
+				draw_rect(Rect2(x - 3, 516, 35, 5), palette[2])
+			draw_rect(Rect2(570, 532, 460, 9), palette[4].darkened(0.18))
+			draw_rect(Rect2(586, 541, 11, 52), palette[2])
+			draw_rect(Rect2(1005, 541, 11, 52), palette[2])
+			for folder: int in range(4):
+				draw_rect(Rect2(640 + folder * 84, 529, 26, 2), palette[5].darkened(0.08))
+			_draw_sign(Vector2(60, 382), "SEGURANÇA / DIRETORIAS", palette)
+			_draw_sign(Vector2(1240, 382), "SESSÃO CONFIDENCIAL", palette)
 
 
 func _draw_sign(at: Vector2, label: String, palette: Array[Color]) -> void:
@@ -359,7 +354,7 @@ func _draw_floor_details(palette: Array[Color]) -> void:
 	for tile: int in range(int(width / 32.0)):
 		var x: float = tile * 32.0
 		draw_line(Vector2(x, 638), Vector2(x, 710), palette[2], 1.0)
-		draw_rect(Rect2(x + 4, 624, 12, 3), AMBER.darkened(0.28))
+		draw_rect(Rect2(x + 4, 624, 12, 2), palette[3].lightened(0.12))
 		if tile % 4 == 0:
 			draw_line(Vector2(x + 6, 654), Vector2(x + 24, 654), palette[0], 2.0)
 			draw_rect(Rect2(x + 5, 646, 3, 2), EDGE.darkened(0.3))
@@ -369,7 +364,7 @@ func _draw_floor_details(palette: Array[Color]) -> void:
 		draw_rect(Rect2(x + 10, chip_y + 2, 4, 3), palette[3].darkened(0.12))
 	draw_line(Vector2(0, 636), Vector2(width, 636), palette[0], 3.0)
 	draw_line(Vector2(0, 682), Vector2(width, 682), palette[2], 2.0)
-	draw_line(Vector2(92, 617), Vector2(148, 617), Color("7bb7af"), 2.0)
+	draw_line(Vector2(92, 617), Vector2(148, 617), Color("90998d"), 2.0)
 
 
 func _draw_exit(palette: Array[Color]) -> void:

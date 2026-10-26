@@ -1,4 +1,23 @@
-# Regras de combate0.2
+# Regras vigentes0.4
+
+A dificuldade padrão aumenta cadência, dano e mobilidade, preservando avisos/LOS/dano único e a vida anterior dos inimigos.
+
+| Oponente | HP | Dano | Aviso | Recuperação | Velocidade |
+|---|---:|---:|---:|---:|---:|
+|Recruta|55|12|0,60s|0,85s|100px/s|
+|Batedor|40|18|0,36s|0,75s|145px/s|
+
+O recruta reposiciona na recuperação para manter160–240px do alvo e planta os pés nos últimos0,20s. Colisão física e sondagem de chão impedem atravessar paredes ou se jogar de passarelas nessa manobra. O ataque continua com direção travada e não atravessa cobertura.
+
+Chacal mantém420HP e duas fases aos50%. Danos: avanço24, rajada18, onda30. Avisos:0,60/0,72/0,85s; recuperação0,85s ou1,10s no avanço bloqueado/onda. Cada padrão resolve um único contato de dano. Introdução1s, transição de fase0,8s e contrajogo por cobertura/barril/plataforma foram preservados.
+
+No assistido, o aviso inimigo é multiplicado por1,45 e seu dano por0,7; o jogador também mantém redução0,6, resultando em42% do dano padrão. A seleção entra no próximo retry. Armas, munição, colisores, vida do jogador e janelas de esquiva não mudaram nesta revisão.
+
+Mira por movimento: analógico esquerdo em360° com deadzone e retenção. Mira independente opcional: direito em360°, retido ao soltar. Nenhum dos modos altera a direção dos controles de movimento. Assistência leve de alvos é um parâmetro separado. Mouse mantém mira independente.
+
+---
+
+# Histórico — regras de combate0.2
 
 - Pistola:24 de dano, pente12, reserva72, intervalo0,22s, recarga1s, alcance800px. Espingarda:cinco pellets de10, pente6/reserva24, intervalo0,65s, recarga1,5s, alcance420px. Pellets no mesmo alvo são agregados em um acerto. Tiro pode ser mantido; não há projétil físico.
 - O raio entre ombro e boca da arma bloqueia tiros cujo cano atravessaria cobertura. Raios incluem cenário, atores e props; chão/plataformas também obstruem. Disparo bloqueado ainda consome munição.

@@ -3,7 +3,7 @@ extends RefCounted
 ## Body facing and weapon aim are deliberately independent. Never modifies physics.
 static var _textures: Dictionary = {}
 const ROOT: String = "res://assets/art/actors/"
-const ARM_COLORS: Dictionary = {"spectre": Color("568d91"), "recruit": Color("9b7457"), "scout": Color("81738e"), "chacal": Color("9a6958")}
+const ARM_COLORS: Dictionary = {"spectre": Color("2b3037"), "recruit": Color("565c50"), "scout": Color("74605b"), "chacal": Color("76616a")}
 
 static func draw_actor(canvas: CanvasItem, pose: Dictionary) -> void:
 	var kind: String = str(pose.get("kind", "spectre"))
@@ -44,9 +44,12 @@ static func draw_actor(canvas: CanvasItem, pose: Dictionary) -> void:
 	var recoil: float = clampf(float(pose.get("recoil", 0.0)), 0.0, 1.0)
 	var hand_origin: Vector2 = (shoulder - aim * roundf(recoil * 2.0)).round()
 	var sleeve: Color = ARM_COLORS[kind]
-	if large and int(pose.get("phase", 1)) >= 2: sleeve = Color("b87950")
-	_pixel_line(canvas, shoulder.round(), (hand_origin + aim * 7).round(), Color("101b25"), 4 if not large else 6)
+	if large and int(pose.get("phase", 1)) >= 2: sleeve = Color("8a665c")
+	_pixel_line(canvas, shoulder.round(), (hand_origin + aim * 7).round(), Color("11161b"), 4 if not large else 6)
 	_pixel_line(canvas, shoulder.round(), (hand_origin + aim * 6).round(), sleeve, 2 if not large else 4)
+	if kind == "spectre":
+		_pixel_line(canvas, (shoulder + Vector2(0, -1)).round(), (hand_origin + aim * 4 + Vector2(0, -1)).round(), Color("3b4148"), 1)
+		canvas.draw_rect(Rect2((hand_origin + aim * 4).round() - Vector2.ONE, Vector2(2, 2)), Color("c4c2b6"))
 	var direction: int = posmod(roundi(aim.angle() * 32.0 / TAU), 32)
 	var weapon_region := Rect2(Vector2(Vector2i(direction % 8, direction / 8) * 48), Vector2(48, 48))
 	canvas.draw_texture_rect_region(_texture(weapon), Rect2(hand_origin - Vector2(24, 24), Vector2(48, 48)), weapon_region, tint)

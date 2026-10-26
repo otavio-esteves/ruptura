@@ -9,13 +9,13 @@ var camera: Camera2D
 
 class Backdrop extends Node2D:
 	func _draw() -> void:
-		draw_rect(Rect2(-200, -200, 3000, 600), Color("182830"))
+		draw_rect(Rect2(-200, -200, 3000, 600), Color("252b30"))
 		for index: int in range(70):
 			var x: float = index * 32.0 - 100
-			draw_line(Vector2(x, -100), Vector2(x, 139), Color("243a42"), 1)
-			draw_rect(Rect2(x, 140, 31, 20), Color("4b6064"))
-			draw_rect(Rect2(x, 140, 16, 2), Color("a8bcb3"))
-			draw_rect(Rect2(x + 5, 148, 8, 2), Color("bd9a64"))
+			draw_line(Vector2(x, -100), Vector2(x, 139), Color("343b40"), 1)
+			draw_rect(Rect2(x, 140, 31, 20), Color("3a4145"))
+			draw_rect(Rect2(x, 140, 16, 2), Color("a0a79c"))
+			draw_rect(Rect2(x + 5, 148, 8, 2), Color("8c8d72"))
 
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
@@ -30,7 +30,7 @@ func run() -> void:
 		if filename.length() == 13 and filename.begins_with("frame_") and filename.ends_with(".png") and filename.substr(6, 3).is_valid_int():
 			output_directory.remove(filename)
 	load("res://game/core/input_setup.gd").install()
-	for action: String in ["move_left", "move_right", "jump", "crouch", "dodge", "sprint", "aim_left", "aim_right", "aim_up", "aim_down", "fire"]:
+	for action: String in ["move_left", "move_right", "jump", "crouch", "dodge", "sprint", "aim_left", "aim_right", "aim_up", "aim_down", "move_aim_left", "move_aim_right", "move_aim_up", "move_aim_down", "fire"]:
 		InputMap.action_erase_events(action)
 		Input.action_release(action)
 	var viewport := SubViewport.new()
@@ -99,17 +99,20 @@ func _update_actions(time: float) -> void:
 	var text: String = "RESPIRAÇÃO / APOIO"
 	var moving_right: bool = time >= 1.0 and time < 3.0 or time >= 4.0 and time < 6.8
 	_hold("move_right", moving_right)
-	_hold("move_left", time >= 3.0 and time < 4.0)
+	_hold("move_left", time >= 3.0 and time < 4.0 or time >= 8.0)
+	_hold("move_aim_right", moving_right)
+	_hold("move_aim_left", time >= 3.0 and time < 4.0)
+	player.independent_aim = time >= 8.0
 	_hold("sprint", time >= 4.0 and time < 6.0)
 	_hold("jump", time >= 5.0 and time < 5.30)
 	_hold("crouch", time >= 6.0 and time < 6.8)
 	_hold("dodge", time >= 7.0 and time < 7.08)
 	_hold("fire", time >= 8.0 and time < 8.8)
-	if time >= 8.0: text = "MIRA E RECUO INDEPENDENTES"
+	if time >= 8.0: text = "DIREITO OPCIONAL / MIRA INDEPENDENTE"
 	elif time >= 7.0: text = "ESQUIVA / RECUPERAÇÃO"
 	elif time >= 6.0: text = "AGACHAR E DESLOCAR"
 	elif time >= 5.0: text = "SALTO / QUEDA / ATERRISSAGEM"
 	elif time >= 4.0: text = "CORRIDA"
-	elif time >= 3.0: text = "RECUO SEM INVERTER A MIRA"
+	elif time >= 3.0: text = "ESQUERDO / MIRA PELO MOVIMENTO"
 	elif time >= 1.0: text = "PASSADA / PÉ DE APOIO"
-	caption.text = "RUPTURA 0.3.1 · " + text
+	caption.text = "RUPTURA 0.4 · " + text
