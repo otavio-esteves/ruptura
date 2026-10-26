@@ -116,7 +116,7 @@ func _build_menu() -> void:
 	_button(menu_column, "Opções e controles", _open_options)
 	_button(menu_column, "Sair", func() -> void: get_tree().quit())
 	var note := Label.new()
-	note.text = "3 setores · confronto com a Chacal\nRotas opcionais e registros secretos\nCheckpoint antes de cada confronto\n\nProtótipo expandido · v0.3"
+	note.text = "3 setores · confronto com a Chacal\nRotas opcionais e registros secretos\nCheckpoint antes de cada confronto\n\nPixel art e movimento · v0.3.1"
 	note.add_theme_font_size_override("font_size", 11)
 	menu_column.add_child(note)
 	options_column = OPTIONS.new()

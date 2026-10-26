@@ -2,6 +2,7 @@ extends CharacterBody2D
 ## Posição nos pés. Movimento responsivo, dano e janela curta de esquiva.
 signal died
 signal damaged(amount: float)
+const PixelActor = preload("res://game/visuals/pixel_actor.gd")
 const HEALTH = preload("res://game/combat/health_component.gd")
 
 @export var walk_speed: float = 150.0
@@ -29,7 +30,11 @@ var assisted: bool = false
 var aim_assist_enabled: bool = false
 var reduced_effects: bool = false
 var recoil_remaining: float = 0.0
-var _animation_time: float = 0.0
+var _walk_cycle: float = 0.0
+var _idle_cycle: float = 0.0
+var _land_remaining: float = 0.0
+var _visual_speed: float = 0.0
+var _death_time: float = 0.0
 var _hurt_flash: float = 0.0
 var _knockback: Vector2 = Vector2.ZERO
 var _hurt_control_remaining: float = 0.0
@@ -48,6 +53,7 @@ var _crouching_shape: RectangleShape2D = RectangleShape2D.new()
 
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_to_group("player")
 	add_to_group("damageable")
 	health = HEALTH.new()
@@ -90,8 +96,12 @@ func _physics_process(delta: float) -> void:
 		return
 	_hurt_flash = maxf(0.0, _hurt_flash - delta)
 	recoil_remaining = maxf(0.0, recoil_remaining - delta)
-	_animation_time += delta * absf(velocity.x) * 0.12
+	var previous_position: Vector2 = global_position
+	var grounded_before: bool = is_on_floor()
+	_idle_cycle = fposmod(_idle_cycle + delta * 0.6, 1.0)
+	_land_remaining = maxf(0.0, _land_remaining - delta)
 	if is_dead:
+		_death_time += delta
 		velocity.x = move_toward(velocity.x, 0.0, 1100.0 * delta)
 		velocity.y = minf(velocity.y + gravity * delta, 750.0)
 		move_and_slide()
@@ -147,6 +157,12 @@ func _physics_process(delta: float) -> void:
 		velocity.x = _knockback.x
 	_knockback = _knockback.move_toward(Vector2.ZERO, 700.0 * delta)
 	move_and_slide()
+	var displacement: float = global_position.x - previous_position.x
+	_visual_speed = absf(displacement) / maxf(delta, 0.001)
+	if is_on_floor():
+		if not grounded_before: _land_remaining = 0.10
+		elif absf(displacement) > 0.01 and not is_dodging:
+			_walk_cycle = fposmod(_walk_cycle + displacement * _facing / (40.0 if Input.is_action_pressed("sprint") else 32.0), 1.0)
 	queue_redraw()
 
 func receive_damage(amount: float, impulse: Vector2, _source: Node = null) -> bool:
@@ -251,6 +267,10 @@ func reset_to(spawn: Vector2) -> void:
 	_hurt_control_remaining = 0.0
 	_hurt_flash = 0.0
 	recoil_remaining = 0.0
+	_walk_cycle = 0.0
+	_land_remaining = 0.0
+	_visual_speed = 0.0
+	_death_time = 0.0
 	if is_instance_valid(health):
 		health.reset_health()
 	_collision.shape = _standing_shape
@@ -263,33 +283,47 @@ func _shoulder() -> Vector2:
 	return Vector2(0.0, -10.0 if is_crouching else -18.0)
 
 
-func _draw() -> void:
-	var height: float = 14.0 if is_crouching else 24.0
-	var jacket: Color = Color("6b9395")
-	if is_dodging:
-		jacket = Color("b2d6cf")
-	if _hurt_flash > 0.0 and not reduced_effects:
-		jacket = Color("ee997d")
+func _animation_pose() -> Dictionary:
+	var state: String = "idle"
+	var cycle: float = _idle_cycle
 	if is_dead:
-		draw_rect(Rect2(-11, -7, 22, 7), Color("6a5354"))
-		return
-	draw_rect(Rect2(-6.0, -height, 12.0, height - 6.0), Color("15252d"))
-	draw_rect(Rect2(-5.0, -height + 6.0, 10.0, height - 12.0), jacket)
-	draw_rect(Rect2(-4.0, -height, 8.0, 6.0), Color("c3b99c"))
-	draw_rect(Rect2(0.0 if _facing > 0.0 else -5.0, -height + 2.0, 5.0, 2.0), Color("c9eee0"))
-	var stride: float = sin(_animation_time) * 2.0 if is_on_floor() and absf(velocity.x) > 12.0 and not is_crouching else 0.0
-	draw_rect(Rect2(-5.0 + stride, -6.0, 4.0, 6.0), Color("364650"))
-	draw_rect(Rect2(1.0 - stride, -6.0, 4.0, 6.0), Color("364650"))
-	var shoulder: Vector2 = _shoulder()
-	var recoil: float = recoil_remaining * 25.0
-	draw_line(shoulder, shoulder + aim_direction * (10.0 - recoil), jacket, 4.0)
-	draw_line(shoulder + aim_direction * (8.0 - recoil), shoulder + aim_direction * (18.0 - recoil), Color("c4c6b4"), 3.0)
-	var reticle: Vector2 = shoulder + aim_direction * 64.0
-	var ink: Color = Color("10191e")
-	var light: Color = Color("e3dc9c")
-	draw_circle(reticle, 5.0, ink, false, 3.0)
-	draw_circle(reticle, 4.0, light, false, 1.0)
-	draw_line(reticle + Vector2(-7.0, 0.0), reticle + Vector2(-3.0, 0.0), light)
-	draw_line(reticle + Vector2(3.0, 0.0), reticle + Vector2(7.0, 0.0), light)
-	draw_line(reticle + Vector2(0.0, -7.0), reticle + Vector2(0.0, -3.0), light)
-	draw_line(reticle + Vector2(0.0, 3.0), reticle + Vector2(0.0, 7.0), light)
+		state = "dead"
+		cycle = minf(0.99, _death_time / 0.35)
+	elif is_dodging:
+		state = "dodge"
+		cycle = 1.0 - _dodge_remaining / dodge_duration
+	elif _hurt_control_remaining > 0.0:
+		state = "hurt"
+	elif not is_on_floor():
+		state = "jump" if velocity.y < -40.0 else ("fall" if velocity.y > 40.0 else "apex")
+	elif is_crouching:
+		state = "crouch"
+		cycle = _walk_cycle
+	elif _land_remaining > 0.0:
+		state = "land"
+		cycle = 1.0 - _land_remaining / 0.10
+	elif _visual_speed > 8.0:
+		state = "run"
+		cycle = _walk_cycle
+	var weapon: String = "pistol"
+	if is_instance_valid(weapon_controller): weapon = weapon_controller.selected_weapon
+	var rendered_shoulder: Vector2 = _shoulder()
+	if state == "dodge": rendered_shoulder.y = roundf(lerpf(-11.0, -18.0, clampf((cycle - 0.75) * 4.0, 0.0, 1.0)))
+	return {"kind": "spectre", "state": state, "cycle": cycle, "facing": _facing, "aim": aim_direction,
+		"shoulder": rendered_shoulder, "recoil": recoil_remaining / 0.08, "phase": 1, "weapon": weapon,
+		"flash": _hurt_flash > 0.0 and not reduced_effects, "crouch_moving": _visual_speed > 8.0}
+
+func _draw() -> void:
+	PixelActor.draw_actor(self, _animation_pose())
+	if is_dead: return
+	var reticle: Vector2 = _shoulder() + aim_direction * 64.0
+	var ink := Color("10191e")
+	var light := Color("e3dc9c")
+	# Pixel crosshair: integer coordinates, always visible over bright or dark props.
+	var center: Vector2 = reticle.round()
+	draw_rect(Rect2(center - Vector2(5, 5), Vector2(10, 10)), ink, false, 3.0)
+	draw_rect(Rect2(center - Vector2(4, 4), Vector2(8, 8)), light, false, 1.0)
+	draw_line(center + Vector2(-7, 0), center + Vector2(-3, 0), light)
+	draw_line(center + Vector2(3, 0), center + Vector2(7, 0), light)
+	draw_line(center + Vector2(0, -7), center + Vector2(0, -3), light)
+	draw_line(center + Vector2(0, 3), center + Vector2(0, 7), light)

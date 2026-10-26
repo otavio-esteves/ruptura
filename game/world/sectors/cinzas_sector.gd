@@ -197,6 +197,7 @@ func _draw_factory_bays(palette: Array[Color]) -> void:
 	for bay: int in range(int(width / 240.0) + 1):
 		var x: float = float(bay) * 240.0
 		draw_rect(Rect2(x + 14.0, 156.0, 210.0, 438.0), palette[1].lightened(0.025))
+		_draw_wall_material(Vector2(x + 22, 372), bay + sector_index * 13, palette)
 		draw_rect(Rect2(x + 20.0, 180.0, 198.0, 94.0), palette[0].lightened(0.02))
 		for pane: int in range(6):
 			var pane_x: float = x + 26.0 + float(pane) * 31.0
@@ -213,19 +214,52 @@ func _draw_factory_bays(palette: Array[Color]) -> void:
 			draw_rect(Rect2(x + 198.0, joint_y, 10.0, 3.0), palette[3].darkened(0.25))
 		# Detalhes baixos permanecem visíveis na câmera de combate, com contraste de fundo.
 		draw_rect(Rect2(x + 32, 382, 104, 132), palette[2].darkened(0.45))
+		draw_rect(Rect2(x + 33, 383, 102, 2), palette[3].darkened(0.4))
+		draw_rect(Rect2(x + 133, 386, 2, 126), palette[0])
+		for bolt: Vector2 in [Vector2(36, 386), Vector2(130, 386), Vector2(36, 507), Vector2(130, 507)]:
+			draw_rect(Rect2(Vector2(x, 0) + bolt, Vector2(2, 2)), palette[3].darkened(0.3))
 		draw_rect(Rect2(x + 39, 389, 90, 30), palette[0].lightened(0.02))
 		for vent: int in range(5):
 			draw_line(Vector2(x + 45, 394 + vent * 5), Vector2(x + 122, 394 + vent * 5), palette[2].darkened(0.18), 2)
 		draw_rect(Rect2(x + 43, 435, 6, 50), palette[4].darkened(0.55))
+		draw_rect(Rect2(x + 53, 435, 45, 24), palette[0].lightened(0.02))
+		draw_rect(Rect2(x + 57, 439, 14, 2), palette[5].darkened(0.47))
+		draw_rect(Rect2(x + 57, 444, 26, 2), palette[2])
+		draw_rect(Rect2(x + 57, 449, 19, 2), palette[2])
+		draw_rect(Rect2(x + 107, 441, 3, 3), AMBER.darkened(0.55))
+		draw_rect(Rect2(x + 109, 471, 6, 8), palette[0])
+		draw_rect(Rect2(x + 110, 472, 3, 4), palette[3].darkened(0.2))
 		draw_string(ThemeDB.fallback_font, Vector2(x + 57, 493), "VT / %03d" % (bay + sector_index * 20), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, palette[3].darkened(0.12))
 		draw_line(Vector2(x + 140, 548), Vector2(x + 186, 548), palette[2], 4)
 		draw_rect(Rect2(x + 154, 535, 14, 21), palette[2])
+		# Arandela baixa visível durante combate, com halo de apenas poucos pixels.
+		draw_rect(Rect2(x + 174, 366, 19, 14), palette[0])
+		draw_rect(Rect2(x + 177, 369, 13, 7), palette[4].darkened(0.4))
+		draw_rect(Rect2(x + 179, 370, 9, 3), AMBER.darkened(0.2))
+		draw_rect(Rect2(x + 179, 377, 9, 2), palette[4].darkened(0.6))
 		var lamp_x: float = x + 116.0
 		draw_line(Vector2(lamp_x, 108), Vector2(lamp_x, 139), palette[2], 2.0)
 		draw_rect(Rect2(lamp_x - 18.0, 140.0, 36.0, 6.0), palette[3])
 		draw_rect(Rect2(lamp_x - 14.0, 146.0, 28.0, 3.0), AMBER.darkened(0.15))
 		var cone: PackedVector2Array = PackedVector2Array([Vector2(lamp_x - 12, 149), Vector2(lamp_x + 12, 149), Vector2(lamp_x + 66, 335), Vector2(lamp_x - 66, 335)])
 		draw_colored_polygon(cone, Color(0.8, 0.64, 0.39, 0.035))
+
+
+func _draw_wall_material(at: Vector2, seed_value: int, palette: Array[Color]) -> void:
+	# Clusters de 2–16 px, repetíveis por módulo: sem RNG ou ruído por pixel.
+	for cluster: int in range(7):
+		var key: int = seed_value * 17 + cluster * 43
+		var local: Vector2 = Vector2(float((key * 7) % 174), float((key * 11) % 214))
+		var width: float = 5.0 + float(key % 12)
+		var base: Color = palette[2].darkened(0.4) if cluster % 3 != 0 else palette[4].darkened(0.67)
+		draw_rect(Rect2(at + local, Vector2(width, 2)), base)
+		draw_rect(Rect2(at + local + Vector2(2, 2), Vector2(maxf(2.0, width - 5.0), 3)), base.darkened(0.15))
+		if cluster % 3 == 0:
+			draw_rect(Rect2(at + local + Vector2(3, 5), Vector2(2, 7 + key % 8)), palette[4].darkened(0.73))
+	# Juntas quebradas ficam escuras e verticais, sem sugerir um piso transitável.
+	draw_rect(Rect2(at + Vector2(153, 20), Vector2(1, 56)), palette[0])
+	draw_rect(Rect2(at + Vector2(151, 75), Vector2(3, 1)), palette[0])
+	draw_rect(Rect2(at + Vector2(151, 76), Vector2(1, 21)), palette[0])
 
 
 func _draw_sector_identity(palette: Array[Color]) -> void:
@@ -236,6 +270,11 @@ func _draw_sector_identity(palette: Array[Color]) -> void:
 				var points: PackedVector2Array = PackedVector2Array([Vector2(x - 54, 609), Vector2(x - 42, 582), Vector2(x - 18, 594), Vector2(x + 4, 564), Vector2(x + 22, 589), Vector2(x + 50, 576), Vector2(x + 62, 609)])
 				draw_colored_polygon(points, palette[2].darkened(0.2))
 				draw_line(Vector2(x - 34, 600), Vector2(x + 30, 579), palette[4].darkened(0.5), 4.0)
+				draw_rect(Rect2(x - 16, 583, 18, 4), palette[4].darkened(0.48))
+				draw_rect(Rect2(x - 12, 587, 12, 2), palette[0])
+				draw_rect(Rect2(x + 24, 592, 17, 7), palette[1])
+				for tooth: int in range(3):
+					draw_rect(Rect2(x + 27 + tooth * 5, 590, 2, 3), palette[3].darkened(0.45))
 			_draw_sign(Vector2(66, 458), "DESCARTE / A-17", palette)
 			_draw_sign(Vector2(1120, 526), "REGISTROS DE BAIXA", palette)
 			draw_string(ThemeDB.fallback_font, Vector2(790, 582), "OS NOMES AINDA ESTAO AQUI", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, palette[5].darkened(0.25))
@@ -246,6 +285,16 @@ func _draw_sector_identity(palette: Array[Color]) -> void:
 				draw_rect(Rect2(x, 446, 300, 154), palette[2].darkened(0.16))
 				for rib: int in range(13):
 					draw_line(Vector2(x + 12 + rib * 22, 456), Vector2(x + 12 + rib * 22, 588), palette[1], 3.0)
+					draw_rect(Rect2(x + 14 + rib * 22, 458, 1, 126), palette[3].darkened(0.55))
+				for latch: float in [46.0, 250.0]:
+					draw_rect(Rect2(x + latch, 492, 3, 82), palette[3].darkened(0.35))
+					draw_rect(Rect2(x + latch - 3, 532, 9, 3), palette[4].darkened(0.4))
+					draw_rect(Rect2(x + latch - 1, 583, 5, 5), palette[0])
+				for chip: int in range(4):
+					var chip_x: float = x + 22 + ((container * 17 + chip * 61) % 250)
+					var chip_y: float = 502 + ((container * 11 + chip * 29) % 81)
+					draw_rect(Rect2(chip_x, chip_y, 9 + chip * 2, 2), palette[4].darkened(0.57))
+					draw_rect(Rect2(chip_x + 3, chip_y + 2, 3, 5), palette[4].darkened(0.68))
 				draw_string(ThemeDB.fallback_font, Vector2(x + 22, 478), "VT / CARGA %02d" % (17 + container), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, palette[5].darkened(0.36))
 			draw_line(Vector2(980, 96), Vector2(980, 300), palette[4].darkened(0.22), 8.0)
 			draw_line(Vector2(830, 100), Vector2(1140, 100), palette[4].darkened(0.22), 10.0)
@@ -262,6 +311,7 @@ func _draw_sector_identity(palette: Array[Color]) -> void:
 				draw_rect(Rect2(side_x, 390, 170, 218), palette[0])
 				for bar: int in range(9):
 					draw_line(Vector2(side_x + 9 + bar * 19, 395), Vector2(side_x + 9 + bar * 19, 606), palette[2], 3)
+					draw_rect(Rect2(side_x + 8 + bar * 19, 397, 1, 204), palette[3].darkened(0.35))
 				draw_line(Vector2(side_x, 470), Vector2(side_x + 170, 470), palette[2], 3)
 			_draw_sign(Vector2(666, 505), "PONTO DE CONTROLE / 07", palette)
 
@@ -275,12 +325,17 @@ func _draw_sign(at: Vector2, label: String, palette: Array[Color]) -> void:
 
 func _draw_solid(rect: Rect2, palette: Array[Color]) -> void:
 	draw_rect(rect, palette[3])
-	draw_line(rect.position, Vector2(rect.end.x, rect.position.y), EDGE, 2.0)
+	draw_rect(Rect2(rect.position, Vector2(rect.size.x, 1)), EDGE)
+	draw_rect(Rect2(rect.position + Vector2(0, 1), Vector2(rect.size.x, 3)), palette[3].lightened(0.12))
 	if rect.size.y <= 40.0:
-		draw_rect(rect, EDGE.darkened(0.3), false, 1.0)
-		draw_line(rect.position + Vector2(5, 6), rect.end - Vector2(5, 5), palette[4], 2.0)
-		draw_circle(rect.position + Vector2(5, 5), 1, EDGE)
-		draw_circle(rect.end - Vector2(5, 5), 1, EDGE)
+		draw_rect(Rect2(rect.position, Vector2(1, rect.size.y)), EDGE.darkened(0.3))
+		draw_rect(Rect2(rect.end - Vector2(3, rect.size.y - 2), Vector2(3, rect.size.y - 2)), palette[0])
+		for scratch: int in range(3):
+			var point: Vector2 = rect.position + Vector2(8 + scratch * 9, 9 + scratch % 2 * 6)
+			draw_rect(Rect2(point, Vector2(6, 2)), palette[4].darkened(0.15))
+			draw_rect(Rect2(point + Vector2(2, 2), Vector2(2, 4)), palette[4].darkened(0.4))
+		draw_rect(Rect2(rect.position + Vector2(4, 5), Vector2(2, 2)), EDGE)
+		draw_rect(Rect2(rect.end - Vector2(7, 7), Vector2(2, 2)), EDGE.darkened(0.2))
 
 
 func _draw_walkway(rect: Rect2, palette: Array[Color]) -> void:
@@ -288,12 +343,15 @@ func _draw_walkway(rect: Rect2, palette: Array[Color]) -> void:
 	draw_line(rect.position + Vector2(12, 12), rect.position + Vector2(12, 32), palette[2], 3.0)
 	draw_line(Vector2(rect.end.x - 12, rect.end.y), Vector2(rect.end.x - 12, rect.end.y + 20), palette[2], 3.0)
 	draw_rect(rect, palette[3])
-	draw_line(rect.position, Vector2(rect.end.x, rect.position.y), AMBER, 2.0)
+	draw_rect(Rect2(rect.position, Vector2(rect.size.x, 1)), AMBER)
+	draw_rect(Rect2(rect.position + Vector2(0, 1), Vector2(rect.size.x, 2)), AMBER.darkened(0.45))
 	draw_line(Vector2(rect.position.x, rect.end.y), rect.end, palette[0], 2.0)
 	for module: int in range(int(rect.size.x / 24.0)):
 		var x: float = rect.position.x + 8 + module * 24
 		draw_line(Vector2(x, rect.position.y + 4), Vector2(x + 7, rect.position.y + 9), EDGE.darkened(0.4), 1.0)
-		draw_circle(Vector2(x + 12, rect.position.y + 6), 1.0, EDGE.darkened(0.25))
+		draw_rect(Rect2(x + 12, rect.position.y + 5, 2, 2), EDGE.darkened(0.25))
+		if module % 3 == 1:
+			draw_rect(Rect2(x + 3, rect.position.y + 8, 7, 2), palette[4].darkened(0.25))
 
 
 func _draw_floor_details(palette: Array[Color]) -> void:
@@ -304,6 +362,11 @@ func _draw_floor_details(palette: Array[Color]) -> void:
 		draw_rect(Rect2(x + 4, 624, 12, 3), AMBER.darkened(0.28))
 		if tile % 4 == 0:
 			draw_line(Vector2(x + 6, 654), Vector2(x + 24, 654), palette[0], 2.0)
+			draw_rect(Rect2(x + 5, 646, 3, 2), EDGE.darkened(0.3))
+			draw_rect(Rect2(x + 21, 646, 3, 2), EDGE.darkened(0.3))
+		var chip_y: float = 664 + (tile * 11) % 36
+		draw_rect(Rect2(x + 7, chip_y, 8 + tile % 3 * 3, 2), palette[2])
+		draw_rect(Rect2(x + 10, chip_y + 2, 4, 3), palette[3].darkened(0.12))
 	draw_line(Vector2(0, 636), Vector2(width, 636), palette[0], 3.0)
 	draw_line(Vector2(0, 682), Vector2(width, 682), palette[2], 2.0)
 	draw_line(Vector2(92, 617), Vector2(148, 617), Color("7bb7af"), 2.0)

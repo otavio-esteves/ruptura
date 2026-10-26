@@ -77,3 +77,9 @@ Suíte consolidada:746 verificações aprovadas, sem erros ou avisos no log. A c
 A sessão gráfica de inspeção abriu ruína, pátio, duas fases do chefe, opções e encerramento na Radeon R7M260/Compatibility. Capturas em `reports/cinzas-*.png`. Os estados das capturas foram preparados por script para permitir inspeção repetível; não representam uma partida humana concluída. Arte de fundo estática e superfícies simples, sem luz dinâmica ou partículas permanentes. A função de assistência é opt-in e permanece pendente de avaliação com controle físico.
 
 A aprovação do benchmark longo permanece aberta. As capturas exploratórias0.1 não valem para os cenários0.3. Para reproduzir a entrada de Cinzas no pacote, usar `-- --auto-mission --benchmark-seconds=600` com a janela ativa; a entrada parada não mede combate, chefe ou explosões. Para esses cenários, usar a mesma rota/atividade em capturas manuais e registrar o trecho. Guardar commit, GPU efetiva, estado de energia, resolução e opções junto dos CSVs.
+
+## Polimento visual0.3.1
+
+Novos atlas de pixels são gerados somente na autoria; o jogo seleciona regiões de texturas cacheadas. Passada e estados visuais acrescentam timers sem alterar a física. Fundo/material permanecem estáticos; não há luz dinâmica, shader caro ou ruído por pixel em runtime. Filtragem nearest e snapping de transforms atuam na apresentação.
+
+A suíte de regressão existente passou746 verificações sem erros/avisos neste incremento. Capturas gráficas da missão e da prancha utilizaram a Radeon R7M260/Compatibility. `record_movement.gd` captura o controlador em um cenário de revisão isolado e roteirizado; não mede desempenho nem substitui teste humano. A prévia APNG usa os PNGs capturados sem interpolação. As medições antigas não aprovam desempenho da build0.3.1; o benchmark prolongado continua pendente.

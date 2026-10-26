@@ -1,3 +1,11 @@
+# Atualização visual0.3.1
+
+Pedido atual: melhorar pixel art e animação. Atlas originais e renderer compartilhado substituem os corpos temporários, com ciclos de passada, recuo, respiração, salto/ápice/queda, aterrissagem, crouch, esquiva, dano e morte. Armas independentes, materiais de cenário/props/item mais legíveis, filtragem nearest e snapping visual. Sem novos sistemas de campanha ou mudanças intencionais de física/combat.
+
+Ferramentas de autoria e prévias em [ART_DIRECTION](ART_DIRECTION.md). Aceite de sensação/aparência permanece com playtest humano. A missão e o laboratório continuam com o escopo0.3 descrito abaixo.
+
+---
+
 # Estado atual — build0.3 Cinzas
 
 Entregue um recorte maior da missão: três setores, quatro encontros comuns, Chacal em duas fases, rotas altas, dois documentos opcionais, prova obrigatória e transmissão com desfecho. Laboratório0.2 preservado como modo separado. Novos saves e opções de mira/efeitos, HUD do chefe e feedback de arma/movimento.

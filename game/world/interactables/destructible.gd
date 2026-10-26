@@ -136,27 +136,71 @@ func _draw() -> void:
 	if is_dead:
 		_draw_break_effect()
 		return
-	var rect := Rect2(Vector2(-_dimensions.x * 0.5, -_dimensions.y) + _wobble, _dimensions)
-	var ink := Color("26333c")
-	var edge := Color("a5b1b2")
+	var rect := Rect2(Vector2(-_dimensions.x * 0.5, -_dimensions.y), _dimensions)
+	var ink := Color("131d25")
+	var edge := Color("9ca7a3")
 	if _flash > 0.0:
 		edge = Color("fff0ce")
+	# Rebote de impacto é quantizado no desenho, preservando o colisor estático.
+	draw_set_transform(_wobble.round())
+	draw_rect(Rect2(-_dimensions.x * 0.5 + 2, -2, _dimensions.x - 4, 2), ink)
 	match kind:
 		"barrel":
-			draw_rect(rect, Color("92574b"))
-			draw_rect(rect, edge, false, 1.0)
-			for y: float in [-22.0, -7.0]:
-				draw_line(Vector2(-9.0, y) + _wobble, Vector2(9.0, y) + _wobble, ink, 3.0)
-			draw_colored_polygon(PackedVector2Array([Vector2(-4.0, -11.0), Vector2(0.0, -19.0), Vector2(4.0, -11.0)]), Color("f0c36c"))
+			# Volume cilíndrico em faixas de cor, tampa e aros com pixels inteiros.
+			draw_rect(Rect2(-8, -28, 16, 28), ink)
+			draw_rect(Rect2(-9, -26, 18, 24), ink)
+			draw_rect(Rect2(-8, -25, 16, 22), Color("855244"))
+			draw_rect(Rect2(-7, -25, 3, 22), Color("ac7160"))
+			draw_rect(Rect2(5, -25, 3, 22), Color("543d39"))
+			draw_rect(Rect2(-7, -27, 14, 3), Color("6b5b50"))
+			draw_rect(Rect2(-6, -27, 10, 1), edge)
+			draw_rect(Rect2(3, -26, 2, 2), ink)
+			for y: float in [-23.0, -7.0]:
+				draw_rect(Rect2(-9, y, 18, 3), Color("29313a"))
+				draw_rect(Rect2(-8, y, 15, 1), edge.darkened(0.15))
+			draw_rect(Rect2(-7, -3, 14, 2), Color("716358"))
+			draw_rect(Rect2(-5, -19, 10, 10), Color("e1b96d"))
+			draw_rect(Rect2(-4, -18, 8, 8), Color("392d28"))
+			draw_rect(Rect2(-1, -17, 2, 4), Color("edc87c"))
+			draw_rect(Rect2(-1, -12, 2, 1), Color("edc87c"))
+			draw_rect(Rect2(3, -21, 3, 2), Color("bc8066"))
+			draw_rect(Rect2(-5, -6, 2, 3), Color("493631"))
 		"glass":
-			draw_rect(rect, Color("476975"))
-			draw_rect(rect, edge, false, 1.0)
-			draw_line(rect.position + Vector2(2.0, 8.0), rect.end - Vector2(2.0, 8.0), Color("a7ded9"), 1.0)
+			draw_rect(rect, ink)
+			draw_rect(Rect2(-3, -39, 6, 38), Color("466774"))
+			draw_rect(Rect2(-3, -38, 1, 35), Color("9ebdb7"))
+			draw_rect(Rect2(2, -39, 1, 38), Color("2c454f"))
+			draw_rect(Rect2(-2, -36, 3, 10), Color("789c9f"))
+			draw_rect(Rect2(-1, -34, 2, 6), Color("b5d2cb"))
+			draw_rect(Rect2(-2, -19, 2, 6), Color("779fa2"))
+			draw_rect(Rect2(0, -23, 2, 3), Color("9ebfbc"))
+			draw_rect(Rect2(-4, -40, 8, 2), edge.darkened(0.2))
+			draw_rect(Rect2(-4, -3, 8, 3), Color("657477"))
+			draw_rect(Rect2(-4, -21, 8, 2), Color("293b45"))
+			if health < 8.0:
+				draw_rect(Rect2(0, -18, 1, 5), ink)
+				draw_rect(Rect2(-1, -14, 2, 1), ink)
+				draw_rect(Rect2(-1, -13, 1, 5), ink)
 		_:
-			draw_rect(rect, Color("665c4d"))
-			draw_rect(rect, edge, false, 1.0)
-			draw_line(rect.position + Vector2(3.0, 3.0), rect.end - Vector2(3.0, 3.0), edge, 2.0)
-			draw_line(rect.position + Vector2(rect.size.x - 3.0, 3.0), rect.position + Vector2(3.0, rect.size.y - 3.0), ink, 2.0)
+			draw_rect(rect, ink)
+			draw_rect(Rect2(-13, -29, 26, 28), Color("685c48"))
+			for slat: int in range(4):
+				var y: float = -27 + slat * 6
+				draw_rect(Rect2(-12, y, 24, 4), Color("7f7052") if slat % 2 == 0 else Color("726249"))
+				draw_rect(Rect2(-8 + slat * 3, y + 1, 8, 1), Color("988261"))
+				draw_rect(Rect2(-12, y + 4, 24, 1), Color("453e34"))
+			for x: float in [-12.0, 8.0]:
+				draw_rect(Rect2(x, -29, 4, 28), Color("3c4b4d"))
+				draw_rect(Rect2(x, -28, 1, 26), edge.darkened(0.25))
+				for y: float in [-26.0, -6.0]:
+					draw_rect(Rect2(x + 1, y, 2, 2), edge)
+			draw_line(Vector2(-8, -26), Vector2(7, -5), Color("aa9164"), 3.0)
+			draw_line(Vector2(-7, -26), Vector2(8, -5), Color("6d593f"), 1.0)
+			draw_rect(Rect2(-12, -29, 24, 1), edge.darkened(0.25))
+			draw_rect(Rect2(0, -23, 6, 4), Color("c3b48a"))
+			draw_rect(Rect2(1, -22, 4, 1), Color("5d5d50"))
+			draw_rect(Rect2(-5, -8, 4, 2), Color("453c30"))
+	draw_set_transform(Vector2.ZERO)
 
 
 func _draw_break_effect() -> void:

@@ -3,6 +3,7 @@ extends CharacterBody2D
 signal died(enemy: Node)
 
 const HealthScript = preload("res://game/combat/health_component.gd")
+const PixelActor = preload("res://game/visuals/pixel_actor.gd")
 enum State { APPROACH, TELEGRAPH, RECOVERY, STUNNED, DEAD }
 
 @export_enum("recruit", "scout") var archetype: String = "recruit"
@@ -27,9 +28,17 @@ var _tracer_end: Vector2 = Vector2.ZERO
 var _tracer_remaining: float = 0.0
 var _hit_flash: float = 0.0
 var _knockback: float = 0.0
+var _walk_cycle: float = 0.0
+var _idle_cycle: float = 0.0
+var _land_remaining: float = 0.0
+var _visual_speed: float = 0.0
+var _attack_pose_remaining: float = 0.0
+var _visual_state: int = -1
+var _visual_state_duration: float = 1.0
 
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_to_group("enemies")
 	add_to_group("damageable")
 	health.name = "Health"
@@ -42,6 +51,12 @@ func configure(kind: String, victim: CharacterBody2D, assisted: bool = false) ->
 	archetype = "scout" if kind == "scout" else "recruit"
 	target = victim
 	_assisted = assisted
+	_walk_cycle = 0.0
+	_idle_cycle = 0.0
+	_land_remaining = 0.0
+	_visual_speed = 0.0
+	_attack_pose_remaining = 0.0
+	_visual_state = -1
 	health.max_health = 40.0 if archetype == "scout" else 55.0
 	health.reset_health()
 	queue_redraw()
@@ -91,8 +106,68 @@ func _physics_process(delta: float) -> void:
 			desired_speed = _navigate(offset)
 	_knockback = move_toward(_knockback, 0.0, 650.0 * delta)
 	velocity.x = move_toward(velocity.x, desired_speed + _knockback, 1100.0 * delta)
+	var previous_position: Vector2 = global_position
+	var grounded_before: bool = is_on_floor()
 	move_and_slide()
+	_update_animation(delta, previous_position, grounded_before)
 	queue_redraw()
+
+
+func _update_animation(delta: float, previous_position: Vector2, grounded_before: bool) -> void:
+	var displacement: float = global_position.x - previous_position.x
+	var distance: float = absf(displacement)
+	_visual_speed = distance / maxf(delta, 0.001)
+	_idle_cycle = fposmod(_idle_cycle + delta * 0.6, 1.0)
+	_land_remaining = maxf(0.0, _land_remaining - delta)
+	_attack_pose_remaining = maxf(0.0, _attack_pose_remaining - delta)
+	if is_on_floor():
+		if not grounded_before:
+			_land_remaining = 0.10
+		elif distance > 0.01:
+			_walk_cycle = fposmod(_walk_cycle + displacement * _facing / 32.0, 1.0)
+	if _visual_state != int(state):
+		_visual_state = int(state)
+		_visual_state_duration = maxf(0.01, _timer)
+
+
+func _animation_pose() -> Dictionary:
+	var body_state: String = "idle"
+	if is_dead:
+		body_state = "dead"
+	elif _hit_flash > 0.0 or state == State.STUNNED:
+		body_state = "hurt"
+	elif not is_on_floor():
+		body_state = "jump" if velocity.y < -40.0 else ("fall" if velocity.y > 40.0 else "apex")
+	elif _land_remaining > 0.0:
+		body_state = "land"
+	elif _visual_speed > 8.0:
+		body_state = "run"
+	var action: String = "neutral"
+	var progress: float = 0.0
+	if state == State.TELEGRAPH:
+		action = "windup"
+		progress = 1.0 - _timer / _visual_state_duration
+	elif _attack_pose_remaining > 0.0:
+		action = "attack"
+		progress = 1.0 - _attack_pose_remaining / 0.18
+	elif state == State.RECOVERY:
+		action = "recovery"
+		progress = 1.0 - _timer / _visual_state_duration
+	var aiming: bool = state == State.TELEGRAPH or state == State.RECOVERY or _attack_pose_remaining > 0.0
+	var cycle: float = _walk_cycle if body_state == "run" else _idle_cycle
+	if body_state == "dead":
+		cycle = clampf(1.0 - _timer / 0.55, 0.0, 0.99)
+	if body_state == "land":
+		cycle = clampf(1.0 - _land_remaining / 0.10, 0.0, 1.0)
+	return {
+		"kind": archetype, "state": body_state,
+		"cycle": cycle,
+		"facing": _facing, "aim": _attack_direction if aiming else Vector2(_facing, 0),
+		"recoil": clampf(_tracer_remaining / 0.10, 0.0, 1.0),
+		"flash": _hit_flash > 0.0, "phase": 1,
+		"weapon": "blade" if archetype == "scout" else "pistol",
+		"action": action, "action_progress": clampf(progress, 0.0, 1.0),
+	}
 
 
 func _target_alive() -> bool:
@@ -138,6 +213,7 @@ func _start_attack() -> void:
 func _execute_attack() -> void:
 	if not _target_alive():
 		return
+	_attack_pose_remaining = 0.18
 	var damage: float = 12.0 if archetype == "scout" else 8.0
 	if _assisted:
 		damage *= 0.7
@@ -255,21 +331,9 @@ func _draw() -> void:
 	var outfit: Color = Color("ab7759") if archetype == "recruit" else Color("9684b8")
 	if _hit_flash > 0.0:
 		outfit = Color("f2dba1")
+	PixelActor.draw_actor(self, _animation_pose())
 	if is_dead:
-		draw_rect(Rect2(-11.0, -7.0, 22.0, 7.0), outfit.darkened(0.45))
 		return
-	draw_rect(Rect2(-7.0, -24.0, 14.0, 24.0), Color("15202a"))
-	draw_rect(Rect2(-6.0, -16.0, 12.0, 12.0), outfit)
-	draw_rect(Rect2(-5.0, -24.0, 10.0, 7.0), Color("b0b3a5"))
-	draw_rect(Rect2(-6.0, -25.0, 12.0, 4.0), outfit.darkened(0.3))
-	draw_rect(Rect2(0.0 if _facing > 0.0 else -5.0, -21.0, 5.0, 2.0), Color("e18c6a"))
-	draw_rect(Rect2(-5.0, -5.0, 4.0, 5.0), Color("313c45"))
-	draw_rect(Rect2(1.0, -5.0, 4.0, 5.0), Color("313c45"))
-	if archetype == "scout":
-		draw_line(Vector2(_facing * 7.0, -13.0), Vector2(_facing * 15.0, -20.0), Color("e0d0a4"), 3.0)
-	else:
-		var direction: Vector2 = _attack_direction if state == State.TELEGRAPH else Vector2(_facing, 0.0)
-		draw_line(Vector2(0.0, -17.0), Vector2(0.0, -17.0) + direction * 19.0, Color("c5beb0"), 3.0)
 	if health.current_health < health.max_health:
 		draw_rect(Rect2(-12.0, -33.0, 24.0, 3.0), Color("16212b"))
 		draw_rect(Rect2(-12.0, -33.0, 24.0 * health.current_health / health.max_health, 3.0), outfit)

@@ -1,6 +1,6 @@
 # RUPTURA
 
-Build **0.3 — Cinzas**, em Godot4.7.2 stable, GDScript e Compatibility. Linux é o alvo primário. O [plano v1.2](PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md) continua como fonte de design.
+Build **0.3.1 — Cinzas / polimento visual**, em Godot4.7.2 stable, GDScript e Compatibility. Linux é o alvo primário. O [plano v1.2](PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md) continua como fonte de design.
 
 ## Jogar
 
@@ -48,3 +48,9 @@ python3 tools/validation/validate.py export-linux
 `GODOT_BIN` pode indicar outro caminho para a engine4.7.2. A suíte verifica movimento, munição, recarga, cobertura, dano, explosões, inimigos, navegação, save e fluxo do encontro. Fixtures de save usam diretórios isolados; não sobrescrevem o progresso real. Veja [PERFORMANCE](docs/PERFORMANCE.md), [arquitetura](docs/ARCHITECTURE.md) e [roteiro de playtest](docs/PLAYTEST.md).
 
 Esta build amplia o protótipo em direção à slice de Cinzas, com chefão e desfecho; a campanha de sete capítulos não está implementada. Arte e sons são originais e continuam sujeitos a curadoria. Conforto, balanceamento, controle físico, áudio audível e desempenho prolongado precisam de playtest. Windows tem apenas preset de preparação e não foi validado nativamente.
+
+## Pixel art e movimento0.3.1
+
+Personagens usam atlas originais com contorno de1pixel e paletas próprias. Oito poses de passada são percorridas pela distância real; andar de costas inverte o ciclo sem inverter a mira. Salto/ápice/queda, pouso curto, agachar, esquiva, reação e morte têm poses distintas. Braço e arma ficam independentes do corpo e as armas possuem32direções visuais. A mira física continua em360°. Cenários, caixas, barris, vidro e pickups ganharam textura e detalhes próprios.
+
+A origem dos sprites e ferramentas de regeneração estão em [ART_DIRECTION](docs/ART_DIRECTION.md). Prévia estática: `reports/pixel-art-sheet.png`; animação APNG: `reports/movement-preview.png` (abrir em navegador compatível). As prévias são capturas de revisão; não substituem jogar e avaliar conforto. Velocidades, colisores, dano e regras de combate foram preservados.

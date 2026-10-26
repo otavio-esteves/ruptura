@@ -25,3 +25,9 @@ Neste ciclo os três especialistas tiveram propriedade exclusiva de armas, inimi
 O save novo `cinzas.json` contém stage/evidence/completed/boss_defeated/shotgun_unlocked/secrets/deaths. Arquivo separado evita reinterpretar o progresso antigo de laboratório. Backup também usa temporário validado antes de substituir o backup anterior. Não serializamos a física ou a vida parcial do boss. Settings acrescentam aim_assist/aim_deadzone/reduced_effects/screen_shake. A assistência está no vetor de mira do jogador, limitada a controle/cone/distância/LOS; raycasts de dano continuam retos.
 
 Efeitos usam TTL e limites existentes. Setores desenham o fundo uma vez, sem processamento por frame; colisão usa somente superfícies jogáveis. O HUD limpa sua referência ao chefe após morte e permanece vivo entre setores/retries; attach substitui suas referências e limpa o resultado anterior. Rebuild remove referências ao mundo antigo antes de montar o novo. Testes usam caminhos injetáveis para manter saves reais intactos.
+
+## Arte e animação0.3.1
+
+`PixelActor` é um renderer sem lógica de jogo. Ele seleciona regiões de atlas, espelha o corpo pela orientação e compõe braço/arma pela mira. Armas são rasterizadas em32direções; raycasts continuam contínuos. `tools/art/build_actor_atlas.gd` é a fonte de autoria das imagens em `assets/art/actors/`, não uma dependência runtime. Texturas são carregadas/cacheadas uma vez pelo helper. Não há geração de pixels por frame no jogo.
+
+Cada ator produz um dicionário de pose a partir do estado físico/combat existente. O ciclo de passos usa deslocamento pós-colisão, com sinal relativo ao facing; aterrissagem usa100ms apenas visuais. A geração de atlas e o desenho não modificam posição, colisores, velocidade ou dano. Snapping ocorre no render2D; o passo de física continua60Hz. `preview_actors.gd` e `record_movement.gd` são ferramentas isoladas, sem acesso a saves; APNG é montada a partir dos PNGs sem resampling.

@@ -5,6 +5,7 @@ signal phase_changed(phase: int)
 signal feedback(kind: String, position: Vector2)
 
 const HealthScript = preload("res://game/combat/health_component.gd")
+const PixelActor = preload("res://game/visuals/pixel_actor.gd")
 enum State { INTRO, APPROACH, WINDUP, DASH, BURST, LEAP, RECOVERY, PHASE_CHANGE, STUNNED, DEAD }
 enum Pattern { DASH, BURST, SLAM }
 
@@ -33,9 +34,16 @@ var _slam_center: Vector2 = Vector2.ZERO
 var _hit_flash: float = 0.0
 var _tracers: Array[Dictionary] = []
 var _shock_remaining: float = 0.0
+var _walk_cycle: float = 0.0
+var _idle_cycle: float = 0.0
+var _land_remaining: float = 0.0
+var _visual_speed: float = 0.0
+var _visual_state: int = -1
+var _visual_state_duration: float = 1.0
 
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_to_group("enemies")
 	add_to_group("damageable")
 	add_to_group("bosses")
@@ -61,6 +69,11 @@ func configure(victim: CharacterBody2D, bounds: Rect2, assisted: bool = false) -
 	_burst_remaining = 0
 	_tracers.clear()
 	_shock_remaining = 0.0
+	_walk_cycle = 0.0
+	_idle_cycle = 0.0
+	_land_remaining = 0.0
+	_visual_speed = 0.0
+	_visual_state = -1
 	velocity = Vector2.ZERO
 	collision_layer = 4
 	collision_mask = 25
@@ -87,6 +100,7 @@ func _physics_process(delta: float) -> void:
 		set_collision_mask_value(5, true)
 	var desired_speed: float = 0.0
 	var before: Vector2 = global_position
+	var grounded_before: bool = is_on_floor()
 	if not _target_alive():
 		_attack_resolved = true
 		_burst_remaining = 0
@@ -153,7 +167,72 @@ func _physics_process(delta: float) -> void:
 				var obstacle: CollisionObject2D = get_slide_collision(index).get_collider() as CollisionObject2D
 				_damage_cover(obstacle)
 			_recover(1.25)
+	_update_animation(delta, before, grounded_before)
 	queue_redraw()
+
+
+func _update_animation(delta: float, previous_position: Vector2, grounded_before: bool) -> void:
+	var displacement: float = global_position.x - previous_position.x
+	var distance: float = absf(displacement)
+	_visual_speed = distance / maxf(delta, 0.001)
+	_idle_cycle = fposmod(_idle_cycle + delta * 0.5, 1.0)
+	_land_remaining = maxf(0.0, _land_remaining - delta)
+	if is_on_floor():
+		if not grounded_before:
+			_land_remaining = 0.10
+		elif distance > 0.01:
+			_walk_cycle = fposmod(_walk_cycle + displacement * _facing / 44.0, 1.0)
+	if _visual_state != int(state):
+		_visual_state = int(state)
+		_visual_state_duration = maxf(0.01, _timer)
+
+
+func _animation_pose() -> Dictionary:
+	var body_state: String = "idle"
+	if is_dead:
+		body_state = "dead"
+	elif _hit_flash > 0.0 or state == State.STUNNED:
+		body_state = "hurt"
+	elif not is_on_floor():
+		body_state = "jump" if velocity.y < -40.0 else ("fall" if velocity.y > 40.0 else "apex")
+	elif _land_remaining > 0.0:
+		body_state = "land"
+	elif _visual_speed > 8.0:
+		body_state = "run"
+	var action: String = "neutral"
+	var progress: float = 0.0
+	if state == State.WINDUP or state == State.PHASE_CHANGE:
+		action = "windup"
+		progress = 1.0 - _timer / _visual_state_duration
+	elif state == State.DASH:
+		action = "attack"
+		progress = 1.0 - _timer / 0.65
+	elif state == State.BURST:
+		action = "attack"
+		progress = 1.0 - float(_burst_remaining) / 3.0
+	elif state == State.LEAP:
+		action = "attack"
+		progress = minf(1.0, _airtime / 0.65)
+	elif state == State.RECOVERY:
+		action = "recovery"
+		progress = 1.0 - _timer / _visual_state_duration
+	var recoil: float = 0.0
+	for tracer: Dictionary in _tracers:
+		recoil = maxf(recoil, float(tracer["remaining"]) / 0.10)
+	var aiming: bool = state == State.WINDUP or state == State.BURST or state == State.DASH or state == State.RECOVERY
+	var cycle: float = _walk_cycle if body_state == "run" else _idle_cycle
+	if body_state == "dead":
+		cycle = clampf(1.0 - _timer / 0.8, 0.0, 0.99)
+	if body_state == "land":
+		cycle = clampf(1.0 - _land_remaining / 0.10, 0.0, 1.0)
+	return {
+		"kind": "chacal", "state": body_state,
+		"cycle": cycle,
+		"facing": _facing, "aim": _locked_direction if aiming else Vector2(_facing, 0),
+		"recoil": clampf(recoil, 0.0, 1.0), "flash": _hit_flash > 0.0,
+		"phase": phase, "weapon": "pistol" if _pattern == Pattern.BURST else "blade",
+		"action": action, "action_progress": clampf(progress, 0.0, 1.0),
+	}
 
 
 func _target_alive() -> bool:
@@ -343,23 +422,9 @@ func _update_tracers(delta: float) -> void:
 
 
 func _draw() -> void:
-	var armor: Color = Color("a67766") if phase == 1 else Color("c67c59")
-	if _hit_flash > 0.0:
-		armor = Color("f4e4ba")
+	PixelActor.draw_actor(self, _animation_pose())
 	if is_dead:
-		draw_rect(Rect2(-19, -10, 38, 10), armor.darkened(0.45))
 		return
-	draw_rect(Rect2(-14, -35, 28, 35), Color("172631"))
-	draw_rect(Rect2(-13, -27, 26, 20), armor)
-	draw_rect(Rect2(-15, -29, 10, 10), armor.darkened(0.25))
-	draw_rect(Rect2(5, -29, 10, 10), armor.darkened(0.25))
-	draw_rect(Rect2(-8, -36, 16, 10), Color("bcc0a8"))
-	draw_rect(Rect2(-9, -36, 18, 4), Color("633e39"))
-	draw_rect(Rect2(-7 if _facing < 0 else 0, -31, 7, 3), Color("f2b780"))
-	draw_rect(Rect2(-10, -8, 8, 8), Color("394a53"))
-	draw_rect(Rect2(2, -8, 8, 8), Color("394a53"))
-	var arm: Vector2 = _locked_direction if state == State.WINDUP or state == State.BURST else Vector2(_facing, 0)
-	draw_line(Vector2(0, -24), Vector2(0, -24) + arm * 24.0, Color("d2c9ae"), 5.0)
 	if state == State.RECOVERY:
 		draw_arc(Vector2(0, -22), 25.0, 0.0, TAU, 20, Color("a8dfc7"), 1.0)
 	if state == State.STUNNED:
