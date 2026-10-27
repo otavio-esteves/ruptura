@@ -8,7 +8,7 @@ Build **0.4.2 — Cinzas / acabamento das referências**, em Godot4.7.2 stable, 
 ./builds/linux/ruptura.x86_64
 ```
 
-Se a Radeon bloquear na reativação do driver, use `DRI_PRIME=0 ./builds/linux/ruptura.x86_64` para iniciar pela Intel integrada. O smoke do pacote0.4.1 passou nessa GPU; a inicialização automática da Radeon apresentou bloqueio neste ciclo.
+Se a Radeon bloquear na reativação do driver, use `DRI_PRIME=pci-0000_00_02_0 ./builds/linux/ruptura.x86_64` para iniciar pela Intel integrada deste equipamento. A inicialização automática da Radeon apresentou bloqueio no ciclo anterior; veja as evidências de cada pacote nos registros de build.
 
 O executável tem os recursos embutidos e pode ser copiado para outra pasta. No menu, escolha **Continuar Cinzas** ou **Nova missão Cinzas**. Para abrir o projeto no editor, use `project.godot` com Godot4.7.2.
 
@@ -70,3 +70,9 @@ O padrão ficou mais difícil por maior dano, cadência, mobilidade e reposicion
 As referências locais fornecidas orientaram uma nova silhueta do executivo e interiores mais ricos: janelas altas com cidade, persianas, recepção, sofás, plantas, luz quente, quadros e detalhes de ocupação. A arte foi desenhada pelo código do projeto; os PNGs de referência ficam fora do executável. A geometria e as rotas existentes foram preservadas.
 
 O batedor agora respeita o cone anunciado; o aviso do avanço da Chacal cobre todo seu alcance. Vida, dano e cadência permanecem os da0.4. Prévia dos setores em `reports/reference-review/`, prancha em `reports/pixel-art-sheet.png` e animação em `reports/movement-preview.png`. Validação e pacote: [BUILD_0_4_1](docs/BUILD_0_4_1.md).
+
+## Acabamento0.4.2
+
+Fundos bitmap originais e sprites redesenhados em densidade2× compõem a apresentação1280×720, com câmera2× e o mesmo campo lógico de640×360. O HUD compacto libera espaço para a arquitetura. Passarelas usam a pedra pintada do piso e consoles de aço; a aresta quente identifica o topo físico, enquanto as vergas decorativas ficam recuadas em sombra. Layouts e colisores permanecem iguais.
+
+A recarga articula arma, mãos e carregador a partir do tempo real do controlador, inclusive parado, agachado e em movimento. A prévia `reports/movement-preview.png` foi remontada com os160quadros completos,12FPS e13,33s. Capturas atualizadas em `reports/reference-review/` e comparação em `reports/reference-comparison.png`. Resultado e limites da verificação em [BUILD_0_4_2](docs/BUILD_0_4_2.md); aceite artístico e playtest humano continuam pendentes.

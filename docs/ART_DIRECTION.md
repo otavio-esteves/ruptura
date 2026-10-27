@@ -1,3 +1,15 @@
+# Acabamento0.4.2 — apresentação vigente
+
+A direção atual usa três fundos bitmap originais, gerados com imagegen, e atores redesenhados em densidade2× pelo código nativo. Prompts e hashes em [ART_PROMPTS_0_4_2](ART_PROMPTS_0_4_2.md); critérios e rodadas de comparação em [REFERENCE_TARGET](REFERENCE_TARGET.md). Os registros0.4/0.4.1 abaixo descrevem a evolução anterior; a adoção dos bitmaps e da nova resolução substitui a restrição anterior ao desenho de cenários inteiramente por primitivas.
+
+`tools/art/build_actor_atlas.gd` delega a autoria a `detail_actor_recipe.gd`. Células comuns64×80 e chefe96×96 são desenhadas nos mesmos retângulos lógicos32×40/48×48 e pivôs. Armas usam células96×96 para32direções. Viewport1280×720/câmera2× preservam o campo lógico640×360. A recarga usa `action=reload` e `action_progress` do controlador real; o renderer não transfere munição.
+
+Passarelas reaproveitam a pedra pintada do térreo, com consoles de aço e uma linha quente no topo físico. As faixas decorativas entre vãos recebem sombra e não têm aresta clara contínua. Arte estática, sem nova luz dinâmica ou mudança de colisão.
+
+Prancha vigente:960×1024, incluindo recarga parada, agachada e em movimento. Captura de movimento:160quadros a12FPS,13,33s. Usar `--fixed-fps 12` é obrigatório: o tempo simulado deve permanecer correto mesmo quando a gravação de PNGs demora. A ferramenta rejeita uma execução com delta diferente. Montar o APNG apenas após a captura terminar com sucesso. Os quadros e o APNG são relatórios locais, fora da exportação e do Git.
+
+---
+
 # Referências fornecidas / refinamento0.4.1
 
 Em26/10/2026, Otávio acrescentou duas referências locais: `references/Pixel-Art Corporate Lobby Brawl Stage.png` e `references/Retro Pixel Action Hero Sprite Sheet.png`. Elas orientam composição e acabamento: cidade por trás de janelas altas, persianas, luz quente, madeira, plantas e sinais de ocupação; executivo de cabelo expressivo, terno carvão, camisa clara, gravata vinho e poses angulares. Os desenhos continuam autorais, construídos no pipeline nativo; as imagens de referência não são recortadas em assets nem entram no pacote exportado. A procedência/licença das referências não foi informada, portanto não são distribuídas com a build.
@@ -53,13 +65,13 @@ Após gerar/importar o atlas, executar em sessão gráfica, sem `--headless`:
 /home/otavio/Downloads/Apps/Godot_v4.7.2-stable_linux.x86_64 --path . --script tools/art/preview_actors.gd
 ```
 
-A ferramenta salva `reports/pixel-art-sheet.png` em 960×832: quatro personagens, idle, oito pontos do ciclo de corrida, salto/ápice/queda/pouso, agachar, esquiva, dano, morte, recuo e oito direções de mira. Corpos e estados aparecem em 2×; mira em 1×. Cada pose é um nó visual isolado; não instancia missão, input, áudio ou save. A prancha mostra poses estáticas: revisar também o ciclo em movimento e a legibilidade na arena, em escala real e com efeitos reduzidos.
+A ferramenta salva `reports/pixel-art-sheet.png` em 960×1024: quatro personagens, idle, oito pontos do ciclo de corrida, salto/ápice/queda/pouso, agachar, esquiva, dano, morte, recuo e oito direções de mira. Corpos e estados aparecem em 2×; mira em 1×. Cada pose é um nó visual isolado; não instancia missão, input, áudio ou save. A prancha mostra poses estáticas: revisar também o ciclo em movimento e a legibilidade na arena, em escala real e com efeitos reduzidos.
 
 O aceite visual e de conforto permanece pendente até a revisão humana. Importação, PNG gerado e testes de lógica não comprovam qualidade artística.
 
 ## Atlas e revisão de movimento
 
-Os arquivos em `assets/art/actors/` são PNGs originais, gerados a partir de receitas de pixels no repositório. São cinco atlas de corpo (Espectro, recruta, batedor, Chacal e sua paleta de fase2) e três de armas (pistola, espingarda, lâmina), sem imagem externa. Corpo comum ocupa célula32×40 com origem(16,36); Chacal48×48 com origem(24,44). Oito poses de passada alternam apoio, passagem e balanço. Células adicionais representam respiração, crouch, salto/ápice/queda, pouso, esquiva, reação e morte; algumas células de timing repetem poses. Armas têm32 direções rasterizadas antecipadamente. Tiros continuam com mira física contínua.
+Os arquivos em `assets/art/actors/` são PNGs originais, gerados a partir de receitas de pixels no repositório. São cinco atlas de corpo (Espectro, recruta, batedor, Chacal e sua paleta de fase2) e três de armas (pistola, espingarda, lâmina), sem imagem externa. O retângulo lógico comum ocupa32×40 com origem(16,36); Chacal48×48 com origem(24,44). Na0.4.2, as células de autoria têm o dobro dessas dimensões. Oito poses de passada alternam apoio, passagem e balanço. Células adicionais representam respiração, crouch, salto/ápice/queda, pouso, esquiva, reação e morte; algumas células de timing repetem poses. Armas têm32 direções rasterizadas antecipadamente. Tiros continuam com mira física contínua.
 
 Regeneração e captura:
 
@@ -67,7 +79,7 @@ Regeneração e captura:
 "$GODOT_BIN" --headless --path . --script tools/art/build_actor_atlas.gd
 python3 tools/validation/validate.py import
 "$GODOT_BIN" --path . --script tools/art/preview_actors.gd
-"$GODOT_BIN" --path . --script tools/art/record_movement.gd
+"$GODOT_BIN" --path . --fixed-fps 12 --script tools/art/record_movement.gd
 python3 tools/art/assemble_apng.py reports/movement-frames reports/movement-preview.png
 ```
 

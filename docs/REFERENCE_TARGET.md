@@ -73,3 +73,11 @@ Fora essa possível ambiguidade dos apoios de fundo, não foi identificado outro
 ## Ferramenta de pares
 
 `tools/art/compare_references.gd` produz `reports/reference-comparison.png` em sessão gráfica. Mostra o panorama de referência, a captura atual e poses do renderer real junto do recorte do personagem de referência. Proporções das imagens são preservadas; as poses são aproximadas pela altura apenas na faixa de comparação. A ferramenta não carrega missão, input, áudio ou saves e não modifica as referências. Passar `-- --sector=operations` ou `-- --sector=boardroom` para trocar a captura. O integrador deve executá-la depois de gerar/importar os atlas e recapturar a missão.
+
+## Integração retomada em27/10/2026
+
+As passarelas agora reaproveitam recortes da pedra do próprio bitmap, com juntas e variação de material na mesma densidade do térreo. A testeira clara chapada foi substituída por uma face escura e consoles triangulares de aço com fixação aparente. Uma única linha quente de0,5unidade marca o topo físico, sem mudar retângulos, links de navegação ou colisores.
+
+As faixas entre vãos decorativos perderam a aresta clara contínua e receberam sombra progressiva no fim do recorte. Recapturados térreo, rota alta, Operações e Conselho, incluindo aviso da segunda fase com efeitos reduzidos. Na inspeção dessas imagens, a passarela real se distingue das vergas recuadas por material, espessura, apoio e aresta. A composição continua modular e ainda exige aceite humano comparado às referências.
+
+A animação APNG interrompida tinha54quadros, embora a pasta contivesse os160quadros completos da captura mais recente. Remontada a sequência inteira em12FPS,13,33s; quantidade, continuidade e duração foram conferidas. Inspeção de quadros da corrida, salto, esquiva e recarga parada/agachada/em movimento confirma poses e articulação de mãos/arma nas amostras. Inspeção de quadros não comprova fluidez, conforto ou resposta a30/60FPS; esses itens permanecem para avaliação jogável.

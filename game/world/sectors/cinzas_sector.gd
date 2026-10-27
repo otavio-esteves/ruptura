@@ -236,7 +236,10 @@ func _draw_painted_offices(_palette: Array[Color]) -> void:
 			draw_texture_rect_region(texture, Rect2(float(panel.x), top, float(panel.width), 106), source, tint)
 			if float(panel.x) > 0.0:
 				_draw_painted_column(texture, float(panel.x), top, 106, 140.0, 280.0, tint)
-		# Vergas recuadas não recebem aresta clara: só plataformas físicas têm topo.
+		# Sombra de encontro entre vãos, sem aresta iluminada que prometa apoio.
+		# O escurecimento também recua os fragmentos de móveis do recorte pintado.
+		for band: int in range(4):
+			draw_rect(Rect2(0, top + 98 + band * 2, world_bounds.size.x, 2), Color(0.035, 0.05, 0.065, 0.12 + band * 0.16))
 		draw_rect(Rect2(0, top, world_bounds.size.x, 2), Color("171f26"))
 	# Corredor principal em escala0,2; mesas~25px e atores~30px.
 	for panel: Dictionary in _environment_panels:
@@ -554,29 +557,35 @@ func _draw_solid(rect: Rect2, _palette: Array[Color]) -> void:
 	draw_rect(Rect2(rect.end - Vector2(3, 3), Vector2(1, 1)), Color("878d7b"))
 
 
-func _draw_walkway(rect: Rect2, palette: Array[Color]) -> void:
-	# Passarelas reais, com pedra, testeira de madeira e suportes recuados.
-	# Apenas o topo contínuo âmbar identifica a superfície unilateral.
-	draw_rect(rect, Color("1d2428"))
-	draw_rect(Rect2(rect.position + Vector2(0.5, 1), Vector2(rect.size.x - 1, 2)), Color("8c8876"))
-	draw_rect(Rect2(rect.position + Vector2(0.5, 3), Vector2(rect.size.x - 1, 4)), Color("655449"))
-	draw_rect(Rect2(rect.position + Vector2(0.5, 7), Vector2(rect.size.x - 1, 3.5)), Color("3b3836"))
+func _draw_walkway(rect: Rect2, _palette: Array[Color]) -> void:
+	# Mesma pedra pintada do térreo, na densidade do cenário; geometria inalterada.
+	draw_rect(rect, Color("20262b"))
+	if _environment != null:
+		var size: Vector2 = _environment.get_size()
+		var modules: int = ceili(rect.size.x / 64.0)
+		for module: int in range(modules):
+			var width: float = minf(64.0, rect.size.x - module * 64.0)
+			var x: float = rect.position.x + module * 64.0
+			var source_x: float = snappedf(fposmod(x * 5.0, size.x - 320.0), 1.0)
+			var top_source := Rect2(source_x, size.y * 600.0 / 724.0, width * 5.0, size.y * 15.0 / 724.0)
+			var face_source := Rect2(source_x, size.y * 625.0 / 724.0, width * 5.0, size.y * 35.0 / 724.0)
+			draw_texture_rect_region(_environment, Rect2(x, rect.position.y + 1, width, 3), top_source, Color("b4ada0"))
+			draw_texture_rect_region(_environment, Rect2(x, rect.position.y + 4, width, 7), face_source)
+	else:
+		draw_rect(Rect2(rect.position + Vector2(0, 1), Vector2(rect.size.x, 3)), Color("777365"))
+		draw_rect(Rect2(rect.position + Vector2(0, 4), Vector2(rect.size.x, 7)), Color("3b3c40"))
+	# Um pixel de luz marca exatamente o topo físico unilateral, inclusive nas pontas.
 	draw_rect(Rect2(rect.position, Vector2(rect.size.x, 0.5)), AMBER)
-	draw_rect(Rect2(rect.position + Vector2(0, 0.5), Vector2(rect.size.x, 0.5)), Color("d7c79d"))
-	draw_rect(Rect2(rect.position + Vector2(1, 3), Vector2(rect.size.x - 2, 0.5)), Color("b59875"))
-	draw_rect(Rect2(rect.position + Vector2(0, 10.5), Vector2(rect.size.x, 1.5)), Color("191e22"))
-	for module: int in range(int(rect.size.x / 24.0)):
-		var x: float = rect.position.x + module * 24
-		draw_rect(Rect2(x + 23.5, rect.position.y + 1, 0.5, 2), Color("5b5e53"))
-		draw_rect(Rect2(x + 3, rect.position.y + 4, 9, 0.5), Color("7e6551"))
-		draw_rect(Rect2(x + 13, rect.position.y + 5.5, 7, 0.5), Color("4b443a"))
-		if module % 3 == 1:
-			draw_rect(Rect2(x + 7, rect.position.y + 8, 2, 0.5), Color("a18b69"))
+	draw_rect(Rect2(rect.position + Vector2(0, 0.5), Vector2(rect.size.x, 0.5)), Color("6d6659"))
+	draw_rect(Rect2(rect.position + Vector2(0, 11), Vector2(rect.size.x, 1)), Color("151c21"))
 	for inset: float in [12.0, rect.size.x - 12.0]:
 		var at: Vector2 = rect.position + Vector2(inset, 12)
-		draw_rect(Rect2(at, Vector2(2, 12)), palette[1].darkened(0.2))
-		draw_rect(Rect2(at + Vector2(0.5, 0), Vector2(0.5, 12)), palette[3].darkened(0.15))
-		draw_line(at + Vector2(2, 9), at + Vector2(8, 0), palette[0], 1.0)
+		# Consoles de aço escuro com espessura e parafusos; não são outros degraus.
+		draw_colored_polygon(PackedVector2Array([at, at + Vector2(11, 0), at + Vector2(2, 12), at + Vector2(0, 12)]), Color("1c252b"))
+		draw_line(at + Vector2(10, 1), at + Vector2(1, 11), Color("4d5353"), 0.5)
+		draw_rect(Rect2(at + Vector2(0.5, 1), Vector2(1, 9)), Color("3d4649"))
+		for bolt_y: float in [2.0, 9.0]:
+			draw_rect(Rect2(at + Vector2(0.5, bolt_y), Vector2(0.5, 0.5)), Color("898574"))
 
 
 func _draw_floor_details(_palette: Array[Color]) -> void:
