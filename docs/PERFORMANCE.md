@@ -104,3 +104,7 @@ Em26/10/2026, Radeon R7M260/Compatibility, janela1280×720, viewport640×360, en
 |30FPS|361|30,00|34,61ms|37,20ms|40,90ms|
 
 As amostras curtas não atingem os limiares de p95 do plano e não aprovam o gate. Também não estabelecem regressão contra builds anteriores, pois o cenário/atividade medidos são novos. O limite padrão permanece60FPS; F3 continua oferecendo30FPS. Benchmark prolongado no pacote e avaliação de conforto seguem pendentes. Logs locais em `/tmp/ruptura-041-benchmark*.log`, resumos JSON e dados brutos em `reports/`.
+
+## Fechamento0.4.2 — inicialização gráfica
+
+Em27/10/2026, suíte completa com834verificações e exportação Linux passaram sem erros/avisos. O pacote1280×720/câmera2× abriu fora do projeto na Intel HD4400 por180quadros, com perfil temporário, escrita em user:// confirmada e saída0. Essa execução usou áudio Dummy e não foi benchmark. Não há nova medição prolongada nem comparação de desempenho aprovada para a resolução0.4.2; números0.4.1 acima continuam históricos. Evidências e hash em [BUILD_0_4_2](BUILD_0_4_2.md).
