@@ -1,3 +1,17 @@
+# Referências fornecidas / refinamento0.4.1
+
+Em26/10/2026, Otávio acrescentou duas referências locais: `references/Pixel-Art Corporate Lobby Brawl Stage.png` e `references/Retro Pixel Action Hero Sprite Sheet.png`. Elas orientam composição e acabamento: cidade por trás de janelas altas, persianas, luz quente, madeira, plantas e sinais de ocupação; executivo de cabelo expressivo, terno carvão, camisa clara, gravata vinho e poses angulares. Os desenhos continuam autorais, construídos no pipeline nativo; as imagens de referência não são recortadas em assets nem entram no pacote exportado. A procedência/licença das referências não foi informada, portanto não são distribuídas com a build.
+
+Esta revisão preserva tamanho dos atores, pivôs, câmera, física, layouts e colisores. A maior densidade visual precisa manter as bordas de colisão, os avisos e o terno legíveis na escala de jogo. Decoração estática não recebe luz dinâmica ou processamento por pixel a cada quadro.
+
+A ferramenta `tools/art/preview_mission.gd` captura os três setores com HUD e atores reais em uma sessão gráfica. Usa um diretório de perfil temporário exclusivo e não grava no progresso normal. Saídas: `reports/reference-review/archive.png`, `operations.png` e `boardroom.png`, além de `boardroom-warning.png` com o aviso da segunda fase e efeitos reduzidos. Execute depois de gerar/importar os atlas:
+
+```bash
+"$GODOT_BIN" --path . --script tools/art/preview_mission.gd
+```
+
+São cenas congeladas para revisar arte e contraste; a animação continua sendo registrada por `record_movement.gd`. Ambas complementam o playtest e não aprovam diversão ou conforto.
+
 # Direção corporativa0.4
 
 Decisão direta do usuário: o protagonista é executivo e ex-aspirante a diretor, em terno preto, camisa clara e gravata. O cenário representa Arquivo Morto, Centro de Operações e Conselho Executivo. Base cromática carvão/cinza, oliva frio e marrons/vinho dessaturados, com âmbar para leitura funcional. A faixa cinza do plano de fundo preserva a silhueta do terno preto; não há overlay que escureça HUD ou avisos.

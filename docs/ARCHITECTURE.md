@@ -37,3 +37,11 @@ Cada ator produz um dicionário de pose a partir do estado físico/combat existe
 InputMap separa `move_aim_*` (vetor radial do analógico esquerdo) de `aim_*` (direito), sem vincular as novas ações ao teclado. `independent_aim=false` seleciona o esquerdo; true seleciona o direito. Ambos mantêm última direção válida. A origem/física de tiros e o mouse não mudaram. Settings valida bool estrito e usa false em arquivos antigos; a opção é aplicada ao ator em tempo real e persistida separadamente dos checkpoints.
 
 A dificuldade dos atores usa constantes nomeadas para HP, dano, preparo, recuperação e velocidade. O recruta usa `_reposition_speed` apenas na recuperação em chão estável, com ray de suporte e colisão real; não reutiliza navegação de salto nessa manobra. Para antes do próximo aviso. O ataque comum ganhou guard de resolução única, assim como os padrões da Chacal. Os arquivos/IDs do save e os layouts dos três setores não mudaram; apenas apresentação corporativa, textos, controle e parâmetros de combate foram revisados.
+
+## Apresentação0.4.2
+
+Viewport1280×720/câmera2× mantêm o campo de640×360unidades e as regras físicas. Atores são desenhados em64×80/96×96pixels de autoria nos mesmos retângulos/pivôs lógicos; `detail_actor_recipe.gd` substitui as primitivas antigas por receitas detalhadas. Armas usam96×96 por direção, mapeadas a48×48lógico. O renderer não muda mira/hitboxes.
+
+O player fornece `action=reload` e progresso pela snapshot do controlador real. Corpo em movimento/agachado conserva seu ciclo; braços, arma e carregador seguem o progresso visual. Cancelamento/transferência de munição permanecem no controlador. Flash de boca e partículas de impacto usam posições reais de tiro e não existem para disparo obstruído na boca.
+
+`cinzas_sector.gd` carrega três bitmaps originais cacheados de `assets/art/environments/`, compõe recortes estáticos por setor e mantém geometria/layouts/nav separados da decoração. Meios pixels de mundo representam pixels de tela na câmera2×. Os PNGs fornecidos em `references/` são apenas insumos de direção e não entram no pacote. Não há luz dinâmica, shader caro ou processamento de textura por pixel no runtime.

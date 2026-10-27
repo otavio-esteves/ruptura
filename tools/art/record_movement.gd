@@ -2,25 +2,34 @@ extends SceneTree
 ## Offline animation review of the real player controller. No mission or profile files.
 const OUTPUT: String = "res://reports/movement-frames/"
 const FPS: int = 12
-const DURATION: float = 9.0
+const DURATION: float = 13.3
 var player: CharacterBody2D
 var caption: Label
 var camera: Camera2D
 
 class Backdrop extends Node2D:
+	var texture: Texture2D = preload("res://assets/art/environments/archive-lobby-v1.png")
 	func _draw() -> void:
-		draw_rect(Rect2(-200, -200, 3000, 600), Color("252b30"))
-		for index: int in range(70):
-			var x: float = index * 32.0 - 100
-			draw_line(Vector2(x, -100), Vector2(x, 139), Color("343b40"), 1)
-			draw_rect(Rect2(x, 140, 31, 20), Color("3a4145"))
-			draw_rect(Rect2(x, 140, 16, 2), Color("a0a79c"))
-			draw_rect(Rect2(x + 5, 148, 8, 2), Color("8c8d72"))
+		draw_rect(Rect2(-500, -200, 3500, 600), Color("151a20"))
+		var panel_width: float = texture.get_width() * 0.2
+		for index: int in range(8):
+			var x: float = index * panel_width - 500
+			draw_texture_rect_region(texture, Rect2(x, 31.2, panel_width, 108.8), Rect2(0, 56, texture.get_width(), 544))
+			draw_texture_rect_region(texture, Rect2(x, 140, panel_width, 12), Rect2(0, 600, texture.get_width(), 60))
+		draw_rect(Rect2(-500, 152, 3500, 248), Color("11171b"))
 
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
 	if DisplayServer.get_name() == "headless":
 		push_error("A captura de movimento requer renderização gráfica.")
+		quit(1)
+		return
+	# Engine arguments are consumed before OS.get_cmdline_args() reaches the script.
+	# Verify the actual simulation step instead of assuming the invocation was correct.
+	await process_frame
+	await process_frame
+	if not is_equal_approx(root.get_process_delta_time(), 1.0 / FPS):
+		push_error("Use --fixed-fps 12: a captura offline deve preservar tempo simulado mesmo salvando PNGs lentamente.")
 		quit(1)
 		return
 	Engine.max_fps = 60
@@ -30,7 +39,7 @@ func run() -> void:
 		if filename.length() == 13 and filename.begins_with("frame_") and filename.ends_with(".png") and filename.substr(6, 3).is_valid_int():
 			output_directory.remove(filename)
 	load("res://game/core/input_setup.gd").install()
-	for action: String in ["move_left", "move_right", "jump", "crouch", "dodge", "sprint", "aim_left", "aim_right", "aim_up", "aim_down", "move_aim_left", "move_aim_right", "move_aim_up", "move_aim_down", "fire"]:
+	for action: String in ["move_left", "move_right", "jump", "crouch", "dodge", "sprint", "aim_left", "aim_right", "aim_up", "aim_down", "move_aim_left", "move_aim_right", "move_aim_up", "move_aim_down", "fire", "reload"]:
 		InputMap.action_erase_events(action)
 		Input.action_release(action)
 	var viewport := SubViewport.new()
@@ -73,22 +82,22 @@ func run() -> void:
 	caption.add_theme_font_size_override("font_size", 18)
 	hud.add_child(caption)
 	for tick: int in range(8): await physics_frame
-	var started: int = Time.get_ticks_usec()
-	var next_frame: int = 0
-	while float(Time.get_ticks_usec() - started) / 1000000.0 < DURATION:
+	var frame_count: int = ceili(DURATION * FPS)
+	for frame_index: int in range(frame_count):
 		await process_frame
-		var elapsed: float = float(Time.get_ticks_usec() - started) / 1000000.0
+		var elapsed: float = float(frame_index) / FPS
 		# This is an offline capture fixture: keep it running if the preview window loses focus.
 		player.set("_has_focus", true)
 		weapons.set("_has_focus", true)
 		_update_actions(elapsed)
 		camera.position.x = roundf(player.position.x)
-		if elapsed >= float(next_frame) / FPS:
-			await RenderingServer.frame_post_draw
-			viewport.get_texture().get_image().save_png(OUTPUT + "frame_%03d.png" % next_frame)
-			next_frame += 1
-	for action: String in ["move_left", "move_right", "jump", "crouch", "dodge", "sprint", "fire"]: Input.action_release(action)
-	print("MOVEMENT_FRAMES=", next_frame, " FPS=", FPS, " PATH=", ProjectSettings.globalize_path(OUTPUT))
+		await RenderingServer.frame_post_draw
+		if viewport.get_texture().get_image().save_png(OUTPUT + "frame_%03d.png" % frame_index) != OK:
+			push_error("Falha salvando quadro de movimento %d" % frame_index)
+			quit(1)
+			return
+	for action: String in ["move_left", "move_right", "jump", "crouch", "dodge", "sprint", "fire", "reload"]: Input.action_release(action)
+	print("MOVEMENT_FRAMES=", frame_count, " FPS=", FPS, " SIMULATED_SECONDS=", float(frame_count) / FPS, " PATH=", ProjectSettings.globalize_path(OUTPUT))
 	quit()
 
 func _hold(action: String, active: bool) -> void:
@@ -97,22 +106,26 @@ func _hold(action: String, active: bool) -> void:
 
 func _update_actions(time: float) -> void:
 	var text: String = "RESPIRAÇÃO / APOIO"
-	var moving_right: bool = time >= 1.0 and time < 3.0 or time >= 4.0 and time < 6.8
+	var moving_right: bool = time >= 1.0 and time < 3.0 or time >= 4.0 and time < 6.8 or time >= 12.0
 	_hold("move_right", moving_right)
-	_hold("move_left", time >= 3.0 and time < 4.0 or time >= 8.0)
+	_hold("move_left", time >= 3.0 and time < 4.0 or time >= 8.0 and time < 8.8)
 	_hold("move_aim_right", moving_right)
 	_hold("move_aim_left", time >= 3.0 and time < 4.0)
 	player.independent_aim = time >= 8.0
 	_hold("sprint", time >= 4.0 and time < 6.0)
 	_hold("jump", time >= 5.0 and time < 5.30)
-	_hold("crouch", time >= 6.0 and time < 6.8)
+	_hold("crouch", time >= 6.0 and time < 6.8 or time >= 10.35 and time < 11.55)
 	_hold("dodge", time >= 7.0 and time < 7.08)
-	_hold("fire", time >= 8.0 and time < 8.8)
-	if time >= 8.0: text = "DIREITO OPCIONAL / MIRA INDEPENDENTE"
+	_hold("fire", time >= 8.0 and time < 8.8 or time >= 10.0 and time < 10.3 or time >= 11.6 and time < 11.8)
+	_hold("reload", time >= 8.95 and time < 9.03 or time >= 10.5 and time < 10.58 or time >= 11.95 and time < 12.03)
+	if time >= 12.0: text = "RECARGA EM MOVIMENTO / CICLO DE PASSADA"
+	elif time >= 10.35: text = "RECARGA AGACHADO / MÃO E CARREGADOR"
+	elif time >= 8.95: text = "RECARGA / ARMA E MÃOS ARTICULADAS"
+	elif time >= 8.0: text = "DIREITO OPCIONAL / MIRA INDEPENDENTE"
 	elif time >= 7.0: text = "ESQUIVA / RECUPERAÇÃO"
 	elif time >= 6.0: text = "AGACHAR E DESLOCAR"
 	elif time >= 5.0: text = "SALTO / QUEDA / ATERRISSAGEM"
 	elif time >= 4.0: text = "CORRIDA"
 	elif time >= 3.0: text = "ESQUERDO / MIRA PELO MOVIMENTO"
 	elif time >= 1.0: text = "PASSADA / PÉ DE APOIO"
-	caption.text = "RUPTURA 0.4 · " + text
+	caption.text = "RUPTURA 0.4.2 · " + text

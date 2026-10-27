@@ -136,72 +136,141 @@ func _draw() -> void:
 	if is_dead:
 		_draw_break_effect()
 		return
-	var rect := Rect2(Vector2(-_dimensions.x * 0.5, -_dimensions.y), _dimensions)
-	var ink := Color("131d25")
-	var edge := Color("9ca7a3")
-	if _flash > 0.0:
-		edge = Color("fff0ce")
-	# Rebote de impacto é quantizado no desenho, preservando o colisor estático.
-	draw_set_transform(_wobble.round())
-	draw_rect(Rect2(-_dimensions.x * 0.5 + 2, -2, _dimensions.x - 4, 2), ink)
+	# Autoria em meios pixels do mundo: um pixel de tela na câmera2×.
+	# A silhueta fica exatamente dentro das dimensões físicas conhecidas.
+	var ink := Color("15171b")
+	var edge := Color("b1a895") if _flash <= 0.0 else Color("fff0ce")
+	draw_set_transform(_wobble.snapped(Vector2(0.5, 0.5)))
+	draw_rect(Rect2(-_dimensions.x * 0.5 + 1, -1, _dimensions.x - 2, 1), Color(0.03, 0.04, 0.05, 0.5))
 	match kind:
-		"barrel":
-			# Volume cilíndrico em faixas de cor, tampa e aros com pixels inteiros.
-			draw_rect(Rect2(-8, -28, 16, 28), ink)
-			draw_rect(Rect2(-9, -26, 18, 24), ink)
-			draw_rect(Rect2(-8, -25, 16, 22), Color("68634e"))
-			draw_rect(Rect2(-7, -25, 3, 22), Color("948b6a"))
-			draw_rect(Rect2(5, -25, 3, 22), Color("464a40"))
-			draw_rect(Rect2(-7, -27, 14, 3), Color("6b5b50"))
-			draw_rect(Rect2(-6, -27, 10, 1), edge)
-			draw_rect(Rect2(3, -26, 2, 2), ink)
-			for y: float in [-23.0, -7.0]:
-				draw_rect(Rect2(-9, y, 18, 3), Color("29313a"))
-				draw_rect(Rect2(-8, y, 15, 1), edge.darkened(0.15))
-			draw_rect(Rect2(-7, -3, 14, 2), Color("716358"))
-			draw_rect(Rect2(-5, -19, 10, 10), Color("e1b96d"))
-			draw_rect(Rect2(-4, -18, 8, 8), Color("392d28"))
-			draw_rect(Rect2(-1, -17, 2, 4), Color("edc87c"))
-			draw_rect(Rect2(-1, -12, 2, 1), Color("edc87c"))
-			draw_rect(Rect2(3, -21, 3, 2), Color("a39675"))
-			draw_rect(Rect2(-5, -6, 2, 3), Color("3c4239"))
-		"glass":
-			draw_rect(rect, ink)
-			draw_rect(Rect2(-3, -39, 6, 38), Color("466774"))
-			draw_rect(Rect2(-3, -38, 1, 35), Color("9ebdb7"))
-			draw_rect(Rect2(2, -39, 1, 38), Color("2c454f"))
-			draw_rect(Rect2(-2, -36, 3, 10), Color("789c9f"))
-			draw_rect(Rect2(-1, -34, 2, 6), Color("b5d2cb"))
-			draw_rect(Rect2(-2, -19, 2, 6), Color("779fa2"))
-			draw_rect(Rect2(0, -23, 2, 3), Color("9ebfbc"))
-			draw_rect(Rect2(-4, -40, 8, 2), edge.darkened(0.2))
-			draw_rect(Rect2(-4, -3, 8, 3), Color("657477"))
-			draw_rect(Rect2(-4, -21, 8, 2), Color("293b45"))
-			if health < 8.0:
-				draw_rect(Rect2(0, -18, 1, 5), ink)
-				draw_rect(Rect2(-1, -14, 2, 1), ink)
-				draw_rect(Rect2(-1, -13, 1, 5), ink)
-		_:
-			# Caixa de arquivo reforçada: tampa, cintas, etiqueta confidencial e pega.
-			draw_rect(rect, ink)
-			draw_rect(Rect2(-13, -29, 26, 28), Color("797665"))
-			draw_rect(Rect2(-13, -29, 26, 5), Color("99947e"))
-			draw_rect(Rect2(-12, -29, 24, 1), edge.darkened(0.12))
-			draw_rect(Rect2(-13, -24, 26, 1), Color("4b514b"))
-			draw_rect(Rect2(9, -24, 4, 23), Color("565e56"))
-			draw_rect(Rect2(-12, -23, 1, 21), Color("a29c82"))
-			draw_rect(Rect2(-13, -14, 26, 3), Color("374844"))
-			draw_rect(Rect2(6, -28, 3, 26), Color("374844"))
-			draw_rect(Rect2(6, -28, 1, 26), Color("65766a"))
-			draw_rect(Rect2(-9, -22, 13, 7), Color("c2bfaa"))
-			draw_rect(Rect2(-7, -20, 8, 1), Color("60665e"))
-			draw_rect(Rect2(-7, -18, 6, 1), Color("60665e"))
-			draw_rect(Rect2(-6, -9, 8, 3), Color("39433f"))
-			draw_rect(Rect2(-5, -9, 6, 1), Color("a29f89"))
-			draw_rect(Rect2(-11, -5, 4, 1), Color("9e9780"))
-			draw_rect(Rect2(-10, -4, 2, 1), Color("5c6257"))
-			draw_rect(Rect2(10, -6, 2, 2), edge.darkened(0.3))
+		"barrel": _draw_maintenance_drum(ink, edge)
+		"glass": _draw_office_glass(ink, edge)
+		_: _draw_archive_crate(ink, edge)
 	draw_set_transform(Vector2.ZERO)
+
+
+func _draw_archive_crate(ink: Color, edge: Color) -> void:
+	# Caixa documental de fibra vulcanizada; tampa abaulada, ferragens e lateral.
+	draw_rect(Rect2(-13, -30, 25, 1), ink)
+	draw_rect(Rect2(-14, -29, 28, 27.5), ink)
+	draw_rect(Rect2(-13, -1.5, 26, 1.5), ink)
+	draw_rect(Rect2(-13, -28.5, 21, 26), Color("867860"))
+	draw_rect(Rect2(-12.5, -27, 20, 23.5), Color("776b56"))
+	draw_rect(Rect2(8, -28, 5, 25.5), Color("4d4d44"))
+	draw_rect(Rect2(8.5, -27, 0.5, 24), Color("9e9477"))
+	draw_rect(Rect2(12, -27, 1, 23), Color("303b37"))
+	# A tampa projeta uma sombra curta, sem transformar cada caixa em armário.
+	draw_rect(Rect2(-13.5, -29, 26.5, 3.5), Color("a19479"))
+	draw_rect(Rect2(-12.5, -29, 24.5, 0.5), edge)
+	draw_rect(Rect2(-13, -25.5, 26, 1), Color("3e4037"))
+	draw_rect(Rect2(-12.5, -24.5, 20, 0.5), Color("a08e6e"))
+	# Duas cintas finas e protetores nos cantos, com recortes e rebites de1px.
+	for x: float in [-10.5, 4.0]:
+		draw_rect(Rect2(x, -28.5, 2, 26), Color("353e37"))
+		draw_rect(Rect2(x, -28.5, 0.5, 25.5), Color("83836b"))
+		draw_rect(Rect2(x + 0.5, -27, 0.5, 1), Color("c3b593"))
+		draw_rect(Rect2(x + 0.5, -5, 0.5, 1), Color("c3b593"))
+	for x: float in [-13.0, 10.0]:
+		for y: float in [-28.5, -5.5]:
+			draw_rect(Rect2(x, y, 2.5, 3.5), Color("485047"))
+			draw_rect(Rect2(x + 0.5, y + 0.5, 1.5, 0.5), edge.darkened(0.2))
+			draw_rect(Rect2(x + 0.5, y + 1.5, 0.5, 0.5), Color("c0b497"))
+	# Etiqueta de papel com dobra, carimbo vinho e linhas de registro.
+	draw_rect(Rect2(-7.5, -22.5, 10.5, 7.5), Color("524e40"))
+	draw_rect(Rect2(-7, -22, 10, 6.5), Color("c8bda1"))
+	draw_rect(Rect2(-6.5, -21.5, 7, 0.5), Color("e3d3b2"))
+	draw_rect(Rect2(1.5, -22, 1.5, 1.5), Color("8e866d"))
+	for row: int in range(3):
+		draw_rect(Rect2(-5.5, -20 + row * 1.5, 5.5 - row * 0.5, 0.5), Color("666759"))
+	draw_rect(Rect2(-6.5, -16.5, 4, 1), Color("8c5149"))
+	# Pega encaixada, com luz na borda superior e sombra abaixo.
+	draw_rect(Rect2(-6, -11, 7, 4.5), Color("4b4d40"))
+	draw_rect(Rect2(-5.5, -10.5, 6, 3.5), Color("242d29"))
+	draw_rect(Rect2(-5, -10.5, 5, 0.5), Color("b3a486"))
+	draw_rect(Rect2(-5, -7, 5, 0.5), Color("97896f"))
+	# Desgaste esparso, determinístico e agrupado em torno das quinas.
+	for index: int in range(10):
+		var x: float = -12.0 + float((index * 19) % 39) * 0.5
+		var y: float = -23.0 + float((index * 13) % 38) * 0.5
+		draw_rect(Rect2(x, y, 1.5 + float(index % 3) * 0.5, 0.5), Color("a29475") if index % 2 == 0 else Color("5a5a49"))
+	draw_rect(Rect2(9.5, -20, 2, 6), Color("746b54"))
+	draw_rect(Rect2(10, -19.5, 1.5, 0.5), edge.darkened(0.2))
+	draw_rect(Rect2(-8, -3, 11, 0.5), Color("a28f6a"))
+
+
+func _draw_maintenance_drum(ink: Color, edge: Color) -> void:
+	# Faixas verticais modelam o cilindro, com quinas em degraus de meio pixel.
+	draw_rect(Rect2(-7, -28, 14, 1), ink)
+	draw_rect(Rect2(-8.5, -27, 17, 25), ink)
+	draw_rect(Rect2(-7, -2, 14, 2), ink)
+	draw_rect(Rect2(-8, -26, 2, 23), Color("7c5448"))
+	draw_rect(Rect2(-6, -26.5, 2, 24), Color("a16c55"))
+	draw_rect(Rect2(-4, -26.5, 5.5, 24.5), Color("8e584b"))
+	draw_rect(Rect2(1.5, -26.5, 3.5, 24.5), Color("73463f"))
+	draw_rect(Rect2(5, -26, 2.5, 23), Color("51383a"))
+	draw_rect(Rect2(7.5, -25, 0.5, 21.5), Color("322b31"))
+	# Tampa elíptica em degraus, duas tampas de enchimento e aro gasto.
+	draw_rect(Rect2(-6.5, -27.5, 13, 2.5), Color("b18b6d"))
+	draw_rect(Rect2(-8, -26.5, 16, 1.5), Color("6e5145"))
+	draw_rect(Rect2(-6.5, -27, 12, 0.5), edge)
+	draw_rect(Rect2(-4, -26.5, 7, 1), Color("5c453e"))
+	draw_rect(Rect2(3.5, -27, 2, 1.5), ink)
+	draw_rect(Rect2(4, -27, 1, 0.5), Color("d0af84"))
+	draw_rect(Rect2(-5, -26, 1, 0.5), Color("d0af84"))
+	for y: float in [-23.5, -7.5]:
+		draw_rect(Rect2(-9, y, 18, 2), Color("292c30"))
+		draw_rect(Rect2(-8.5, y, 15, 0.5), edge.darkened(0.12))
+		draw_rect(Rect2(-7, y + 0.5, 3.5, 0.5), Color("b0a18a"))
+		draw_rect(Rect2(5.5, y + 0.5, 2.5, 1), Color("3a3031"))
+	# Etiqueta amarela funcional: a única área saturada é o risco explosivo.
+	draw_rect(Rect2(-4.5, -19.5, 9, 10), Color("3d2e28"))
+	draw_rect(Rect2(-4, -19, 8, 9), Color("d0a36b"))
+	draw_rect(Rect2(-3.5, -18.5, 7, 0.5), Color("ead1a0"))
+	draw_colored_polygon(PackedVector2Array([Vector2(0, -18), Vector2(3, -12), Vector2(-3, -12)]), Color("302d2b"))
+	draw_rect(Rect2(-0.5, -16.5, 1, 2.5), Color("eac78b"))
+	draw_rect(Rect2(-0.5, -13.5, 1, 0.5), Color("eac78b"))
+	draw_rect(Rect2(-2.5, -11.5, 5, 0.5), Color("8a6144"))
+	# Ferrugem em pequenos grupos na base e abrasão na barriga do cilindro.
+	for index: int in range(7):
+		var x: float = -6.5 + float((index * 7) % 23) * 0.5
+		var y: float = -5.5 + float(index % 3) * 0.5
+		draw_rect(Rect2(x, y, 1.5, 1), Color("ba865c") if index % 2 == 0 else Color("4b4238"))
+	draw_rect(Rect2(-6.5, -21, 0.5, 9), Color("c1906b"))
+	draw_rect(Rect2(3.5, -21.5, 1.5, 0.5), Color("b49b7a"))
+	draw_rect(Rect2(4, -20.5, 0.5, 1.5), Color("493c36"))
+	draw_rect(Rect2(-6.5, -2, 13, 0.5), Color("a18367"))
+
+
+func _draw_office_glass(ink: Color, edge: Color) -> void:
+	# Perfil de alumínio e lâmina estreita de vidro; não sugere uma parede larga.
+	draw_rect(Rect2(-4, -40, 8, 40), ink)
+	draw_rect(Rect2(-3.5, -39.5, 7, 39), Color("536268"))
+	draw_rect(Rect2(-3, -39, 1, 38), Color("aeb9b3"))
+	draw_rect(Rect2(-2, -39, 4, 38), Color("405663"))
+	draw_rect(Rect2(2, -39, 1, 38), Color("293d47"))
+	draw_rect(Rect2(3, -39.5, 0.5, 39), Color("7c8989"))
+	# Reflexos inclinados preservam a leitura transparente e deixam lacunas.
+	for index: int in range(5):
+		var y: float = -36 + index * 6.5
+		draw_rect(Rect2(-1.5, y, 1, 2), Color("98b4bb"))
+		draw_rect(Rect2(-0.5, y + 2, 1, 2), Color("708f99"))
+		draw_rect(Rect2(0.5, y + 4, 1, 1), Color("526e7b"))
+	draw_rect(Rect2(-2, -29, 4.5, 3), Color("b9c1b7"))
+	draw_rect(Rect2(-1.5, -28.5, 3.5, 0.5), Color("e0ded0"))
+	draw_rect(Rect2(-1, -27, 2.5, 0.5), Color("89958e"))
+	# Maçaneta escovada e parafusos mostram a orientação da folha.
+	draw_rect(Rect2(-3.5, -15, 2.5, 0.5), Color("c5c5b5"))
+	draw_rect(Rect2(-3.5, -15, 0.5, 4), Color("c5c5b5"))
+	draw_rect(Rect2(-3, -14.5, 0.5, 3), Color("6b7a7b"))
+	for y: float in [-39.0, -2.0]:
+		draw_rect(Rect2(-4, y, 8, 1), edge.darkened(0.2))
+		draw_rect(Rect2(-3.5, y, 0.5, 0.5), Color("e1dfcc"))
+	draw_rect(Rect2(-4, -1, 8, 1), Color("303b42"))
+	if health < 8.0:
+		# Fratura angular fina; o feedback não altera a transparência ou colisão.
+		var crack := PackedVector2Array([Vector2(1, -24), Vector2(-0.5, -20), Vector2(1.5, -17), Vector2(-1, -12), Vector2(0.5, -8)])
+		draw_polyline(crack, ink, 0.5)
+		draw_line(Vector2(-0.5, -20), Vector2(-2, -21.5), edge, 0.5)
 
 
 func _draw_break_effect() -> void:

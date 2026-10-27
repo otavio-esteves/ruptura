@@ -23,6 +23,10 @@ const ASSISTED_WINDUP_MULTIPLIER: float = 1.45
 const INTRO_DURATION: float = 1.0
 const PHASE_CHANGE_DURATION: float = 0.8
 const PHASE_TWO_HEALTH_RATIO: float = 0.5
+const DASH_DURATION: float = 0.65
+const DASH_SPEED: float = 420.0
+const DASH_PHASE_TWO_SPEED: float = 470.0
+const DASH_CONTACT_RADIUS: float = 25.0
 
 var display_name: String = "MARA «CHACAL»"
 var health := HealthScript.new()
@@ -152,7 +156,7 @@ func _physics_process(delta: float) -> void:
 		if _timer <= 0.0:
 			_begin_active()
 	elif state == State.DASH:
-		desired_speed = _locked_direction.x * (470.0 if phase == 2 else 420.0)
+		desired_speed = _locked_direction.x * (DASH_PHASE_TWO_SPEED if phase == 2 else DASH_SPEED)
 		if _timer <= 0.0:
 			_recover(ATTACK_RECOVERY)
 			desired_speed = 0.0
@@ -221,7 +225,7 @@ func _animation_pose() -> Dictionary:
 		progress = 1.0 - _timer / _visual_state_duration
 	elif state == State.DASH:
 		action = "attack"
-		progress = 1.0 - _timer / 0.65
+		progress = 1.0 - _timer / DASH_DURATION
 	elif state == State.BURST:
 		action = "attack"
 		progress = 1.0 - float(_burst_remaining) / 3.0
@@ -300,7 +304,7 @@ func _begin_active() -> void:
 	match _pattern:
 		Pattern.DASH:
 			state = State.DASH
-			_timer = 0.65
+			_timer = DASH_DURATION
 			feedback.emit("melee", global_position)
 		Pattern.BURST:
 			state = State.BURST
@@ -319,7 +323,7 @@ func _check_dash_contact(start: Vector2, finish: Vector2) -> void:
 		return
 	var victim: Vector2 = _target_center()
 	var nearest_x: float = clampf(victim.x, minf(start.x, finish.x), maxf(start.x, finish.x))
-	if absf(victim.x - nearest_x) <= 25.0 and absf(victim.y - (finish.y - 18.0)) <= 25.0 and _visible_from(_shoulder()):
+	if absf(victim.x - nearest_x) <= DASH_CONTACT_RADIUS and absf(victim.y - (finish.y - 18.0)) <= DASH_CONTACT_RADIUS and _visible_from(_shoulder()):
 		_deal_damage(DASH_DAMAGE, Vector2(_locked_direction.x * 155.0, -65.0))
 
 
@@ -448,8 +452,10 @@ func _draw() -> void:
 		var warning: Color = Color("f1b876")
 		draw_string(ThemeDB.fallback_font, Vector2(-4, -48), "!", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, warning)
 		if _pattern == Pattern.DASH:
-			draw_line(Vector2(0, -4), Vector2(_locked_direction.x * 280.0, -4), warning, 2.0)
-			var tip: Vector2 = Vector2(_locked_direction.x * 280.0, -4)
+			# Incluir o contato corporal e a velocidade da fase: o aviso cobre todo o avanço.
+			var reach: float = (DASH_PHASE_TWO_SPEED if phase == 2 else DASH_SPEED) * DASH_DURATION + DASH_CONTACT_RADIUS
+			var tip: Vector2 = Vector2(_locked_direction.x * reach, -4)
+			draw_line(Vector2(0, -4), tip, warning, 2.0)
 			draw_line(tip, tip + Vector2(-_locked_direction.x * 13, -7), warning, 2.0)
 			draw_line(tip, tip + Vector2(-_locked_direction.x * 13, 7), warning, 2.0)
 		elif _pattern == Pattern.BURST:

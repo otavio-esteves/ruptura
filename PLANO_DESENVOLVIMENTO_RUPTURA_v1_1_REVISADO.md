@@ -1,6 +1,6 @@
 # RUPTURA — Plano de Desenvolvimento e Game Design Document
 
-**Versão:** 1.3 — executivo de terno preto, direção corporativa e mira pelo movimento
+**Versão:** 1.4 — fidelidade às referências visuais e apresentação detalhada
 
 **Data:** 26/10/2026
 
@@ -8,7 +8,7 @@
 **Equipe:** Otávio + Codex; múltiplas instâncias podem executar tarefas independentes, com integração centralizada  
 **Nome:** provisório, sujeito a pesquisa de marca antes de publicação
 
-> **Visão:** Jogo single-player de ação 2D em pixel art, com combate corpo a corpo e à distância, interatividade física, explosões, exploração horizontal e vertical, progressão permanente, sete líderes como chefões e campanha narrativa concluída. Direção estética: pixel art minimalista, corporativa e sombria, inspirada na síntese visual de Superfighters, com identidade própria. Prioridades: combate divertido, apresentação bonita e legível, recompensas significativas, dificuldade progressiva e desempenho em notebooks antigos. Linux é o ambiente de desenvolvimento e teste desde o primeiro dia; Dell Inspiron 15 5547 é referência de hardware, com a GPU efetivamente disponível.
+> **Visão:** Jogo single-player de ação 2D em pixel art, com combate corpo a corpo e à distância, interatividade física, explosões, exploração horizontal e vertical, progressão permanente, sete líderes como chefões e campanha narrativa concluída. Direção estética: pixel art detalhada, corporativa e sombria, seguindo o nível de acabamento das referências locais fornecidas por Otávio, com identidade própria e síntese de contraste inspirada em Superfighters. Prioridades: combate divertido, apresentação bonita e legível, recompensas significativas, dificuldade progressiva e desempenho em notebooks antigos. Linux é o ambiente de desenvolvimento e teste desde o primeiro dia; Dell Inspiron 15 5547 é referência de hardware, com a GPU efetivamente disponível.
 
 ---
 
@@ -452,7 +452,7 @@ ruptura/
 - **60 FPS** na maior parte da campanha, inclusive em combate, se viável no equipamento-alvo.
 - Prioridade a **frametime regular**, não apenas média alta.
 - **30 FPS como modo alternativo** caso testes mostrem necessidade; a física e a jogabilidade devem permanecer corretas.
-- Resolução interna de trabalho **480x270** ou **640x360**, escolhida após teste de legibilidade; escalonamento inteiro quando apropriado.
+- Apresentação0.4.2 em **1280×720**, câmera2× mantendo campo de640×360unidades e atlas2×; interface nessa resolução. Preservar física e pontaria. Avaliar a legibilidade e o custo no hardware real; não tratar a resolução maior como aprovação de desempenho.
 - Identificar primeiro a GPU/driver realmente usados no Linux; testar integrada e dedicada quando disponíveis, sem pressupor funcionamento da AMD. Registrar diferenças de driver, temperatura e energia. Windows tem medições independentes.
 - Começar com **perfil base e efeitos reduzidos**, ambos legíveis. Adicionar outros presets somente quando existirem efeitos que justifiquem custo e QA; não produzir três configurações por obrigação.
 
@@ -469,7 +469,7 @@ Estes números servem como **guardrails experimentais**, não como limiares comp
 - Evitar instanciar dezenas de nós complexos no mesmo frame; pré-carregar eventos conhecidos e usar pooling somente após medição.
 - Tiros rápidos: preferir raycasts/hitscan quando adequado; projéteis físicos apenas quando sua trajetória tiver valor de gameplay.
 - **Frame budget de referência:** 60 FPS implicam ~16,7 ms por quadro; 30 FPS ~33,3 ms. Esses valores são metas de tempo total, não orçamento exclusivo de script ou GPU. Evitar otimizações que causem picos de frametime.
-- **Pixels e UI:** testar 480×270 e 640×360 em monitores 1366×768, com escala, bordas e HUD legível. Decidir explicitamente entre pixel art com escala inteira e interface independente; não comprometer pontaria por retículo minúsculo.
+- **Pixels e UI:** testar a apresentação1280×720 em monitores1366×768, escala inteira quando couber, bordas, HUD e retículo legíveis. Densidade do desenho é independente das unidades físicas; não comprometer pontaria.
 
 ### 8.3 Como medir
 
@@ -620,7 +620,7 @@ Modo desafio/ranking, dificuldade extra, arenas adicionais, localizações e dis
 ### Experiência
 
 - O controle parece ágil mesmo sem upgrades, tanto no mouse/teclado quanto no gamepad.
-- A estética minimalista e sombria preserva silhuetas, plataformas, retículo e avisos.
+- A estética detalhada e sombria preserva silhuetas, plataformas, retículo e avisos; detalhes e materiais seguem as referências locais.
 - Encontros apresentam, praticam e combinam ameaças; a vitória e os desbloqueios produzem feedback claro e oportunidades de uso.
 - Fases novas introduzem risco/mecânica, não apenas novos fundos.
 - O jogador entende quem são os sete líderes e o que cada um sustenta.
@@ -716,7 +716,7 @@ O projeto admite trabalho paralelo quando solicitado e houver tarefas independen
 - [ ] Ter prólogo, sete missões compactas e sete líderes diferenciados, com campanha concluída e sem duração mínima artificial.
 - [ ] Ter exploração horizontal/vertical útil, combate próximo e à distância, física seletiva e explosões significativas.
 - [ ] Ter controles confortáveis, mira 360° e menus operáveis com teclado/mouse e gamepad; remapeamento e opções básicas de acessibilidade.
-- [ ] Apresentar estética minimalista industrial sombria consistente, com silhuetas, tiros, plataformas e avisos legíveis no perfil mínimo.
+- [ ] Apresentar pixel art corporativa sombria com acabamento comparável às referências locais, silhuetas, tiros, plataformas e avisos legíveis no perfil mínimo.
 - [ ] Ensinar antes de combinar ameaças; oferecer dificuldade padrão e assistida, checkpoints justos e retry rápido.
 - [ ] Comunicar impacto, vitória, desbloqueio e consequências no mundo; permitir experimentar recompensas sem grind.
 - [ ] Persistir equipamentos/provas/progresso, com checkpoint reproduzível, backup e recuperação testados nas versões suportadas.
@@ -731,6 +731,10 @@ O projeto admite trabalho paralelo quando solicitado e houver tarefas independen
 ## 15. Registro de revisão e decisões abertas
 
 ### 15.1 Histórico
+
+- **v1.4 / build0.4.2 — 26/10/2026, instrução direta de Otávio:** seguir os exemplos locais à risca em nível de acabamento; continuar comparação e iteração, sem confundir uma aproximação temática com o alvo. Fundos bitmap originais, autoria de atores em densidade2×, apresentação1280×720/câmera2× e HUD menos intrusivo substituem o acabamento minimalista anterior. Física, campo de visão lógico, combate e campanha permanecem; gates humanos continuam pendentes. Autoria e prompts em `docs/ART_DIRECTION.md` e `docs/ART_PROMPTS_0_4_2.md`.
+
+- **Refinamento0.4.1 — 26/10/2026:** referências visuais locais fornecidas por Otávio orientam acabamento do executivo e interiores corporativos. Autorizado trabalho simultâneo com integração centralizada; prioridade de qualidade e diversão. Escopo continua na missão Cinzas existente, com arte original no pipeline nativo, revisão de contrajogo e evidências gráficas; gates humanos e demais capítulos permanecem pendentes. Ver `docs/ART_DIRECTION.md`.
 
 - **v1.3 — 26/10/2026, instrução direta de Otávio:** protagonista passa a executivo de terno preto e ex-aspirante a diretor; origem anterior de agente militar substituída. Direção corporativa mais escura, paleta inspirada na síntese de cores de Superfighters com assets originais. Analógico esquerdo move/orienta, direito preciso independente opcional. Inimigos padrão mais perigosos por cadência, mobilidade e dano, preservando avisos e modo assistido. O escopo de campanha e gates humanos não são ampliados por essa revisão.
 

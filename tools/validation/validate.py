@@ -31,6 +31,11 @@ def main():
             raise SystemExit(f"Engine incorreta: {version}; esperado 4.7.2.stable.")
         if not (ROOT / "project.godot").is_file():
             raise SystemExit("project.godot ainda não foi integrado.")
+        # Review PNGs and frame CSVs are local artifacts, never game resources.
+        # In particular, Godot otherwise tries to import benchmark CSVs as translations.
+        report_directory = ROOT / "reports"
+        report_directory.mkdir(exist_ok=True)
+        (report_directory / ".gdignore").touch(exist_ok=True)
         command = [godot, "--headless", "--path", str(ROOT)]
         if args.action in ("import", "check"):
             run(command + ["--editor", "--import"])

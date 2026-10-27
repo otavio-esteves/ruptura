@@ -89,3 +89,18 @@ A suíte de regressão existente passou746 verificações sem erros/avisos neste
 Suíte consolidada:829 verificações aprovadas, sem erros/avisos. Novos testes cobrem vetor do esquerdo, precisão independente opcional do direito, centro/deadzone/diagonais/mouse, persistência do modo e pressão dos inimigos. A comparação de dificuldade usa ataques em física real, modo padrão/assistido, reposição com parede/limite de plataforma e dano único. Nenhuma fixture escreve em progresso real.
 
 Cenários agora usam decoração corporativa estática, com fundos escuros e faixa recuada para preservar o executivo preto. Não foi acrescentada iluminação dinâmica nem overlay sobre o HUD. Novos sprites têm o mesmo tamanho e orçamento de atlas. Reposicionamento adiciona uma sondagem curta de chão apenas na recuperação ativa do recruta. Desempenho prolongado e conforto de mira com controle físico continuam pendentes; as medições0.3 não aprovam a0.4.
+
+## Refinamento0.4.1 — exercício gráfico em Operações
+
+`tools/validation/benchmark_corporate.gd` instancia a missão real em estágio2, com três inimigos ativos, deslocamento alternado, tiros e recarga. A fixture mantém imunidade no jogador/inimigos para conservar a carga, silencia áudio e usa perfis temporários isolados. Não equivale a uma partida ou benchmark do pacote. A perda de foco é ignorada apenas nesta ferramenta. O overlay mede12s após2s de aquecimento, sem remover stutters.
+
+Comandos: executar graficamente `--path . --script tools/validation/benchmark_corporate.gd`; repetir com `-- --fps=30`. Resumos via `summarize_frames.py`; CSVs em `reports/corporate-combat.csv` e `reports/corporate-combat-30.csv`. O validador marca `reports/` com `.gdignore` para impedir que a Godot importe CSVs como traduções ou PNGs de revisão como recursos do jogo.
+
+Em26/10/2026, Radeon R7M260/Compatibility, janela1280×720, viewport640×360, energia AC conectada:
+
+| Limite | Frames | FPS médio | p95 | p99 | Máximo |
+|---|---:|---:|---:|---:|---:|
+|60FPS|675|56,24|30,32ms|34,25ms|39,54ms|
+|30FPS|361|30,00|34,61ms|37,20ms|40,90ms|
+
+As amostras curtas não atingem os limiares de p95 do plano e não aprovam o gate. Também não estabelecem regressão contra builds anteriores, pois o cenário/atividade medidos são novos. O limite padrão permanece60FPS; F3 continua oferecendo30FPS. Benchmark prolongado no pacote e avaliação de conforto seguem pendentes. Logs locais em `/tmp/ruptura-041-benchmark*.log`, resumos JSON e dados brutos em `reports/`.

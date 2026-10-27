@@ -63,7 +63,26 @@ func _run() -> void:
 	var scout: CharacterBody2D = scene.instantiate() as CharacterBody2D
 	scout.call("configure", "scout", victim)
 	world.add_child(scout)
+	scout.set_physics_process(false)
 	_check(float(scout.get("health").get("max_health")) == 40.0, "scout has separate health configuration")
+	victim.is_dead = false
+	scout.position = Vector2(100.0, 100.0)
+	victim.position = Vector2(126.0, 100.0)
+	await _frames(2)
+	scout.call("_start_attack")
+	# Ainda dentro dos38px e no semiplano frontal, porém fora do arco anunciado.
+	victim.position = Vector2(110.0, 76.0)
+	await _frames(2)
+	previous_damage = victim.damage_received
+	scout.call("_execute_attack")
+	_check(victim.damage_received == previous_damage, "moving outside scout's locked warning cone avoids melee damage")
+	victim.position = Vector2(126.0, 100.0)
+	await _frames(2)
+	scout.call("_start_attack")
+	scout.call("_execute_attack")
+	_check(victim.damage_received == previous_damage + 18.0, "scout still hits target inside warning cone")
+	scout.call("_execute_attack")
+	_check(victim.damage_received == previous_damage + 18.0, "scout warning cone resolves only one damage packet")
 	print("ENEMIES_SMOKE failures=", _failures)
 	quit(0 if _failures == 0 else 1)
 

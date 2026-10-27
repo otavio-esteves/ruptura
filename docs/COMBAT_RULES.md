@@ -15,6 +15,8 @@ No assistido, o aviso inimigo é multiplicado por1,45 e seu dano por0,7; o jogad
 
 Mira por movimento: analógico esquerdo em360° com deadzone e retenção. Mira independente opcional: direito em360°, retido ao soltar. Nenhum dos modos altera a direção dos controles de movimento. Assistência leve de alvos é um parâmetro separado. Mouse mantém mira independente.
 
+Na revisão0.4.1, o golpe do batedor respeita o cone travado de±0,7rad e raio38px desenhado no aviso. O avanço da Chacal anuncia o alcance incluindo contato:298px na fase1 e330,5px na fase2. A mudança corrige leitura/contrajogo e preserva HP, dano, cadência e modo assistido.
+
 ---
 
 # Histórico — regras de combate0.2

@@ -311,12 +311,20 @@ func _animation_pose() -> Dictionary:
 		state = "run"
 		cycle = _walk_cycle
 	var weapon: String = "pistol"
-	if is_instance_valid(weapon_controller): weapon = weapon_controller.selected_weapon
+	var action: String = "neutral"
+	var action_progress: float = 0.0
+	if is_instance_valid(weapon_controller):
+		weapon = weapon_controller.selected_weapon
+		var loadout: Dictionary = weapon_controller.snapshot()
+		if loadout.reloading and not is_dead and not is_dodging:
+			action = "reload"
+			action_progress = float(loadout.reload_progress)
 	var rendered_shoulder: Vector2 = _shoulder()
 	if state == "dodge": rendered_shoulder.y = roundf(lerpf(-11.0, -18.0, clampf((cycle - 0.75) * 4.0, 0.0, 1.0)))
 	return {"kind": "spectre", "state": state, "cycle": cycle, "facing": _facing, "aim": aim_direction,
 		"shoulder": rendered_shoulder, "recoil": recoil_remaining / 0.08, "phase": 1, "weapon": weapon,
-		"flash": _hurt_flash > 0.0 and not reduced_effects, "crouch_moving": _visual_speed > 8.0}
+		"flash": _hurt_flash > 0.0 and not reduced_effects, "crouch_moving": _visual_speed > 8.0,
+		"action": action, "action_progress": action_progress}
 
 func _draw() -> void:
 	PixelActor.draw_actor(self, _animation_pose())
@@ -326,9 +334,8 @@ func _draw() -> void:
 	var light := Color("e3dc9c")
 	# Pixel crosshair: integer coordinates, always visible over bright or dark props.
 	var center: Vector2 = reticle.round()
-	draw_rect(Rect2(center - Vector2(5, 5), Vector2(10, 10)), ink, false, 3.0)
-	draw_rect(Rect2(center - Vector2(4, 4), Vector2(8, 8)), light, false, 1.0)
-	draw_line(center + Vector2(-7, 0), center + Vector2(-3, 0), light)
-	draw_line(center + Vector2(3, 0), center + Vector2(7, 0), light)
-	draw_line(center + Vector2(0, -7), center + Vector2(0, -3), light)
-	draw_line(center + Vector2(0, 3), center + Vector2(0, 7), light)
+	for direction: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+		draw_line(center + direction * 2.0, center + direction * 4.5, ink, 1.5)
+		draw_line(center + direction * 2.0, center + direction * 4.0, light, 0.5)
+	draw_rect(Rect2(center - Vector2(1, 1), Vector2(2, 2)), ink)
+	draw_rect(Rect2(center - Vector2(0.5, 0.5), Vector2(1, 1)), light)

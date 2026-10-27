@@ -1,8 +1,16 @@
 # RUPTURA — instruções de implementação
 
-O plano vigente é `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.3). Não duplicar o GDD. Incremento atual: build0.4, origem executiva, direção corporativa, mira pelo movimento e dificuldade reforçada. O usuário autorizou uma entrega maior; isso não aprova os gates humanos nem a produção dos demais capítulos.
+O plano vigente é `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.4). Não duplicar o GDD. Incremento atual: build0.4.2, fidelidade às referências, preservando origem executiva, direção corporativa, mira pelo movimento e dificuldade reforçada. O usuário autorizou uma entrega maior; isso não aprova os gates humanos nem a produção dos demais capítulos.
 
-## Pedido vigente0.4 — executivo / ambiente corporativo
+## Pedido vigente0.4.2 — fidelidade às referências
+
+Em26/10/2026, após a0.4.1, Otávio pediu seguir os exemplos de `references/` à risca em nível de acabamento e continuar iterando até obter uma apresentação comparável. A direção detalhada substitui o minimalismo como alvo artístico atual; arte corporativa/executivo e os limites de campanha continuam.
+
+Implementação adotada: fundos bitmap originais gerados com a skillimagegen a partir das referências como guia, sem incluir os PNGs fornecidos no pacote; sprites nativos redesenhados em densidade2×. Células de autoria comuns64×80/chefe96×96 mapeiam para os mesmos retângulos lógicos32×40/48×48 e pivôs anteriores. Viewport1280×720 e câmera2× preservam o campo de640×360unidades. HUD usa a resolução nova; colisores, movimento, tiro e saves são preservados. `tools/art/detail_actor_recipe.gd` contém as receitas do novo atlas. O contrato de pose acrescenta `action=reload`/`action_progress`, derivados da recarga real, sem transferir munição pelo renderer.
+
+Integrador coordena importação, captura, suíte e build. Referências/relatórios não são recursos exportados. Revisar térreo e rota alta, emendas/piso, silhuetas, corrida/esquiva, recarga parada/agachada/em movimento e avisos com efeitos reduzidos. Automação e revisão dos agentes não aprovam o gate humano. Os registros anteriores abaixo descrevem os contratos/histórico que permanecem aplicáveis salvo esta atualização de apresentação.
+
+## Registro0.4 — executivo / ambiente corporativo
 
 O usuário alterou a premissa: Espectro é um executivo de terno preto, antes aspirante a uma diretoria. Esta instrução substitui a origem anterior de ex-agente militar. Cores inspiradas em Superfighters como referência de síntese/contraste, com arte original. Ambiente mais corporativo e escuro, inimigos mais difíceis. Confirmado pelo usuário: esquerdo move/orienta por padrão; analógico direito é opção de mira independente mais precisa.
 

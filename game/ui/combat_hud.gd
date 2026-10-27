@@ -15,44 +15,45 @@ var boss_bar := ColorRect.new()
 var boss_fill := ColorRect.new()
 var dodge_label := Label.new()
 var result_stats := Label.new()
+var subtitle_panel := ColorRect.new()
 
 func _ready() -> void:
 	layer = 5
 	var top := ColorRect.new()
-	top.color = Color(0.025, 0.04, 0.055, 0.92)
-	top.position = Vector2(0, 0)
-	top.size = Vector2(640, 47)
+	top.color = Color(0.025, 0.035, 0.045, 0.72)
+	top.position = Vector2(16, 14)
+	top.size = Vector2(880, 60)
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(top)
-	_style(header, Vector2(12, 7), 14)
-	_style(objective, Vector2(12, 29), 11)
-	objective.size.x = 520
+	_style(header, Vector2(30, 20), 18)
+	_style(objective, Vector2(30, 47), 13)
+	objective.size.x = 850
 	objective.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	_style(dodge_label, Vector2(540, 29), 10)
-	_style(boss_label, Vector2(150, 258), 11)
-	boss_bar.position = Vector2(150, 277)
-	boss_bar.size = Vector2(340, 8)
+	_style(dodge_label, Vector2(1105, 22), 14)
+	_style(boss_label, Vector2(360, 582), 15)
+	boss_bar.position = Vector2(360, 609)
+	boss_bar.size = Vector2(560, 9)
 	boss_bar.color = Color("16272b")
 	boss_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_fill.color = Color("bd8167")
 	boss_fill.position = Vector2(1, 1)
-	boss_fill.size = Vector2(338, 6)
+	boss_fill.size = Vector2(558, 7)
 	boss_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_bar.add_child(boss_fill)
 	add_child(boss_bar)
 	boss_bar.hide()
 	boss_label.hide()
-	var bottom := ColorRect.new()
-	bottom.position = Vector2(0, 304)
-	bottom.size = Vector2(640, 56)
-	bottom.color = Color(0.025, 0.04, 0.055, 0.9)
+	var bottom: ColorRect = subtitle_panel
+	bottom.position = Vector2(100, 636)
+	bottom.size = Vector2(1080, 70)
+	bottom.color = Color(0.025, 0.035, 0.045, 0.78)
 	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bottom)
-	_style(radio, Vector2(12, 310), 12)
-	radio.size = Vector2(615, 46)
+	_style(radio, Vector2(116, 644), 17)
+	radio.size = Vector2(1048, 56)
 	radio.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	result.position = Vector2(125, 108)
-	result.size = Vector2(390, 140)
+	result.position = Vector2(360, 220)
+	result.size = Vector2(560, 240)
 	var result_style := StyleBoxFlat.new()
 	result_style.bg_color = Color(0.035, 0.055, 0.066, 0.97)
 	result_style.border_color = Color("667c7c")
@@ -67,10 +68,10 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 10)
 	result.add_child(box)
 	result_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	result_title.add_theme_font_size_override("font_size", 17)
+	result_title.add_theme_font_size_override("font_size", 26)
 	box.add_child(result_title)
 	result_stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	result_stats.add_theme_font_size_override("font_size", 12)
+	result_stats.add_theme_font_size_override("font_size", 18)
 	box.add_child(result_stats)
 	retry.text = "Retomar checkpoint / F5"
 	retry.pressed.connect(func() -> void: retry_requested.emit())
@@ -78,7 +79,7 @@ func _ready() -> void:
 	var hint := Label.new()
 	hint.text = "Esc / Start · menu e opções"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_font_size_override("font_size", 18)
 	box.add_child(hint)
 	result.hide()
 
@@ -86,6 +87,9 @@ func _style(label: Label, position_value: Vector2, font_size: int) -> void:
 	label.position = position_value
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", Color("d2dfdc"))
+	label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
+	label.add_theme_constant_override("shadow_offset_x", 1)
+	label.add_theme_constant_override("shadow_offset_y", 1)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(label)
 
@@ -114,11 +118,11 @@ func _process(_delta: float) -> void:
 	boss_bar.visible = show_boss
 	if show_boss:
 		boss_label.text = "%s · FASE %d" % [boss.display_name, boss.phase]
-		boss_fill.size.x = 338.0 * clampf(boss.health.current_health / boss.health.max_health, 0.0, 1.0)
-	if director.radio_remaining > 0.0:
+		boss_fill.size.x = 558.0 * clampf(boss.health.current_health / boss.health.max_health, 0.0, 1.0)
+	subtitle_panel.visible = director.radio_remaining > 0.0
+	radio.visible = subtitle_panel.visible
+	if subtitle_panel.visible:
 		radio.text = director.radio
-	else:
-		radio.text = "Mouse1 / RT atirar · Mouse2 / RB golpear · R / X recarregar\n1/2/Q / Y trocar · E / ↑ interagir · F5 retry · Esc menu"
 	var ended: bool = player.is_dead or director.is_complete
 	if ended and not _result_visible:
 		_result_visible = true

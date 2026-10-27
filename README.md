@@ -1,12 +1,14 @@
 # RUPTURA
 
-Build **0.4 — Cinzas / direção corporativa**, em Godot4.7.2 stable, GDScript e Compatibility. Linux é o alvo primário. O [plano v1.3](PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md) continua como fonte de design.
+Build **0.4.2 — Cinzas / acabamento das referências**, em Godot4.7.2 stable, GDScript e Compatibility. Linux é o alvo primário. O [plano v1.4](PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md) continua como fonte de design.
 
 ## Jogar
 
 ```bash
 ./builds/linux/ruptura.x86_64
 ```
+
+Se a Radeon bloquear na reativação do driver, use `DRI_PRIME=0 ./builds/linux/ruptura.x86_64` para iniciar pela Intel integrada. O smoke do pacote0.4.1 passou nessa GPU; a inicialização automática da Radeon apresentou bloqueio neste ciclo.
 
 O executável tem os recursos embutidos e pode ser copiado para outra pasta. No menu, escolha **Continuar Cinzas** ou **Nova missão Cinzas**. Para abrir o projeto no editor, use `project.godot` com Godot4.7.2.
 
@@ -62,3 +64,9 @@ Espectro agora é um executivo de terno preto que aspirava a uma diretoria da V�
 No gamepad, o esquerdo move horizontalmente e orienta a mira em360°, inclusive vertical/diagonal. Ao centralizar, a última direção fica retida. Para mover e mirar separadamente, abra **Opções e controles → Mira independente no direito**. Nesse modo, o direito mantém a direção ao soltar, enquanto o esquerdo continua movendo. Essa opção é diferente de Assistência leve no controle. Mouse/teclado continuam independentes.
 
 O padrão ficou mais difícil por maior dano, cadência, mobilidade e reposicionamento dos guardas. A vida dos inimigos foi preservada:55recruta,40batedor,420Chacal. O modo assistido continua disponível no próximo retry, com avisos mais longos e dano reduzido. Veja os números atuais em [COMBAT_RULES](docs/COMBAT_RULES.md).
+
+## Refinamento das referências0.4.1
+
+As referências locais fornecidas orientaram uma nova silhueta do executivo e interiores mais ricos: janelas altas com cidade, persianas, recepção, sofás, plantas, luz quente, quadros e detalhes de ocupação. A arte foi desenhada pelo código do projeto; os PNGs de referência ficam fora do executável. A geometria e as rotas existentes foram preservadas.
+
+O batedor agora respeita o cone anunciado; o aviso do avanço da Chacal cobre todo seu alcance. Vida, dano e cadência permanecem os da0.4. Prévia dos setores em `reports/reference-review/`, prancha em `reports/pixel-art-sheet.png` e animação em `reports/movement-preview.png`. Validação e pacote: [BUILD_0_4_1](docs/BUILD_0_4_1.md).

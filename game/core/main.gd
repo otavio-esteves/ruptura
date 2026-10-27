@@ -54,6 +54,7 @@ func _ready() -> void:
 	checkpoint_recovery_required = checkpoint.is_empty() and not store.last_error.is_empty()
 	_build_menu()
 	overlay = OVERLAY.new()
+	overlay.scale = Vector2(2, 2)
 	add_child(overlay)
 	overlay.hide()
 	overlay.preset_label = "LB" if alternate_jump else "A"
@@ -70,9 +71,19 @@ func _ready() -> void:
 func _build_menu() -> void:
 	menu = CanvasLayer.new()
 	menu.layer = 20
+	menu.scale = Vector2(2, 2)
 	add_child(menu)
+	var backdrop_path: String = "res://assets/art/environments/archive-lobby-v1.png"
+	if ResourceLoader.exists(backdrop_path):
+		var artwork := TextureRect.new()
+		artwork.texture = load(backdrop_path)
+		artwork.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		artwork.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		artwork.size = Vector2(640, 360)
+		artwork.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		menu.add_child(artwork)
 	var backdrop := ColorRect.new()
-	backdrop.color = Color(0.035, 0.047, 0.063, 0.97)
+	backdrop.color = Color(0.035, 0.043, 0.051, 0.85)
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	menu.add_child(backdrop)
 	var frame := MarginContainer.new()
@@ -90,6 +101,7 @@ func _build_menu() -> void:
 	var title := Label.new()
 	title.text = "R U P T U R A"
 	title.add_theme_font_size_override("font_size", 29)
+	title.add_theme_color_override("font_color", Color("e4d3b1"))
 	description.add_child(title)
 	var text := Label.new()
 	text.text = "CINZAS / UMA MISSÃO DA RESISTÊNCIA\n\nUm executivo marcado para desaparecer.\nExponha as ordens da diretoria.\n\nA/D mover · Ctrl correr · Espaço pular\nShift esquiva · S agachar/descer\nMouse mirar · esquerdo tiro · direito golpe\nR recarregar · 1/2/Q trocar · E interagir\nF5 checkpoint · F2 salto A/LB · F11 tela\n\nEsquerdo: mover/mirar · direito opcional\nRT tiro · RB golpe · X recarga\nY troca · A salto · B esquiva · ↑ interagir"
@@ -116,7 +128,7 @@ func _build_menu() -> void:
 	_button(menu_column, "Opções e controles", _open_options)
 	_button(menu_column, "Sair", func() -> void: get_tree().quit())
 	var note := Label.new()
-	note.text = "3 setores · confronto com a Chacal\nRotas opcionais e registros secretos\nCheckpoint antes de cada confronto\n\nExecutivo · versão corporativa0.4"
+	note.text = "3 setores · confronto com a Chacal\nRotas opcionais e registros secretos\nCheckpoint antes de cada confronto\n\nExecutivo · versão visual0.4.2"
 	note.add_theme_font_size_override("font_size", 11)
 	menu_column.add_child(note)
 	options_column = OPTIONS.new()
@@ -138,6 +150,16 @@ func _button(parent: Node, text: String, callback: Callable) -> Button:
 	button.text = text
 	button.custom_minimum_size.y = 29
 	button.add_theme_font_size_override("font_size", 12)
+	for state: String in ["normal", "hover", "pressed", "focus"]:
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("272c30") if state == "normal" else Color("41413e")
+		style.border_color = Color("786b57") if state == "normal" else Color("c7ae80")
+		style.set_border_width_all(1)
+		style.content_margin_left = 10
+		style.content_margin_right = 10
+		style.content_margin_top = 5
+		style.content_margin_bottom = 5
+		button.add_theme_stylebox_override(state, style)
 	button.pressed.connect(callback)
 	parent.add_child(button)
 	return button
@@ -173,7 +195,8 @@ func _build_world() -> void:
 	player.damaged.connect(func(_amount: float) -> void: _combat_feedback("hurt", player.global_position))
 	_apply_live_settings()
 	camera = Camera2D.new()
-	camera.position = Vector2(0, -70)
+	camera.position = Vector2(0, -100)
+	camera.zoom = Vector2(2, 2)
 	camera.position_smoothing_enabled = true
 	camera.position_smoothing_speed = 7.0
 	var bounds: Rect2 = arena.world_bounds
@@ -444,8 +467,8 @@ func _sector_banner() -> void:
 	if is_instance_valid(_transition_label): _transition_label.queue_free()
 	_transition_label = Label.new()
 	_transition_label.text = director.sector_title if mission_mode == "cinzas" else "LABORATÓRIO DE COMBATE"
-	_transition_label.position = Vector2(18, 73)
-	_transition_label.add_theme_font_size_override("font_size", 17)
+	_transition_label.position = Vector2(30, 94)
+	_transition_label.add_theme_font_size_override("font_size", 26)
 	_transition_label.add_theme_color_override("font_color", Color("d8c69d"))
 	hud.add_child(_transition_label)
 	_transition_time = 3.5

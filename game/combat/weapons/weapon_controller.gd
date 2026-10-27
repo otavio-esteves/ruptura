@@ -206,7 +206,7 @@ func try_fire() -> bool:
 			var accepted: bool = bool(target.call("receive_damage", float(entry["damage"]), direction * (150.0 if selected_weapon == "shotgun" else 65.0), _actor))
 			if accepted:
 				feedback.emit("hit", entry["position"])
-	_spawn_flash(segments)
+	_spawn_flash(segments, muzzle if obstruction.is_empty() else Vector2.INF)
 	feedback.emit(selected_weapon, muzzle)
 	loadout_changed.emit()
 	return true
@@ -284,9 +284,11 @@ func _aim() -> Vector2:
 	return direction.normalized() if direction.length_squared() > 0.001 else Vector2.RIGHT
 
 
-func _spawn_flash(segments: Array[Dictionary]) -> void:
+func _spawn_flash(segments: Array[Dictionary], muzzle: Vector2) -> void:
 	var flash: Node2D = Flash.new()
 	flash.set("segments", segments)
+	flash.set("muzzle", muzzle)
+	flash.set("muzzle_direction", _aim())
 	_add_effect(flash)
 
 

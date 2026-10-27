@@ -21,6 +21,8 @@ const ASSISTED_WINDUP_MULTIPLIER: float = 1.45
 const RECRUIT_PREFERRED_MIN: float = 160.0
 const RECRUIT_PREFERRED_MAX: float = 240.0
 const RECOVERY_AIM_SETTLE: float = 0.20
+const SCOUT_REACH: float = 38.0
+const SCOUT_HALF_ANGLE: float = 0.7
 
 @export_enum("recruit", "scout") var archetype: String = "recruit"
 @export var navigation_links: Array[Dictionary] = []
@@ -244,7 +246,8 @@ func _execute_attack() -> void:
 		damage *= ASSISTED_DAMAGE_MULTIPLIER
 	if archetype == "scout":
 		var offset: Vector2 = _target_center() - (global_position + Vector2(0.0, -12.0))
-		if offset.length() <= 38.0 and offset.dot(_attack_direction) > 0.0 and _target_visible():
+		# A faixa de acerto coincide com o arco anunciado: sair pela lateral é contrajogo.
+		if offset.length() <= SCOUT_REACH and offset.normalized().dot(_attack_direction) >= cos(SCOUT_HALF_ANGLE) and _target_visible():
 			target.call("receive_damage", damage, Vector2(_facing * 130.0, -60.0), self)
 		_tracer_start = _muzzle()
 		_tracer_end = _tracer_start + _attack_direction * 30.0
@@ -388,7 +391,7 @@ func _draw() -> void:
 		if archetype == "recruit":
 			draw_line(shoulder, shoulder + _attack_direction * 420.0, Color(1.0, 0.54, 0.3, 0.6), 1.0)
 		else:
-			draw_arc(Vector2.ZERO + Vector2(0.0, -12.0), 28.0, _attack_direction.angle() - 0.7, _attack_direction.angle() + 0.7, 12, Color("ffc66c"), 2.0)
+			draw_arc(Vector2(0.0, -12.0), SCOUT_REACH, _attack_direction.angle() - SCOUT_HALF_ANGLE, _attack_direction.angle() + SCOUT_HALF_ANGLE, 12, Color("ffc66c"), 2.0)
 		draw_string(ThemeDB.fallback_font, Vector2(-3.0, -38.0), "!", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16, Color("ffd38a"))
 	if _tracer_remaining > 0.0:
 		draw_line(to_local(_tracer_start), to_local(_tracer_end), Color("ffe5ad"), 2.0)

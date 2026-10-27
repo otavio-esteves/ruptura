@@ -3,7 +3,7 @@ extends SceneTree
 ## godot --path . --script tools/art/preview_actors.gd
 
 const OUTPUT: String = "res://reports/pixel-art-sheet.png"
-const SHEET_SIZE := Vector2i(960, 832)
+const SHEET_SIZE := Vector2i(960, 1024)
 
 
 class ActorPose:
@@ -42,6 +42,11 @@ class Sheet:
 				var pose: Dictionary = _pose(kind, "idle", 0.0, aim)
 				pose["facing"] = -1.0 if aim.x < -0.01 else 1.0
 				_add_pose(Vector2(617 + direction * 43, top + 171), 1, pose)
+		for frame: int in range(5):
+			var pose: Dictionary = _pose("spectre", "crouch" if frame == 3 else ("run" if frame == 4 else "idle"), 0.125)
+			pose["action"] = "reload"
+			pose["action_progress"] = [0.1, 0.4, 0.65, 0.8, 0.65][frame]
+			_add_pose(Vector2(110 + frame * 180, 975), 4, pose)
 		queue_redraw()
 
 
@@ -58,8 +63,12 @@ class Sheet:
 
 
 	func _draw() -> void:
-		draw_rect(Rect2(0, 0, 960, 832), Color("101921"))
-		draw_string(font, Vector2(16, 23), "RUPTURA / ESTUDO DE PIXEL ART E ANIMAÇÃO · EXECUTIVO0.4", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, LIGHT)
+		draw_rect(Rect2(0, 0, 960, 1024), Color("101921"))
+		draw_rect(Rect2(10, 822, 940, 192), Color("19252d"))
+		draw_string(font, Vector2(18, 840), "RECARGA / MÃOS E CARREGADOR · parado, agachado e em movimento · ampliação4×", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, LIGHT)
+		for frame: int in range(5):
+			draw_string(font, Vector2(68 + frame * 180, 998), ["arma sobe", "carregador", "transferência", "agachado", "em movimento"][frame], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, INK)
+		draw_string(font, Vector2(16, 23), "RUPTURA / ESTUDO DE PIXEL ART E ANIMAÇÃO · EXECUTIVO0.4.2", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, LIGHT)
 		draw_string(font, Vector2(16, 43), "Corpos/estados em 2× · mira em 1× · poses estáticas para revisão; conforto e movimento dependem do jogo", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, INK)
 		for row: int in range(KINDS.size()):
 			var top: float = 55.0 + row * 190.0
