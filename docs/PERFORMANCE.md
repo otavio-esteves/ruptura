@@ -108,3 +108,7 @@ As amostras curtas não atingem os limiares de p95 do plano e não aprovam o gat
 ## Fechamento0.4.2 — inicialização gráfica
 
 Em27/10/2026, suíte completa com834verificações e exportação Linux passaram sem erros/avisos. O pacote1280×720/câmera2× abriu fora do projeto na Intel HD4400 por180quadros, com perfil temporário, escrita em user:// confirmada e saída0. Essa execução usou áudio Dummy e não foi benchmark. Não há nova medição prolongada nem comparação de desempenho aprovada para a resolução0.4.2; números0.4.1 acima continuam históricos. Evidências e hash em [BUILD_0_4_2](BUILD_0_4_2.md).
+
+## Corredor0.4.3 — verificação técnica
+
+Suíte final:857verificações aprovadas sem erros/avisos. Novo pacote abriu o corredor por180quadros na Intel HD4400, fora do projeto e com perfil temporário, sem gravar saves da missão/laboratório. Câmera16/3 e assets em3/16 produzem pixels1:1 em1280×720. A captura offline de160quadros a12FPS usa tempo fixo e grava PNGs lentamente; não é benchmark. Não foram aprovadas metas de desempenho para essa apresentação. Hash e limites em [BUILD_0_4_3](BUILD_0_4_3.md).
