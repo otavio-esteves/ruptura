@@ -1,6 +1,14 @@
 # RUPTURA — instruções de implementação
 
-O plano vigente é `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.4). Não duplicar o GDD. Incremento atual: build0.4.2, fidelidade às referências, preservando origem executiva, direção corporativa, mira pelo movimento e dificuldade reforçada. O usuário autorizou uma entrega maior; isso não aprova os gates humanos nem a produção dos demais capítulos.
+O plano vigente é `PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md` (conteúdo v1.5). Não duplicar o GDD. Incremento atual: build0.4.3, corredor de abertura e protagonista da própria folha, preservando origem executiva, direção corporativa, mira pelo movimento e dificuldade reforçada. O usuário autorizou uma entrega maior; isso não aprova os gates humanos nem a produção dos demais capítulos.
+
+## Pedido vigente0.4.3 — corredor e protagonista literais
+
+Em27/10/2026, Otávio pediu criar o corredor de `references/` como início de fase e tornar o protagonista “literalmente igual” ao da folha fornecida. Para esses dois assets, a instrução atual autoriza uso direto dos pixels fornecidos e substitui a limitação anterior a inspiração sem cópia. Os registros0.4.2 abaixo permanecem históricos; não apresentar os recortes novos como imagens originais geradas pelo projeto.
+
+`tools/art/import_reference_art.gd` copia o panorama para `assets/art/reference/office-corridor.png` e organiza37poses da folha em atlas, sem reamostrar cores. Poses sem sobreposição usam recortes literais; componentes de silhueta separam poses vizinhas na corrida/queda. O renderer conserva os recortes inteiros em poses horizontais e articula camadas da mesma folha nos ângulos ausentes e na recarga em deslocamento. Não declarar identidade pixel a pixel das poses compostas. A origem física do tiro segue o braço/cano importado; dano, munição e velocidades permanecem.
+
+O menu abre “Jogar corredor / início”: panorama horizontal único, chão em620, guarda na saída e interação E/↑ para retomar Cinzas. O trecho não escreve no save da missão ou laboratório. Zoom16/3 e escala3/16 exibem os pixels de cenário e herói em1:1 na janela1280×720. Os três setores e seus checkpoints existentes continuam disponíveis. Capturas e animação em `reports/corridor-review/`; testes de fluxo isolados em `tests/corridor_smoke.gd`. Não aprova gates humanos nem produção de outros capítulos.
 
 ## Pedido vigente0.4.2 — fidelidade às referências
 

@@ -45,3 +45,9 @@ Viewport1280×720/câmera2× mantêm o campo de640×360unidades e as regras fís
 O player fornece `action=reload` e progresso pela snapshot do controlador real. Corpo em movimento/agachado conserva seu ciclo; braços, arma e carregador seguem o progresso visual. Cancelamento/transferência de munição permanecem no controlador. Flash de boca e partículas de impacto usam posições reais de tiro e não existem para disparo obstruído na boca.
 
 `cinzas_sector.gd` carrega três bitmaps originais cacheados de `assets/art/environments/`, compõe recortes estáticos por setor e mantém geometria/layouts/nav separados da decoração. Meios pixels de mundo representam pixels de tela na câmera2×. Os PNGs fornecidos em `references/` são apenas insumos de direção e não entram no pacote. Não há luz dinâmica, shader caro ou processamento de textura por pixel no runtime.
+
+## Abertura0.4.3
+
+`reference_corridor.gd` fornece o panorama único e quatro limites físicos. `corridor_director.gd` reutiliza o contrato do diretor de combate, com um guarda e `archive_requested` na porta. `main.gd` expõe modo `corridor` pelo primeiro botão e por `--auto-corridor`; retry e início não escrevem checkpoints. A saída carrega o checkpoint vigente de Cinzas. A câmera16/3 pertence apenas à abertura; a missão mantém2×.
+
+`reference_hero.gd` lê atlas e metadados de recorte/pivô. O player expõe `get_fire_origin()` e `get_muzzle_distance()` para alinhar o tiro ao braço importado. WeaponController usa esses métodos quando disponíveis e conserva o fallback anterior para outros atores/fixtures. O snapshot de arma expõe progresso visual de golpe além da recarga. O JSON de metadados entra explicitamente no preset de exportação; `references/` continua fora da importação e do pacote, enquanto as cópias de uso autorizadas ficam em `assets/art/reference/`.

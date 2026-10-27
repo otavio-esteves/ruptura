@@ -1,3 +1,15 @@
+# Corredor e protagonista0.4.3 — apresentação vigente
+
+Pedido de27/10/2026: corredor da referência como início de fase e personagem literalmente igual à folha. O panorama é copiado sem alterações para `assets/art/reference/office-corridor.png`;37poses são organizadas em atlas por `tools/art/import_reference_art.gd`. Há recortes diretos e separação de poses vizinhas por silhueta nas regiões onde contornos encostam. Não há reamostragem de cores na autoria. O herói anterior continua arquivado no atlas nativo, mas o renderer do protagonista usa a nova folha.
+
+`reference_hero.gd` preserva recortes inteiros nas poses horizontais. Nos ângulos que a folha não oferece, braços/arma são articulados a partir dos mesmos pixels; o tórax oculto usa a pose de punhos da folha. Recarga parada usa poses completas; agachada/em movimento combina a base corporal com braços da recarga. Essas composições são adaptações, não cópias pixel a pixel de uma pose que não existe na fonte. A folha oferece uma única arma visual; pistola e espingarda conservam munição, dano e identificação no HUD, compartilhando a arte desse armamento. A origem física de disparo acompanha o mesmo pivô e cano, inclusive com obstrução antes da boca da arma.
+
+No corredor, escala3/16 e câmera16/3 produzem1pixel de tela por pixel fornecido, na janela1280×720. A cena horizontal tem407,25unidades de largura e mantém o chão em620; câmera vertical em−45. Não há repetição do panorama ou plataformas sobrepostas. O guarda e a porta fornecem um trecho jogável; o menu mantém acesso separado a Cinzas e ao laboratório.
+
+O novo uso literal foi explicitamente solicitado e substitui a proibição anterior de copiar essas duas imagens. A origem agora é o material fornecido pelo usuário, não imagegen ou autoria nativa original. Os registros abaixo continuam históricos. Capturas em `reports/corridor-review/`, captura de movimento com `--fixed-fps 12` e montagem a partir de `reports/corridor-movement-frames/`. Aceite artístico e conforto continuam humanos.
+
+---
+
 # Acabamento0.4.2 — apresentação vigente
 
 A direção atual usa três fundos bitmap originais, gerados com imagegen, e atores redesenhados em densidade2× pelo código nativo. Prompts e hashes em [ART_PROMPTS_0_4_2](ART_PROMPTS_0_4_2.md); critérios e rodadas de comparação em [REFERENCE_TARGET](REFERENCE_TARGET.md). Os registros0.4/0.4.1 abaixo descrevem a evolução anterior; a adoção dos bitmaps e da nova resolução substitui a restrição anterior ao desenho de cenários inteiramente por primitivas.

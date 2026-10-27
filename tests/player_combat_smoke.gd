@@ -1,6 +1,13 @@
 extends SceneTree
 ## Integra player real, health e arma; não simula conforto ou arte.
 
+class ShotTarget:
+	extends StaticBody2D
+	var damage_received: float = 0.0
+	func receive_damage(amount: float, _impulse: Vector2, _source: Node = null) -> bool:
+		damage_received += amount
+		return true
+
 var _failures: int = 0
 
 
@@ -73,6 +80,32 @@ func _run() -> void:
 	weapons.call("reset_loadout")
 	state = weapons.call("snapshot")
 	_check(float(health.get("invulnerability_remaining")) == 0.0 and state["ammo"] == 12, "retry clears immunity and restores ammunition")
+	# A origem importada da arma deve respeitar obstrução real, inclusive antes do cano.
+	player.aim_direction = Vector2.RIGHT
+	player.input_device = "gamepad"
+	player.set("_facing", 1.0)
+	player.set("_land_remaining", 0.0)
+	var shot_origin: Vector2 = player.get_fire_origin()
+	var muzzle_wall: StaticBody2D = _block(shot_origin + Vector2(5, 0), Vector2(2, 10), 1)
+	root.add_child(muzzle_wall)
+	var target := ShotTarget.new()
+	target.collision_layer = 4
+	target.collision_mask = 0
+	target.position = shot_origin + Vector2(70, 0)
+	var target_shape := RectangleShape2D.new()
+	target_shape.size = Vector2(8, 16)
+	var target_collision := CollisionShape2D.new()
+	target_collision.shape = target_shape
+	target.add_child(target_collision)
+	target.add_to_group("damageable")
+	root.add_child(target)
+	await _frames(2)
+	_check(bool(weapons.try_fire()) and target.damage_received == 0.0, "imported hero cannot fire through wall between arm and muzzle")
+	_check(int(weapons.snapshot().ammo) == 11, "blocked imported-hero discharge still spends one round")
+	muzzle_wall.queue_free()
+	await _frames(2)
+	weapons.reset_loadout()
+	_check(bool(weapons.try_fire()) and target.damage_received == 24.0, "imported hero fires from visible arm origin after obstruction is removed")
 	print("PLAYER_COMBAT_SMOKE failures=", _failures)
 	quit(0 if _failures == 0 else 1)
 

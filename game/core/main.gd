@@ -1,5 +1,7 @@
 extends Node
 
+const CORRIDOR = preload("res://game/world/levels/reference_corridor.gd")
+const CORRIDOR_DIRECTOR = preload("res://game/world/levels/corridor_director.gd")
 const INPUT_SETUP = preload("res://game/core/input_setup.gd")
 const ARENA_SCENE = preload("res://game/world/levels/prototype_arena.tscn")
 const PLAYER_SCENE = preload("res://game/actor/player/player.tscn")
@@ -59,6 +61,8 @@ func _ready() -> void:
 	overlay.hide()
 	overlay.preset_label = "LB" if alternate_jump else "A"
 	for argument: String in OS.get_cmdline_user_args():
+		if argument == "--auto-corridor":
+			_open_corridor()
 		if argument in ["--auto-arena", "--auto-mission"]:
 			_start()
 		if argument.begins_with("--benchmark-seconds="):
@@ -122,13 +126,14 @@ func _build_menu() -> void:
 	heading.text = "UMA CHANCE DE ROMPER"
 	heading.add_theme_font_size_override("font_size", 13)
 	menu_column.add_child(heading)
-	play_button = _button(menu_column, "Continuar Cinzas", _continue_mission)
+	play_button = _button(menu_column, "Jogar corredor / início", _open_corridor)
+	_button(menu_column, "Continuar Cinzas", _continue_mission)
 	_button(menu_column, "Nova missão Cinzas", _new_mission)
 	_button(menu_column, "Laboratório de combate", _open_laboratory)
 	_button(menu_column, "Opções e controles", _open_options)
 	_button(menu_column, "Sair", func() -> void: get_tree().quit())
 	var note := Label.new()
-	note.text = "3 setores · confronto com a Chacal\nRotas opcionais e registros secretos\nCheckpoint antes de cada confronto\n\nExecutivo · versão visual0.4.2"
+	note.text = "Corredor de abertura · 0.4.3\nCinzas · 3 setores e Chacal"
 	note.add_theme_font_size_override("font_size", 11)
 	menu_column.add_child(note)
 	options_column = OPTIONS.new()
@@ -176,7 +181,9 @@ func _start() -> void:
 	_write_probe()
 
 func _build_world() -> void:
-	if mission_mode == "cinzas":
+	if mission_mode == "corridor":
+		arena = CORRIDOR.new()
+	elif mission_mode == "cinzas":
 		arena = SECTOR_SCENE.instantiate()
 		arena.sector_index = MISSION_DIRECTOR.sector_for_stage(int(checkpoint.get("stage", 0)))
 	else:
@@ -196,7 +203,8 @@ func _build_world() -> void:
 	_apply_live_settings()
 	camera = Camera2D.new()
 	camera.position = Vector2(0, -100)
-	camera.zoom = Vector2(2, 2)
+	camera.zoom = Vector2(16.0 / 3.0, 16.0 / 3.0) if mission_mode == "corridor" else Vector2(2, 2)
+	if mission_mode == "corridor": camera.position.y = -45
 	camera.position_smoothing_enabled = true
 	camera.position_smoothing_speed = 7.0
 	var bounds: Rect2 = arena.world_bounds
@@ -205,9 +213,11 @@ func _build_world() -> void:
 	camera.limit_right = int(bounds.end.x)
 	camera.limit_bottom = int(bounds.end.y)
 	player.add_child(camera)
-	director = MISSION_DIRECTOR.new() if mission_mode == "cinzas" else DIRECTOR.new()
+	director = CORRIDOR_DIRECTOR.new() if mission_mode == "corridor" else (MISSION_DIRECTOR.new() if mission_mode == "cinzas" else DIRECTOR.new())
 	arena.add_child(director)
 	director.checkpoint_reached.connect(_checkpoint_reached)
+	if mission_mode == "corridor":
+		director.archive_requested.connect(func() -> void: call_deferred("_continue_mission"))
 	if mission_mode == "cinzas":
 		director.setup(player, checkpoint, sound_bank, settings.assisted, arena)
 		director.sector_requested.connect(func() -> void: call_deferred("_rebuild"))
@@ -219,6 +229,7 @@ func _build_world() -> void:
 		hud = HUD.new()
 		add_child(hud)
 		hud.retry_requested.connect(_retry)
+	hud.context_label = "Recepção / início" if mission_mode == "corridor" else "Laboratório de combate"
 	hud.attach(player, director, mission_mode == "cinzas")
 	overlay.player = player
 	_sector_banner()
@@ -245,6 +256,10 @@ func _retry() -> void:
 	_rebuild()
 
 func _new_run() -> void:
+	if mission_mode == "corridor":
+		checkpoint = {}
+		_rebuild()
+		return
 	checkpoint_recovery_required = false
 	checkpoint = {"schema_version": 1, "stage": 0, "evidence": false, "completed": false}
 	if mission_mode == "cinzas":
@@ -270,6 +285,7 @@ func _rebuild() -> void:
 	_start()
 
 func _checkpoint_reached(stage: int, evidence: bool, finished: bool) -> void:
+	if mission_mode == "corridor": return
 	var saved: bool
 	if mission_mode == "cinzas":
 		checkpoint = director.snapshot()
@@ -441,6 +457,15 @@ func _combat_feedback(kind: String, position_value: Vector2) -> void:
 		_trauma = minf(0.8, _trauma + 0.35)
 	if kind in ["pistol", "shotgun"] and is_instance_valid(player): player.recoil_remaining = 0.08
 
+func _open_corridor() -> void:
+	if mission_mode == "corridor" and is_instance_valid(arena):
+		_start()
+		return
+	mission_mode = "corridor"
+	checkpoint = {}
+	checkpoint_recovery_required = false
+	_rebuild()
+
 func _new_mission() -> void:
 	mission_mode = "cinzas"
 	_new_run()
@@ -466,7 +491,7 @@ func _open_laboratory() -> void:
 func _sector_banner() -> void:
 	if is_instance_valid(_transition_label): _transition_label.queue_free()
 	_transition_label = Label.new()
-	_transition_label.text = director.sector_title if mission_mode == "cinzas" else "LABORATÓRIO DE COMBATE"
+	_transition_label.text = "RECEPÇÃO / INÍCIO" if mission_mode == "corridor" else (director.sector_title if mission_mode == "cinzas" else "LABORATÓRIO DE COMBATE")
 	_transition_label.position = Vector2(30, 94)
 	_transition_label.add_theme_font_size_override("font_size", 26)
 	_transition_label.add_theme_color_override("font_color", Color("d8c69d"))

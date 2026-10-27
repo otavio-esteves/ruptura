@@ -2,6 +2,7 @@ extends CharacterBody2D
 ## Posição nos pés. Movimento responsivo, dano e janela curta de esquiva.
 signal died
 signal damaged(amount: float)
+const ReferenceHero = preload("res://game/visuals/reference_hero.gd")
 const PixelActor = preload("res://game/visuals/pixel_actor.gd")
 const HEALTH = preload("res://game/combat/health_component.gd")
 
@@ -199,6 +200,9 @@ func _update_aim() -> void:
 		if stick.length_squared() > 0.001:
 			aim_direction = _assisted_aim(stick.normalized()) if aim_assist_enabled else stick.normalized()
 	else:
+		# A origem do cano acompanha o braço importado e muda de lado com o corpo.
+		var horizontal: float = get_global_mouse_position().x - global_position.x
+		if absf(horizontal) > 2.0: _facing = signf(horizontal)
 		var mouse_delta: Vector2 = get_global_mouse_position() - (global_position + _shoulder())
 		if mouse_delta.length_squared() > 4.0:
 			aim_direction = mouse_delta.normalized()
@@ -285,8 +289,14 @@ func reset_to(spawn: Vector2) -> void:
 
 
 func _shoulder() -> Vector2:
-	return Vector2(0.0, -10.0 if is_crouching else -18.0)
+	return ReferenceHero.weapon_geometry(_animation_pose()).origin
 
+
+func get_fire_origin() -> Vector2:
+	return global_position + _shoulder()
+
+func get_muzzle_distance() -> float:
+	return float(ReferenceHero.weapon_geometry(_animation_pose()).length)
 
 func _animation_pose() -> Dictionary:
 	var state: String = "idle"
@@ -319,10 +329,11 @@ func _animation_pose() -> Dictionary:
 		if loadout.reloading and not is_dead and not is_dodging:
 			action = "reload"
 			action_progress = float(loadout.reload_progress)
-	var rendered_shoulder: Vector2 = _shoulder()
-	if state == "dodge": rendered_shoulder.y = roundf(lerpf(-11.0, -18.0, clampf((cycle - 0.75) * 4.0, 0.0, 1.0)))
+		elif bool(loadout.get("melee_active", false)) and not is_dead and not is_dodging:
+			action = "melee"
+			action_progress = float(loadout.melee_progress)
 	return {"kind": "spectre", "state": state, "cycle": cycle, "facing": _facing, "aim": aim_direction,
-		"shoulder": rendered_shoulder, "recoil": recoil_remaining / 0.08, "phase": 1, "weapon": weapon,
+		"recoil": recoil_remaining / 0.08, "phase": 1, "weapon": weapon,
 		"flash": _hurt_flash > 0.0 and not reduced_effects, "crouch_moving": _visual_speed > 8.0,
 		"action": action, "action_progress": action_progress}
 

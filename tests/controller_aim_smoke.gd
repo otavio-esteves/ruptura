@@ -49,8 +49,8 @@ func run() -> void:
 	check(actor.aim_direction.is_equal_approx(Vector2.RIGHT), "switching back restores movement-facing aim")
 	actor.input_device = "mouse_keyboard"
 	actor.position = Vector2(100, 100)
-	var expected: Vector2 = (actor.get_global_mouse_position() - (actor.global_position + Vector2(0, -18))).normalized()
 	actor.call("_update_aim")
+	var expected: Vector2 = (actor.get_global_mouse_position() - actor.get_fire_origin()).normalized()
 	check(actor.aim_direction.is_equal_approx(expected), "mouse remains independent in default controller mode")
 	actor.independent_aim = true
 	actor.call("_update_aim")

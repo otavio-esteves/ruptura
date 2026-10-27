@@ -1,5 +1,5 @@
 # Fonte de design
 
-A revisão v1.4 acrescenta fidelidade ao acabamento das referências locais, mantendo executivo de terno preto e direção corporativa. O GDD vigente permanece no [plano v1.4](../PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md). Este arquivo serve como índice, sem duplicar as regras.
+O GDD vigente é o [plano v1.5](../PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md). A revisão atual registra o corredor de abertura e o uso literal da folha fornecida para o protagonista. Este arquivo é apenas um índice, sem duplicar as regras.
 
-Neste incremento implementamos Marco0 e parte do Marco1. A campanha e combate ficam para ciclos posteriores, condicionados aos gates do plano.
+O incremento jogável contém o corredor de abertura, a missão Cinzas e o laboratório. A produção dos outros capítulos continua condicionada aos gates humanos do plano.

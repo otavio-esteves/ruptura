@@ -57,8 +57,8 @@ func run() -> void:
 	player.call("_update_aim")
 	check(player.aim_direction.is_equal_approx(retained), "neutral stick retains assisted last direction")
 	player.input_device = "mouse_keyboard"
-	var expected: Vector2 = (player.get_global_mouse_position() - (player.global_position + Vector2(0, -18))).normalized()
 	player.call("_update_aim")
+	var expected: Vector2 = (player.get_global_mouse_position() - player.get_fire_origin()).normalized()
 	check(player.aim_direction.is_equal_approx(expected), "mouse direction stays exact even with assistance enabled")
 	world.queue_free()
 	await process_frame

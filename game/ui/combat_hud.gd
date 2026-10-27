@@ -10,6 +10,7 @@ var result_title := Label.new()
 var retry := Button.new()
 var _result_visible: bool = false
 var is_mission: bool = false
+var context_label: String = "Laboratório de combate"
 var boss_label := Label.new()
 var boss_bar := ColorRect.new()
 var boss_fill := ColorRect.new()
@@ -130,7 +131,7 @@ func _process(_delta: float) -> void:
 		if is_mission:
 			result_stats.text = "%d/2 registros opcionais · %d queda(s)\n%s" % [director.secrets.size(), director.deaths, "Espingarda liberada · Chacal derrotada" if director.boss_defeated else "Aprenda o aviso e tente outro caminho."]
 		else:
-			result_stats.text = "Laboratório de combate"
+			result_stats.text = context_label
 		retry.text = "Repetir missão / F5" if director.is_complete else "Retomar checkpoint / F5"
 		result.show()
 		retry.grab_focus()

@@ -1,8 +1,8 @@
 # RUPTURA — Plano de Desenvolvimento e Game Design Document
 
-**Versão:** 1.4 — fidelidade às referências visuais e apresentação detalhada
+**Versão:** 1.5 — corredor de abertura e protagonista da folha fornecida
 
-**Data:** 26/10/2026
+**Data:** 27/10/2026
 
 **Status:** Pré-produção — próximo trabalho: prototipação; produção da campanha condicionada à vertical slice  
 **Equipe:** Otávio + Codex; múltiplas instâncias podem executar tarefas independentes, com integração centralizada  
@@ -731,6 +731,8 @@ O projeto admite trabalho paralelo quando solicitado e houver tarefas independen
 ## 15. Registro de revisão e decisões abertas
 
 ### 15.1 Histórico
+
+- **v1.5 / build0.4.3 — 27/10/2026, instrução direta de Otávio:** corredor fornecido como abertura jogável e protagonista “literalmente igual” à folha. Uso direto desses pixels autorizado em substituição à restrição anterior de apenas inspiração para esses assets. Panorama único e37poses importadas, com composição derivada para ângulos ausentes; entrada independente pelo menu, preservando os saves de Cinzas. Não implica novas fases de campanha nem aprovação dos gates humanos.
 
 - **v1.4 / build0.4.2 — 26/10/2026, instrução direta de Otávio:** seguir os exemplos locais à risca em nível de acabamento; continuar comparação e iteração, sem confundir uma aproximação temática com o alvo. Fundos bitmap originais, autoria de atores em densidade2×, apresentação1280×720/câmera2× e HUD menos intrusivo substituem o acabamento minimalista anterior. Física, campo de visão lógico, combate e campanha permanecem; gates humanos continuam pendentes. Autoria e prompts em `docs/ART_DIRECTION.md` e `docs/ART_PROMPTS_0_4_2.md`.
 

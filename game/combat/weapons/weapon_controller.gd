@@ -76,6 +76,8 @@ func snapshot() -> Dictionary:
 		"reserve": int(_reserves[selected_weapon]),
 		"capacity": int(definition["capacity"]),
 		"reloading": reloading,
+		"melee_active": _melee_remaining > 0.25,
+		"melee_progress": clampf((0.45 - _melee_remaining) / 0.20, 0.0, 1.0),
 		"reload_progress": 1.0 - _reload_remaining / float(definition["reload"]) if reloading else 0.0,
 		"shotgun_unlocked": shotgun_unlocked,
 		"cooldown": _fire_remaining,
@@ -180,7 +182,8 @@ func try_fire() -> bool:
 	_fire_remaining = float(definition["cooldown"])
 	var direction: Vector2 = _aim()
 	var shoulder: Vector2 = _shoulder()
-	var muzzle: Vector2 = shoulder + direction * 19.0
+	var muzzle_distance: float = float(_actor.call("get_muzzle_distance")) if _actor.has_method("get_muzzle_distance") else 19.0
+	var muzzle: Vector2 = shoulder + direction * muzzle_distance
 	var obstruction: Dictionary = _ray(shoulder, muzzle)
 	var segments: Array[Dictionary] = []
 	var accumulated: Dictionary = {}
@@ -276,6 +279,7 @@ func _ray(start: Vector2, finish: Vector2) -> Dictionary:
 
 
 func _shoulder() -> Vector2:
+	if _actor.has_method("get_fire_origin"): return _actor.call("get_fire_origin")
 	return _actor.global_position + Vector2(0.0, -10.0 if bool(_actor.get("is_crouching")) else -18.0)
 
 

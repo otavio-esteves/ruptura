@@ -4,7 +4,7 @@ extends SceneTree
 
 const SIZE := Vector2i(1800, 1240)
 const OUTPUT: String = "res://reports/reference-comparison.png"
-var _sector: String = "archive"
+var _sector: String = "corridor"
 
 class ActorPose extends Node2D:
 	const PixelActor = preload("res://game/visuals/pixel_actor.gd")
@@ -16,7 +16,7 @@ class Board extends Node2D:
 	var stage_reference: Texture2D
 	var actor_reference: Texture2D
 	var current_capture: Texture2D
-	var sector: String = "archive"
+	var sector: String = "corridor"
 	var font: Font
 	const INK := Color("9aa5ad")
 	const LIGHT := Color("e0d9c9")
@@ -56,12 +56,12 @@ class Board extends Node2D:
 			draw_rect(Rect2(left, 108, 862, 460), Color("18232c"))
 		_label(Vector2(24, 97), "ALVO / ESCRITÓRIO CORPORATIVO", 20)
 		_label(Vector2(914, 97), "JOGO ATUAL / " + sector.to_upper(), 20)
-		_fit(stage_reference, Rect2(34, 118, 842, 440), Rect2(0, 85, 2048, 500))
+		_fit(stage_reference, Rect2(34, 118, 842, 440), Rect2(0, 88, 2172, 536))
 		_fit(current_capture, Rect2(924, 118, 842, 440))
-		_label(Vector2(24, 597), "Comparar: escala do recinto, faixa ocupada, materiais, iluminação, repetição, integração de passarelas e HUD.", 18, INK)
+		_label(Vector2(24, 597), "Comparar composição do panorama, escala, contato dos pés, silhueta e preservação dos pixels fornecidos.", 18, INK)
 		_label(Vector2(24, 636), "PERSONAGEM / SILHUETA, VOLUME E DETALHE", 21)
 		draw_rect(Rect2(24, 655, 1752, 322), Color("19232d"))
-		# Primeiro personagem da referência; enquadramento original, sem extrair asset.
+		# Primeira pose fornecida; o renderer usa os recortes autorizados na0.4.3.
 		_fit(actor_reference, Rect2(72, 690, 264, 235), Rect2(15, 16, 155, 210))
 		_label(Vector2(72, 960), "REFERÊNCIA / APOIO", 17)
 		for definition: Dictionary in [
@@ -69,17 +69,17 @@ class Board extends Node2D:
 			{"x": 1122.0, "name": "RECRUTA / APOIO"}, {"x": 1454.0, "name": "CHACAL / APOIO"}]:
 			_label(Vector2(definition.x, 960), definition.name, 16)
 		draw_line(Vector2(54, 927), Vector2(1746, 927), Color("52606b"), 1.0)
-		_label(Vector2(24, 1010), "Revisar em tamanho de jogo antes de ampliar. Atlas mais denso só ajuda se houver redesenho das formas e da roupa.", 18, INK)
+		_label(Vector2(24, 1010), "0.4.3: poses horizontais usam recortes literais; os ângulos ausentes articulam camadas da mesma folha.", 18, INK)
 		_label(Vector2(24, 1044), "Observar nariz/mandíbula/cabelo, ombros/antebraços, paletó/gravata, joelhos, mãos e apoio dos pés.", 18, INK)
 		_label(Vector2(24, 1078), "Corrida e esquiva exigem vídeo: esta prancha não revela escorregamento, timing, transições ou leitura sob pressão.", 18, INK)
-		_label(Vector2(24, 1130), "Fontes locais: references/ · reports/reference-review/ · renderer real de game/visuals/pixel_actor.gd", 17, INK)
-		_label(Vector2(24, 1162), "Nenhuma imagem de referência é incorporada ao pacote jogável por esta ferramenta.", 17, INK)
+		_label(Vector2(24, 1130), "Fontes: references/ · reports/corridor-review/ · renderer real de game/visuals/pixel_actor.gd", 17, INK)
+		_label(Vector2(24, 1162), "Uso direto dos pixels solicitado em27/10/2026. Esta prancha é somente relatório local.", 17, INK)
 
 func _initialize() -> void:
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--sector="):
 			var value: String = argument.get_slice("=", 1)
-			if value in ["archive", "operations", "boardroom"]: _sector = value
+			if value in ["corridor", "archive", "operations", "boardroom"]: _sector = value
 	call_deferred("_render")
 
 func _read_texture(path: String) -> Texture2D:
@@ -98,7 +98,7 @@ func _render() -> void:
 	var board := Board.new()
 	board.stage_reference = _read_texture("res://references/Pixel-Art Corporate Lobby Brawl Stage.png")
 	board.actor_reference = _read_texture("res://references/Retro Pixel Action Hero Sprite Sheet.png")
-	board.current_capture = _read_texture("res://reports/reference-review/" + _sector + ".png")
+	board.current_capture = _read_texture("res://reports/corridor-review/entrance.png" if _sector == "corridor" else "res://reports/reference-review/" + _sector + ".png")
 	board.sector = _sector
 	if board.stage_reference == null or board.actor_reference == null or board.current_capture == null:
 		board.free()
@@ -114,7 +114,7 @@ func _render() -> void:
 	await process_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var path: String = ProjectSettings.globalize_path(OUTPUT)
+	var path: String = ProjectSettings.globalize_path("res://reports/corridor-review/reference-comparison.png" if _sector == "corridor" else OUTPUT)
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var error: Error = viewport.get_texture().get_image().save_png(path)
 	if error != OK:

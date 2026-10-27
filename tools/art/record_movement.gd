@@ -1,6 +1,6 @@
 extends SceneTree
 ## Offline animation review of the real player controller. No mission or profile files.
-const OUTPUT: String = "res://reports/movement-frames/"
+const OUTPUT: String = "res://reports/corridor-movement-frames/"
 const FPS: int = 12
 const DURATION: float = 13.3
 var player: CharacterBody2D
@@ -8,15 +8,13 @@ var caption: Label
 var camera: Camera2D
 
 class Backdrop extends Node2D:
-	var texture: Texture2D = preload("res://assets/art/environments/archive-lobby-v1.png")
+	var texture: Texture2D = preload("res://assets/art/reference/office-corridor.png")
 	func _draw() -> void:
-		draw_rect(Rect2(-500, -200, 3500, 600), Color("151a20"))
-		var panel_width: float = texture.get_width() * 0.2
-		for index: int in range(8):
-			var x: float = index * panel_width - 500
-			draw_texture_rect_region(texture, Rect2(x, 31.2, panel_width, 108.8), Rect2(0, 56, texture.get_width(), 544))
-			draw_texture_rect_region(texture, Rect2(x, 140, panel_width, 12), Rect2(0, 600, texture.get_width(), 60))
-		draw_rect(Rect2(-500, 152, 3500, 248), Color("11171b"))
+		draw_rect(Rect2(-500, -200, 3500, 600), Color.BLACK)
+		var panel_size: Vector2 = texture.get_size() * 0.1875
+		for index: int in range(10):
+			var x: float = index * panel_size.x - 500
+			draw_texture_rect(texture, Rect2(Vector2(x, 30.5), panel_size), false)
 
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
@@ -43,7 +41,7 @@ func run() -> void:
 		InputMap.action_erase_events(action)
 		Input.action_release(action)
 	var viewport := SubViewport.new()
-	viewport.size = Vector2i(960, 360)
+	viewport.size = Vector2i(1280, 720)
 	viewport.disable_3d = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
@@ -72,8 +70,8 @@ func run() -> void:
 		if kind == "pistol": player.recoil_remaining = 0.08
 	)
 	camera = Camera2D.new()
-	camera.position = Vector2(200, 90)
-	camera.zoom = Vector2(2, 2)
+	camera.position = Vector2(200, 95)
+	camera.zoom = Vector2(16.0 / 3.0, 16.0 / 3.0)
 	viewport.add_child(camera)
 	var hud := CanvasLayer.new()
 	viewport.add_child(hud)
@@ -90,7 +88,7 @@ func run() -> void:
 		player.set("_has_focus", true)
 		weapons.set("_has_focus", true)
 		_update_actions(elapsed)
-		camera.position.x = roundf(player.position.x)
+		camera.position = Vector2(roundf(player.position.x), roundf(player.position.y - 45.0))
 		await RenderingServer.frame_post_draw
 		if viewport.get_texture().get_image().save_png(OUTPUT + "frame_%03d.png" % frame_index) != OK:
 			push_error("Falha salvando quadro de movimento %d" % frame_index)
@@ -128,4 +126,4 @@ func _update_actions(time: float) -> void:
 	elif time >= 4.0: text = "CORRIDA"
 	elif time >= 3.0: text = "ESQUERDO / MIRA PELO MOVIMENTO"
 	elif time >= 1.0: text = "PASSADA / PÉ DE APOIO"
-	caption.text = "RUPTURA 0.4.2 · " + text
+	caption.text = "RUPTURA 0.4.3 · " + text

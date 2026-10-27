@@ -1,6 +1,6 @@
 # RUPTURA
 
-Build **0.4.2 — Cinzas / acabamento das referências**, em Godot4.7.2 stable, GDScript e Compatibility. Linux é o alvo primário. O [plano v1.4](PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md) continua como fonte de design.
+Build **0.4.3 — corredor de abertura / protagonista da referência**, em Godot4.7.2 stable, GDScript e Compatibility. Linux é o alvo primário. O [plano v1.5](PLANO_DESENVOLVIMENTO_RUPTURA_v1_1_REVISADO.md) continua como fonte de design.
 
 ## Jogar
 
@@ -10,7 +10,7 @@ Build **0.4.2 — Cinzas / acabamento das referências**, em Godot4.7.2 stable, 
 
 Se a Radeon bloquear na reativação do driver, use `DRI_PRIME=pci-0000_00_02_0 ./builds/linux/ruptura.x86_64` para iniciar pela Intel integrada deste equipamento. A inicialização automática da Radeon apresentou bloqueio no ciclo anterior; veja as evidências de cada pacote nos registros de build.
 
-O executável tem os recursos embutidos e pode ser copiado para outra pasta. No menu, escolha **Continuar Cinzas** ou **Nova missão Cinzas**. Para abrir o projeto no editor, use `project.godot` com Godot4.7.2.
+O executável tem os recursos embutidos e pode ser copiado para outra pasta. No menu, escolha **Jogar corredor / início** para o novo trecho. Há um guarda junto à saída; depois do confronto, use **E / ↑** na porta para retomar Cinzas. O corredor não grava sobre o progresso existente. **Continuar Cinzas** e **Nova missão Cinzas** continuam disponíveis. Para abrir o projeto no editor, use `project.godot` com Godot4.7.2.
 
 A entrega contém **três setores** (Arquivo Morto, Operações e Conselho), quatro encontros comuns, Chacal em duas fases, dois registros opcionais e uma prova obrigatória com transmissão final. Há rotas altas, suprimentos, caixas, vidro e barris explosivos. O laboratório de combate0.2 permanece acessível pelo menu.
 
@@ -49,7 +49,7 @@ python3 tools/validation/validate.py export-linux
 
 `GODOT_BIN` pode indicar outro caminho para a engine4.7.2. A suíte verifica movimento, munição, recarga, cobertura, dano, explosões, inimigos, navegação, save e fluxo do encontro. Fixtures de save usam diretórios isolados; não sobrescrevem o progresso real. Veja [PERFORMANCE](docs/PERFORMANCE.md), [arquitetura](docs/ARCHITECTURE.md) e [roteiro de playtest](docs/PLAYTEST.md).
 
-Esta build amplia o protótipo em direção à slice de Cinzas, com chefão e desfecho; a campanha de sete capítulos não está implementada. Arte e sons são originais e continuam sujeitos a curadoria. Conforto, balanceamento, controle físico, áudio audível e desempenho prolongado precisam de playtest. Windows tem apenas preset de preparação e não foi validado nativamente.
+Esta build amplia o protótipo em direção à slice de Cinzas, com chefão e desfecho; a campanha de sete capítulos não está implementada. Sons e parte da arte têm autoria nativa; o corredor e o protagonista usam o material fornecido por Otávio, conforme o registro0.4.3. A apresentação continua sujeita a curadoria. Conforto, balanceamento, controle físico, áudio audível e desempenho prolongado precisam de playtest. Windows tem apenas preset de preparação e não foi validado nativamente.
 
 ## Pixel art e movimento0.3.1
 
@@ -76,3 +76,9 @@ O batedor agora respeita o cone anunciado; o aviso do avanço da Chacal cobre to
 Fundos bitmap originais e sprites redesenhados em densidade2× compõem a apresentação1280×720, com câmera2× e o mesmo campo lógico de640×360. O HUD compacto libera espaço para a arquitetura. Passarelas usam a pedra pintada do piso e consoles de aço; a aresta quente identifica o topo físico, enquanto as vergas decorativas ficam recuadas em sombra. Layouts e colisores permanecem iguais.
 
 A recarga articula arma, mãos e carregador a partir do tempo real do controlador, inclusive parado, agachado e em movimento. A prévia `reports/movement-preview.png` foi remontada com os160quadros completos,12FPS e13,33s. Capturas atualizadas em `reports/reference-review/` e comparação em `reports/reference-comparison.png`. Resultado e limites da verificação em [BUILD_0_4_2](docs/BUILD_0_4_2.md); aceite artístico e playtest humano continuam pendentes.
+
+## Corredor e protagonista0.4.3
+
+A abertura usa o próprio panorama fornecido, inteiro e sem repetição. O protagonista vem dos pixels da folha: cabelo, rosto, roupa rasgada, gravata, mãos, arma e poses originais. A escala e a câmera do corredor exibem os dois assets em1:1 na janela1280×720. As poses horizontais usam os recortes inteiros; mira em ângulos ausentes e recarga com deslocamento combinam camadas da mesma folha para continuar jogáveis. Não se trata de uma nova geração aproximando o desenho.
+
+Importação reproduzível: `tools/art/import_reference_art.gd`. Capturas locais: `reports/corridor-review/{entrance,middle,exit,hero-poses}.png`; animação: `reports/corridor-review/movement-preview.png`. O uso direto desses assets foi solicitado em27/10/2026 e substitui, para eles, a restrição anterior de apenas inspiração. Os registros de autoria0.4.2 acima descrevem a build anterior. Veja [BUILD_0_4_3](docs/BUILD_0_4_3.md).

@@ -2,6 +2,7 @@ extends RefCounted
 ## Render-only actor rig. High-density atlases use two authoring pixels per world unit.
 ## The logical frame, foot pivot, independently aimed gun and all gameplay positions are unchanged.
 static var _textures: Dictionary = {}
+const ReferenceHero = preload("res://game/visuals/reference_hero.gd")
 const ROOT: String = "res://assets/art/actors/"
 const DENSITY: int = 2
 const ARM_COLORS: Dictionary = {"spectre": Color("2c2933"), "recruit": Color("4f5748"), "scout": Color("66504d"), "chacal": Color("66505d")}
@@ -9,6 +10,9 @@ const ARM_SHADE: Dictionary = {"spectre": Color("201e28"), "recruit": Color("303
 const ARM_EDGE: Dictionary = {"spectre": Color("5c535b"), "recruit": Color("919276"), "scout": Color("a68b71"), "chacal": Color("ab8883")}
 
 static func draw_actor(canvas: CanvasItem, pose: Dictionary) -> void:
+	if str(pose.get("kind", "spectre")) == "spectre":
+		ReferenceHero.draw_actor(canvas, pose)
+		return
 	var kind: String = str(pose.get("kind", "spectre"))
 	if not kind in ["spectre", "recruit", "scout", "chacal"]: kind = "spectre"
 	var large: bool = kind == "chacal"
